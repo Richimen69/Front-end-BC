@@ -8,9 +8,7 @@ function Tramites() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch(
-          "http://localhost/backend/clientes.php"
-        );
+        const response = await fetch("http://localhost/backend/tramites.php");
         const data = await response.json();
         setClientes(data);
       } catch (error) {
@@ -20,13 +18,12 @@ function Tramites() {
 
     fetchClientes();
   }, []);
-
   //Filtramos la busqueda del input
   const filteredClientes = clientes.filter(
     (cliente) =>
       // Verificamos que cliente.nombre_cli no sea undefined o null antes de intentar usar toLowerCase()
-      cliente.nombre_cli &&
-      cliente.nombre_cli.toLowerCase().includes(searchQuery.toLowerCase())
+      cliente.nombre &&
+      cliente.nombre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -45,23 +42,38 @@ function Tramites() {
           Nuevo tramite
         </button>
       </div>
-
-      <table className="min-w-full mt-5 border-collapse">
-        <thead>
-          <tr>
-            <th className="border p-2">Nombre</th>
-            <th className="border p-2">Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredClientes.map((cliente) => (
-            <tr key={cliente.id_cli}>
-              <td className="border p-2">{cliente.nombre_cli}</td>
-              <td className="border p-2">{cliente.correo_c_cli}</td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full mt-5 border-collapse">
+          <thead>
+            <tr>
+              <th className="border p-2">Folio</th>
+              <th className="border p-2">Nombre</th>
+              <th className="border p-2">Fecha</th>
+              <th className="border p-2">Movimiento</th>
+              <th className="border p-2">Afianzadora</th>
+              <th className="border p-2">Agente</th>
+              <th className="border p-2">Beneficiario</th>
+              <th className="border p-2">Estatus</th>
+              <th className="border p-2">Observaciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredClientes.map((cliente) => (
+              <tr key={cliente.id_tramite}>
+                <td className="border p-2">{cliente.folio}</td>
+                <td className="border p-2">{cliente.nombre}</td>
+                <td className="border p-2">{cliente.fecha}</td>
+                <td className="border p-2">{cliente.movimiento}</td>
+                <td className="border p-2">{cliente.afianzadora}</td>
+                <td className="border p-2">{cliente.agente}</td>
+                <td className="border p-2">{cliente.beneficiario}</td>
+                <td className="border p-2">{cliente.estatus}</td>
+                <td className="border p-2">{cliente.observaciones}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

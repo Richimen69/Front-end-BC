@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import LogoPrincipal from "../assets/logos/LogoPrincipal.svg";
 function header() {
-    
+
   return (
     <header className="bg-white text-primary border-b border-secondary text-[24px] font-light">
       <div className="container flex justify-between items-center">
@@ -13,7 +13,7 @@ function header() {
         </div>
         <nav>
           <ul className="flex space-x-6">
-            <Link to="dashboard">
+            <Link to="/">
               <li className="hover:text-secondary">Dashboard</li>
             </Link>
             <Link to="tramites">
