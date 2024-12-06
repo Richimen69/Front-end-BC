@@ -16,12 +16,12 @@ function header() {
             <Link to="/">
               <li className="hover:text-secondary">Dashboard</li>
             </Link>
-            <Link to="tramites">
+            <Link to="/tramites">
             <li className="hover:text-secondary">
                 Trámites
             </li>
             </Link>
-            <Link to="reportes">
+            <Link to="/reportes">
               <li className="hover:text-secondary">Generar reporte</li>
             </Link>
           </ul>
