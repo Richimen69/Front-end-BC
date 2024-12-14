@@ -55,7 +55,7 @@ function Tramites() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch("http://localhost/backend/tramites.php");
+        const response = await fetch("https://bitacorabc.site/backend/tramites.php");
         const data = await response.json();
         setClientes(data);
       } catch (error) {
@@ -99,13 +99,13 @@ function Tramites() {
           placeholder="Nombre del fiado"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border-secondary text-black input px-[10px] text-lg bg-[#F5F6FA] border-2 rounded-[19px] w-[330px] mx-20 focus:outline-none placeholder:text-black/70"
+          className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[330px] mx-20 focus:outline-none placeholder:text-black/70"
         />
         {/* Filtro por movimiento */}
         <select
           value={movimientoFiltro}
           onChange={(e) => setMovimientoFiltro(e.target.value)}
-          className="border-secondary text-black input px-[10px] text-lg bg-[#F5F6FA] border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
+          className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
         >
           <option value="">Todos los movimientos</option>
           {movimientos.map((movimiento) => (
@@ -119,7 +119,7 @@ function Tramites() {
         <select
           value={estatusFiltro}
           onChange={(e) => setEstatusFiltro(e.target.value)}
-          className="border-secondary text-black input px-[10px] text-lg bg-[#F5F6FA] border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
+          className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
         >
           <option value="">Todos los estatus</option>
           {estatus.map((estatusOption) => (
@@ -129,14 +129,14 @@ function Tramites() {
           ))}
         </select>
         <button
-          className="ml-auto mr-10 border border-secondary rounded-[19px] p-3 bg-secondary/25 hover:bg-primary hover:text-white"
+          className="ml-auto mr-10 border border-secondary rounded-[19px] p-3 bg-white hover:bg-primary hover:text-white"
           onClick={() => setIsFormVisible(true)}
         >
           Nuevo tramite
         </button>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full mt-5 border-collapse border-b-2 border-l-2 border-r-2 border-secondary">
+        <table className="min-w-full mt-5 border-collapse border bg-white border-secondary text-center">
           <thead>
             <tr className="text-primary">
               <th className="border-b border-r border-secondary p-2">Folio</th>

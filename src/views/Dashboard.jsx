@@ -15,7 +15,7 @@ function Dashboard() {
         }
   
         try {
-          const response = await fetch("http://localhost/backend/ruta_protegida.php", {
+          const response = await fetch("https://bitacorabc.site/backend/ruta_protegida.php", {
             method: "GET",
             headers: {
               "Authorization": `Bearer ${token}`

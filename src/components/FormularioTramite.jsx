@@ -67,7 +67,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       try {
         // Cargar clientes
         const clientesResponse = await fetch(
-          "http://localhost/backend/datos_tramites.php?table=clientes"
+          "https://bitacorabc.site/backend/datos_tramites.php?table=clientes"
         );
         const clientesData = await clientesResponse.json();
         setClientes(
@@ -79,7 +79,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
         // Cargar afianzadoras
         const afianzadorasResponse = await fetch(
-          "http://localhost/backend/datos_tramites.php?table=afianzadoras"
+          "https://bitacorabc.site/backend/datos_tramites.php?table=afianzadoras"
         );
         const afianzadorasData = await afianzadorasResponse.json();
         setAfianzadoras(
@@ -91,7 +91,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
         // Cargar beneficiarios
         const beneficiariosResponse = await fetch(
-          "http://localhost/backend/datos_tramites.php?table=beneficiarios"
+          "https://bitacorabc.site/backend/datos_tramites.php?table=beneficiarios"
         );
         const beneficiariosData = await beneficiariosResponse.json();
         setBeneficiarios(
@@ -138,7 +138,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     };
 
     try {
-      const response = await fetch("http://localhost/backend/tramites.php", {
+      const response = await fetch("https://bitacorabc.site/backend/tramites.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -22,7 +22,7 @@ function Login() {
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost/backend/login.php', {
+      const response = await fetch('https://bitacorabc.site/backend/login.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ function Login() {
         // Guardar el token JWT en localStorage
         localStorage.setItem('token', data.token);
         // Redirigir al usuario a una página protegida
-        navigate("/");
+        navigate("/tramites");
       } else {
         setError(data.message || "Credenciales incorrectas.");
       }
