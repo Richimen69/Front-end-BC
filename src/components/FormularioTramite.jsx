@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
-
+import { Toaster, toast } from "sonner";
 const FormularioTramite = ({ isVisible, onClose }) => {
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
   const [beneficiarios, setBeneficiarios] = useState([]);
   const estatus = [
-    { value: "En Proceso", label: "En Proceso" },
-    { value: "En Revision de previas", label: "En Revision de previas" },
-    { value: "No Procede", label: "No Procede" },
-    { value: "Pendiente", label: "Pendiente" },
-    { value: "Terminado", label: "Terminado" },
+    { value: "EN PROCESO", label: "EN PROCESO" },
+    { value: "EN REVISION DE PREVIAS", label: "EN REVISION DE PREVIAS" },
+    { value: "NO PROCEDE", label: "NO PROCEDE" },
+    { value: "PENDIENTE", label: "PENDIENTE" },
+    { value: "TERMINADO", label: "TERMINADO" },
   ];
   const agente = [
     { value: "RBG", label: "RBG" },
@@ -60,14 +60,14 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const [beneficiarioSeleccionado, setBeneficiarioSeleccionado] =
     useState(null);
   const [observaciones, setObservaciones] = useState("");
-
+  const apiUrl = "https://bitacorabc.site/backend/";
   useEffect(() => {
     // Función para cargar datos desde diferentes endpoints
     const fetchData = async () => {
       try {
         // Cargar clientes
         const clientesResponse = await fetch(
-          "https://bitacorabc.site/backend/datos_tramites.php?table=clientes"
+          `${apiUrl}datos_tramites.php?table=clientes`
         );
         const clientesData = await clientesResponse.json();
         setClientes(
@@ -79,7 +79,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
         // Cargar afianzadoras
         const afianzadorasResponse = await fetch(
-          "https://bitacorabc.site/backend/datos_tramites.php?table=afianzadoras"
+          `${apiUrl}datos_tramites.php?table=afianzadoras`
         );
         const afianzadorasData = await afianzadorasResponse.json();
         setAfianzadoras(
@@ -91,7 +91,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
         // Cargar beneficiarios
         const beneficiariosResponse = await fetch(
-          "https://bitacorabc.site/backend/datos_tramites.php?table=beneficiarios"
+          `${apiUrl}datos_tramites.php?table=beneficiarios`
         );
         const beneficiariosData = await beneficiariosResponse.json();
         setBeneficiarios(
@@ -118,10 +118,9 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       !beneficiarioSeleccionado ||
       !estatusSeleccionado ||
       !agenteSeleccionado ||
-      !movimientoSeleccionado ||
-      !observaciones
+      !movimientoSeleccionado
     ) {
-      alert("Por favor complete todos los campos.");
+      toast.error("Rellene los campos");
       return;
     }
 
@@ -138,7 +137,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     };
 
     try {
-      const response = await fetch("https://bitacorabc.site/backend/tramites.php", {
+      const response = await fetch(`${apiUrl}tramites.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,15 +147,17 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       console.log(response);
       const result = await response.json();
       if (result.success) {
-        alert("Trámite guardado exitosamente.");
-        onClose(); // Cerrar el modal
+        toast.success("Trámite guardado exitosamente.");
+        setTimeout(() => {
+          onClose();
+        }, 1500);
       } else {
-        alert("Error al guardar el trámite.");
+        toast.error("Error al guardar el trámite.");
       }
       console.log(result);
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
-      alert("Hubo un problema al guardar el trámite.");
+      toast.error("Hubo un problema al guardar el trámite.");
     }
   };
 
@@ -267,6 +268,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
           </div>
         </form>
       </div>
+      <Toaster position="top-center" richColors />
     </div>
   );
 };

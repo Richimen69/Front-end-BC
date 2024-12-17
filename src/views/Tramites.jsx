@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import FormularioTramite from "../components/FormularioTramite";
+import { Link } from "react-router-dom";
 function Tramites() {
   const [clientes, setClientes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,18 +45,20 @@ function Tramites() {
   ];
 
   const estatus = [
-    { value: "En Proceso", label: "En Proceso" },
-    { value: "En Revision de previas", label: "En Revision de previas" },
-    { value: "No Procede", label: "No Procede" },
-    { value: "Pendiente", label: "Pendiente" },
-    { value: "Terminado", label: "Terminado" },
+    { value: "EN PROCESO", label: "EN PROCESO" },
+    { value: "EN REVISION DE PREVIAS", label: "EN REVISION DE PREVIAS" },
+    { value: "NO PROCEDE", label: "NO PROCEDE" },
+    { value: "PENDIENTE", label: "PENDIENTE" },
+    { value: "TERMINADO", label: "TERMINADO" },
   ];
 
   // Consulta los clientes en el Backend
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch("https://bitacorabc.site/backend/tramites.php");
+        const response = await fetch(
+          "https://bitacorabc.site/backend/tramites.php"
+        );
         const data = await response.json();
         setClientes(data);
       } catch (error) {
@@ -135,8 +138,8 @@ function Tramites() {
           Nuevo tramite
         </button>
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full mt-5 border-collapse border bg-white border-secondary text-center">
+      <div className="overflow-x-auto flex items-center justify-center">
+        <table className=" w-5/6 mt-5 border-collapse border bg-white border-secondary text-center">
           <thead>
             <tr className="text-primary">
               <th className="border-b border-r border-secondary p-2">Folio</th>
@@ -148,15 +151,8 @@ function Tramites() {
               <th className="border-b border-r border-secondary p-2">
                 Afianzadora
               </th>
-              <th className="border-b border-r border-secondary p-2">Agente</th>
-              <th className="border-b border-r border-secondary p-2">
-                Beneficiario
-              </th>
               <th className="border-b border-r border-secondary p-2">
                 Estatus
-              </th>
-              <th className="border-b border-r border-secondary p-2">
-                Observaciones
               </th>
             </tr>
           </thead>
@@ -165,8 +161,11 @@ function Tramites() {
               <tr key={cliente.id_tramite}>
                 <td className="border border-secondary p-2">{cliente.folio}</td>
                 <td className="border border-secondary p-2">
-                  {cliente.nombre}
+                  <Link to="/tramitecliente" state={{ id: cliente.id_tramite }}>
+                    {cliente.nombre}
+                  </Link>
                 </td>
+
                 <td className="border border-secondary p-2">{cliente.fecha}</td>
                 <td className="border border-secondary p-2">
                   {cliente.movimiento}
@@ -175,16 +174,7 @@ function Tramites() {
                   {cliente.afianzadora}
                 </td>
                 <td className="border border-secondary p-2">
-                  {cliente.agente}
-                </td>
-                <td className="border border-secondary p-2">
-                  {cliente.beneficiario}
-                </td>
-                <td className="border border-secondary p-2">
                   {cliente.estatus}
-                </td>
-                <td className="border border-secondary p-2">
-                  {cliente.observaciones}
                 </td>
               </tr>
             ))}

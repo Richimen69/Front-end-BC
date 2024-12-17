@@ -6,7 +6,7 @@ function header() {
     <header className="bg-white text-primary border-b border-secondary text-[24px] font-light">
       <div className="container flex justify-between items-center">
         <div className="text-xl font-bold">
-          <Link href="/">
+          <Link to="/">
             <img src={LogoPrincipal} alt="Logo" className="mx-14 w-[195px]" />
           </Link>
         </div>

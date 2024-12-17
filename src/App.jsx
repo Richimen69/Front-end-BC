@@ -5,6 +5,7 @@ import Dashboard from "./views/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./views/NotFound";
 import Tramites from "./views/Tramites";
+import TramiteCliente from "./views/TramiteCliente";
 function App() {
   return (
     <div className="bg-background min-h-screen">
@@ -18,7 +19,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/tramites"
           element={
             <ProtectedRoute>
@@ -27,8 +28,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/tramitecliente"
+          element={
+            <ProtectedRoute>
+              <Header />
+              <TramiteCliente />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound/>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
