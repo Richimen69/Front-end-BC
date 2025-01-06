@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import FormularioTramite from "../components/FormularioTramite";
+import { movimientos, estatus } from "../components/Constans";
 import { Link } from "react-router-dom";
 function Tramites() {
   const [clientes, setClientes] = useState([]);
@@ -8,49 +9,6 @@ function Tramites() {
   const [movimientoFiltro, setMovimientoFiltro] = useState("");
   const [estatusFiltro, setEstatusFiltro] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(false);
-
-  // Lista de movimientos y estatus
-  const movimientos = [
-    { value: "CANCELACIÓN", label: "CANCELACIÓN" },
-    { value: "DISMINUCION", label: "DISMINUCION" },
-    { value: "SEGUIMIENTO", label: "SEGUIMIENTO" },
-    { value: "AUMENTO", label: "AUMENTO" },
-    { value: "ANULACIÓN", label: "ANULACIÓN" },
-    { value: "ACTUALIZACIÓN", label: "ACTUALIZACIÓN" },
-    { value: "EXPEDICIÓN", label: "EXPEDICIÓN" },
-    { value: "SEGURO RC", label: "SEGURO RC" },
-    {
-      value: "CANCELACION Y DEV. DEP PREND.",
-      label: "CANCELACION Y DEV. DEP PREND.",
-    },
-    { value: "CORRECCIÓN", label: "CORRECCIÓN" },
-    { value: "PRÓRROGA", label: "PRÓRROGA" },
-    { value: "DEV. DEP. PRENDARIO", label: "DEV. DEP. PRENDARIO" },
-    { value: "COTIZACIÓN", label: "COTIZACIÓN" },
-    { value: "ALTA", label: "ALTA" },
-    { value: "ANUENCIA", label: "ANUENCIA" },
-    { value: "SEGURO MAQUINARIA", label: "SEGURO MAQUINARIA" },
-    { value: "BAJA O.S.", label: "BAJA O.S." },
-    { value: "DEV. NOTAS DE CRÉDITO", label: "DEV. NOTAS DE CRÉDITO" },
-    { value: "ENDOSO", label: "ENDOSO" },
-    {
-      value: "ENDOSO POR DIFERIMIENTO DE PLAZO",
-      label: "ENDOSO POR DIFERIMIENTO DE PLAZO",
-    },
-    { value: "CAMBIO DE AGENTE", label: "CAMBIO DE AGENTE" },
-    { value: "DEVOLUCION DEP PREND", label: "DEVOLUCION DEP PREND" },
-    { value: "CARTA LINEA AFIANZAMIENTO", label: "CARTA LINEA AFIANZAMIENTO" },
-    { value: "DEV. DEP. EQUIVOCADO", label: "DEV. DEP. EQUIVOCADO" },
-    { value: "CARTA TILDACIÓN", label: "CARTA TILDACIÓN" },
-  ];
-
-  const estatus = [
-    { value: "EN PROCESO", label: "EN PROCESO" },
-    { value: "EN REVISION DE PREVIAS", label: "EN REVISION DE PREVIAS" },
-    { value: "NO PROCEDE", label: "NO PROCEDE" },
-    { value: "PENDIENTE", label: "PENDIENTE" },
-    { value: "TERMINADO", label: "TERMINADO" },
-  ];
 
   // Consulta los clientes en el Backend
   useEffect(() => {
@@ -138,48 +96,64 @@ function Tramites() {
           Nuevo tramite
         </button>
       </div>
-      <div className="overflow-x-auto flex items-center justify-center">
-        <table className=" w-5/6 mt-5 border-collapse border bg-white border-secondary text-center">
-          <thead>
-            <tr className="text-primary">
-              <th className="border-b border-r border-secondary p-2">Folio</th>
-              <th className="border-b border-r border-secondary p-2">Nombre</th>
-              <th className="border-b border-r border-secondary p-2">Fecha</th>
-              <th className="border-b border-r border-secondary p-2">
-                Movimiento
-              </th>
-              <th className="border-b border-r border-secondary p-2">
-                Afianzadora
-              </th>
-              <th className="border-b border-r border-secondary p-2">
-                Estatus
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredClientes.map((cliente) => (
-              <tr key={cliente.id_tramite}>
-                <td className="border border-secondary p-2">{cliente.folio}</td>
-                <td className="border border-secondary p-2">
-                  <Link to="/tramitecliente" state={{ id: cliente.id_tramite }}>
-                    {cliente.nombre}
-                  </Link>
-                </td>
-
-                <td className="border border-secondary p-2">{cliente.fecha}</td>
-                <td className="border border-secondary p-2">
-                  {cliente.movimiento}
-                </td>
-                <td className="border border-secondary p-2">
-                  {cliente.afianzadora}
-                </td>
-                <td className="border border-secondary p-2">
-                  {cliente.estatus}
-                </td>
+      <div className=" bg-white mt-5 border rounded-3xl flex flex-col justify-center items-center">
+        <p className="text-secondary font-bold text-2xl pt-5">TABLA DE TRAMITES</p>
+        <div className="overflow-x-auto flex items-center justify-center py-5 w-full px-6">
+          <table className="w-full border-collapse bg-white border-x-2 border-secondary text-center">
+            <thead>
+              <tr className="text-primary">
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Folio
+                </th>
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Nombre
+                </th>
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Fecha
+                </th>
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Movimiento
+                </th>
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Afianzadora
+                </th>
+                <th className="border-b-2 border-r-2 border-secondary p-2">
+                  Estatus
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredClientes.map((cliente) => (
+                <tr key={cliente.id_tramite}>
+                  <td className="border-2 border-secondary p-2">
+                    {cliente.folio}
+                  </td>
+                  <td className="border-2 border-secondary p-2">
+                    <Link
+                      to="/tramitecliente"
+                      state={{ id: cliente.id_tramite }}
+                    >
+                      {cliente.nombre}
+                    </Link>
+                  </td>
+
+                  <td className="border-2 border-secondary p-2">
+                    {cliente.fecha}
+                  </td>
+                  <td className="border-2 border-secondary p-2">
+                    {cliente.movimiento}
+                  </td>
+                  <td className="border-2 border-secondary p-2">
+                    {cliente.afianzadora}
+                  </td>
+                  <td className="border-2 border-secondary p-2">
+                    {cliente.estatus}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <FormularioTramite
         isVisible={isFormVisible}

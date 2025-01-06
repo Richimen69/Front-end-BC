@@ -1,57 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Toaster, toast } from "sonner";
+import { estatus, agente } from "../components/Constans";
 const FormularioTramite = ({ isVisible, onClose }) => {
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
   const [beneficiarios, setBeneficiarios] = useState([]);
-  const estatus = [
-    { value: "EN PROCESO", label: "EN PROCESO" },
-    { value: "EN REVISION DE PREVIAS", label: "EN REVISION DE PREVIAS" },
-    { value: "NO PROCEDE", label: "NO PROCEDE" },
-    { value: "PENDIENTE", label: "PENDIENTE" },
-    { value: "TERMINADO", label: "TERMINADO" },
-  ];
-  const agente = [
-    { value: "RBG", label: "RBG" },
-    { value: "BPS", label: "BPS" },
-    { value: "LDP", label: "LDP" },
-    { value: "RBG (GUSTAVO)", label: "RBG (GUSTAVO)" },
-    { value: "RBG (RUBEN)", label: "RBG (RUBEN)" },
-  ];
-  const movimiento = [
-    { value: "CANCELACIÓN", label: "CANCELACIÓN" },
-    { value: "DISMINUCION", label: "DISMINUCION" },
-    { value: "SEGUIMIENTO", label: "SEGUIMIENTO" },
-    { value: "AUMENTO", label: "AUMENTO" },
-    { value: "ANULACIÓN", label: "ANULACIÓN" },
-    { value: "ACTUALIZACIÓN", label: "ACTUALIZACIÓN" },
-    { value: "EXPEDICIÓN", label: "EXPEDICIÓN" },
-    { value: "SEGURO RC", label: "SEGURO RC" },
-    {
-      value: "CANCELACION Y DEV. DEP PREND.",
-      label: "CANCELACION Y DEV. DEP PREND.",
-    },
-    { value: "CORRECCIÓN", label: "CORRECCIÓN" },
-    { value: "PRÓRROGA", label: "PRÓRROGA" },
-    { value: "DEV. DEP. PRENDARIO", label: "DEV. DEP. PRENDARIO" },
-    { value: "COTIZACIÓN", label: "COTIZACIÓN" },
-    { value: "ALTA", label: "ALTA" },
-    { value: "ANUENCIA", label: "ANUENCIA" },
-    { value: "SEGURO MAQUINARIA", label: "SEGURO MAQUINARIA" },
-    { value: "BAJA O.S.", label: "BAJA O.S." },
-    { value: "DEV. NOTAS DE CRÉDITO", label: "DEV. NOTAS DE CRÉDITO" },
-    { value: "ENDOSO", label: "ENDOSO" },
-    {
-      value: "ENDOSO POR DIFERIMIENTO DE PLAZO",
-      label: "ENDOSO POR DIFERIMIENTO DE PLAZO",
-    },
-    { value: "CAMBIO DE AGENTE", label: "CAMBIO DE AGENTE" },
-    { value: "DEVOLUCION DEP PREND", label: "DEVOLUCION DEP PREND" },
-    { value: "CARTA LINEA AFIANZAMIENTO", label: "CARTA LINEA AFIANZAMIENTO" },
-    { value: "DEV. DEP. EQUIVOCADO", label: "DEV. DEP. EQUIVOCADO" },
-    { value: "CARTA TILDACIÓN", label: "CARTA TILDACIÓN" },
-  ];
   const [movimientoSeleccionado, setMovimiento] = useState(null);
   const [estatusSeleccionado, setEstatus] = useState(null);
   const [agenteSeleccionado, setAgente] = useState(null);

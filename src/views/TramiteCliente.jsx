@@ -4,7 +4,9 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Toaster, toast } from "sonner";
-
+import { useNavigate } from "react-router-dom";
+import { InputPrima } from "../components/ui/InputPrima";
+import { estatus, estatus_pagos } from "../components/Constans";
 function TramiteCliente() {
   const location = useLocation();
   const [clientes, setClientes] = useState([]);
@@ -31,23 +33,11 @@ function TramiteCliente() {
     setMostrarFormulario(!mostrarFormulario);
   };
 
-  const estatus = [
-    { value: "EN PROCESO", label: "EN PROCESO" },
-    { value: "EN REVISION DE PREVIAS", label: "EN REVISION DE PREVIAS" },
-    { value: "NO PROCEDE", label: "NO PROCEDE" },
-    { value: "PENDIENTE", label: "PENDIENTE" },
-    { value: "TERMINADO", label: "TERMINADO" },
-  ];
-  const estatus_pagos = [
-    { value: "SE MANDÓ RECIBO", label: "SE MANDÓ RECIBO" },
-    { value: "PAGADA", label: "PAGADA" },
-    { value: "NO PAGADA", label: "NO PAGADA" },
-  ];
   const apiUrl = "https://bitacorabc.site/backend/";
   const [estatusSeleccionado, setEstatus] = useState(null);
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const { id } = location.state || {}; // Obtener el id desde el estado
-
+  const navigate = useNavigate();
   if (!id) {
     return <div>Error: No se encontró el ID del cliente.</div>;
   }
@@ -69,6 +59,9 @@ function TramiteCliente() {
         setImporte_total(clienteEncontrado.importe_total);
         setImporte_total(clienteEncontrado.importe_total);
         setFianza(clienteEncontrado.fianza);
+        setFechaTermino(clienteEncontrado?.fecha_termino?.trim() || null);
+        setFechaPago(clienteEncontrado?.fecha_pago?.trim() || null);
+        setObservaciones(clienteEncontrado.observaciones);
         // Si se encuentra el cliente, establecer el estatus por defecto
         const estatusPorDefecto = clienteEncontrado.estatus;
         const estatusDefaultOption = estatus.find(
@@ -81,7 +74,7 @@ function TramiteCliente() {
         const estatusPagoDefaultOption = estatus_pagos.find(
           (option) => option.value === estatusPagoPorDefecto
         );
-        setEstatus(estatusPagoDefaultOption);
+        setEstatusPago(estatusPagoDefaultOption);
 
         console.log(clienteEncontrado);
 
@@ -104,12 +97,6 @@ function TramiteCliente() {
     };
 
     fetchClientes();
-    const interval = setInterval(() => {
-      fetchClientes();
-    }, 5000); // 5000 ms = 5 segundos
-
-    // Limpiar el intervalo cuando el componente se desmonte
-    return () => clearInterval(interval);
   }, [id]); // Dependencia del id para actualizar si cambia
 
   const handleEstatusChange = (selectedOption) => {
@@ -139,7 +126,7 @@ function TramiteCliente() {
       nombre: "Ricardo",
       id_tramite: id,
     };
-  
+
     try {
       const response = await fetch(`${apiUrl}movimientos.php`, {
         method: "POST",
@@ -152,14 +139,12 @@ function TramiteCliente() {
       const result = await response.json();
       if (result.success) {
         toast.success("Movimiento guardado exitosamente.");
-        setTimeout(() => {
-          onClose();
-        }, 1500);
+        navigate(0);
       } else {
         toast.error("Error al guardar el trámite.");
       }
       console.log(result);
-      setMovimiento('')
+      setMovimiento("");
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
@@ -179,182 +164,219 @@ function TramiteCliente() {
     );
   }
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const data = {
+      id_tramite: id,
+      estatus: estatusSeleccionado.value,
+      observaciones: observaciones,
+      fianza: fianza,
+      prima_inicial: prima_inicial,
+      prima_futura: prima_futura,
+      prima_total: prima_total,
+      importe_total: importe_total,
+      fecha_termino: fechaTermino,
+      fecha_pago: fechaPago,
+      estatus_pago: estatusPagoSeleccionado.value,
+    };
+
+    try {
+      const response = await fetch(`${apiUrl}tramites.php`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      console.log(response);
+      const result = await response.json();
+      if (result.success) {
+        toast.success("Trámite guardado exitosamente.");
+        setTimeout(() => {
+          navigate("/tramites");
+        }, 1500);
+      } else {
+        toast.error("Error al guardar el trámite.");
+      }
+      console.log(result);
+      console.log(data);
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error);
+      toast.error("Hubo un problema al guardar el trámite.");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center p-5">
       <div className="bg-white w-4/6 p-5 rounded-xl shadow-2xl">
-        <div className="flex justify-between">
-          <p className="text-primary font-bold">
-            Fecha: {clienteEncontrado.fecha}
-          </p>
-          <p className="text-primary font-bold">
-            Folio: {clienteEncontrado.folio}
-          </p>
-        </div>
-        <div>
-          <p className="text-primary font-bold">Fiado:</p>
-          <p>{clienteEncontrado.nombre}</p>
-        </div>
-        <div className="flex gap-20 pt-5">
-          <div>
-            <p className="text-primary font-bold">Afianzadora:</p>
-            <p>{clienteEncontrado.afianzadora}</p>
+        <form onSubmit={handleSubmit}>
+          <div className="flex justify-between">
+            <p className="text-primary font-bold">
+              Fecha: {clienteEncontrado.fecha}
+            </p>
+            <p className="text-primary font-bold">
+              Folio: {clienteEncontrado.folio}
+            </p>
           </div>
           <div>
-            <p className="block text-primary font-bold">Movimiento:</p>
-            <p>{clienteEncontrado.movimiento}</p>
+            <p className="text-primary font-bold">Fiado:</p>
+            <p>{clienteEncontrado.nombre}</p>
           </div>
-          <div>
-            <p className="block text-primary font-bold">Agente:</p>
-            <p>{clienteEncontrado.agente}</p>
-          </div>
-          <div>
-            <p className="block text-primary font-bold">Beneficiario:</p>
-            <p>{clienteEncontrado.beneficiario}</p>
-          </div>
-        </div>
-        <div className="flex gap-20 pt-5">
-          <div className="mb-4">
-            <label className="block text-primary font-bold">Estatus:</label>
-            <Select
-              options={estatus}
-              defaultValue={estatusSeleccionado}
-              value={estatusSeleccionado}
-              onChange={handleEstatusChange}
-              placeholder="Seleccionar estatus..."
-              theme={(theme) => ({
-                ...theme,
-                colors: {
-                  ...theme.colors,
-                  primary25: "#DDBE86",
-                  primary: "#076163",
-                },
-              })}
-            />
-          </div>
-          <div>
-            <label htmlFor="fianza" className="block text-primary font-bold">
-              Fianza
-            </label>
+          <div className="flex gap-20 pt-5">
             <div>
-              <input
-                type="text"
-                name="fianza"
+              <p className="text-primary font-bold">Afianzadora:</p>
+              <p>{clienteEncontrado.afianzadora}</p>
+            </div>
+            <div>
+              <p className="block text-primary font-bold">Movimiento:</p>
+              <p>{clienteEncontrado.movimiento}</p>
+            </div>
+            <div>
+              <p className="block text-primary font-bold">Agente:</p>
+              <p>{clienteEncontrado.agente}</p>
+            </div>
+            <div>
+              <p className="block text-primary font-bold">Beneficiario:</p>
+              <p>{clienteEncontrado.beneficiario}</p>
+            </div>
+          </div>
+          <div className="flex gap-20 pt-5">
+            <div className="mb-4">
+              <label className="block text-primary font-bold">Estatus:</label>
+              <Select
+                options={estatus}
+                defaultValue={estatusSeleccionado}
+                value={estatusSeleccionado}
+                onChange={handleEstatusChange}
+                placeholder="Seleccionar estatus..."
+                theme={(theme) => ({
+                  ...theme,
+                  colors: {
+                    ...theme.colors,
+                    primary25: "#DDBE86",
+                    primary: "#076163",
+                  },
+                })}
+              />
+            </div>
+            <div>
+              <label htmlFor="fianza" className="block text-primary font-bold">
+                Fianza
+              </label>
+              <div>
+                <input
+                  type="text"
+                  value={fianza}
+                  onChange={(e) => setFianza(e.target.value)}
+                  name="fianza"
+                  className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="pt-5 flex gap-20 ">
+            <div>
+              <p className="block text-primary font-bold">Fecha de termino</p>
+              <DatePicker
+                selected={fechaTermino}
+                showIcon
+                toggleCalendarOnIconClick
+                onChange={(date) => {
+                  if (date) {
+                    setFechaTermino(date);
+                  }
+                }}
                 className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
               />
             </div>
+            <div>
+              <p className="block text-primary font-bold">Fecha de pago</p>
+              <DatePicker
+                showIcon
+                toggleCalendarOnIconClick
+                selected={fechaPago}
+                onChange={(date) => {
+                  if (date) {
+                    setFechaPago(date);
+                  }
+                }}
+                className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-primary font-bold">
+                Estatus de pago:
+              </label>
+              <Select
+                options={estatus_pagos}
+                value={estatusPagoSeleccionado}
+                onChange={handleEstatusPagoChange}
+                placeholder="Seleccionar estatus..."
+                theme={(theme) => ({
+                  ...theme,
+                  colors: {
+                    ...theme.colors,
+                    primary25: "#DDBE86",
+                    primary: "#076163",
+                  },
+                })}
+              />
+            </div>
           </div>
-        </div>
-        <div className="pt-5 flex gap-20 ">
-          <div>
-            <p className="block text-primary font-bold">Fecha de termino</p>
-            <DatePicker
-              selected={fechaTermino}
-              showIcon
-              toggleCalendarOnIconClick
-              onChange={(date) => {
-                if (date) {
-                  setFechaPago(date);
-                }
-              }}
-              className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
-            />
-          </div>
-          <div>
-            <p className="block text-primary font-bold">Fecha de pago</p>
-            <DatePicker
-              showIcon
-              toggleCalendarOnIconClick
-              selected={fechaPago}
-              onChange={(date) => {
-                if (date) {
-                  setFechaPago(date);
-                }
-              }}
-              className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-primary font-bold">
-              Estatus de pago:
-            </label>
-            <Select
-              options={estatus_pagos}
-              defaultValue={estatusPagoSeleccionado}
-              value={estatusPagoSeleccionado}
-              onChange={handleEstatusPagoChange}
-              placeholder="Seleccionar estatus..."
-              theme={(theme) => ({
-                ...theme,
-                colors: {
-                  ...theme.colors,
-                  primary25: "#DDBE86",
-                  primary: "#076163",
-                },
-              })}
-            />
-          </div>
-        </div>
-        <div className="flex gap-20">
-          <div>
-            <p className="block text-primary font-bold">Prima inicial</p>
-            <div className="flex h-[34px] text-[14px] text-black w-36 items-center bg-white ring-1 ring-inset ring-gray-400 rounded-md focus-within:ring-primary focus-within:ring-2 ease-in-out">
-              <span className="ml-2">$</span>
-              <input
-                className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
+          <div className="flex gap-20">
+            <div>
+              <p className="block text-primary font-bold">Prima inicial</p>
+              <InputPrima
                 value={prima_inicial}
                 onChange={(e) => setPrima_inicial(e.target.value)}
-                type="number"
-                placeholder="0,00"
               />
-              <span className="mr-2">MXN</span>
             </div>
-          </div>
-          <div>
-            <p className="block text-primary font-bold">Prima futura</p>
-            <div className="flex h-[34px] text-[14px] text-black w-36 items-center bg-white ring-1 ring-inset ring-gray-400 rounded-md focus-within:ring-primary focus-within:ring-2 ease-in-out">
-              <span className="ml-2">$</span>
-              <input
-                className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
+            <div>
+              <p className="block text-primary font-bold">Prima futura</p>
+              <InputPrima
                 value={prima_futura}
                 onChange={(e) => setPrima_futura(e.target.value)}
-                type="number"
-                placeholder="0,00"
               />
-              <span className="mr-2">MXN</span>
             </div>
-          </div>
-          <div>
-            <p className="block text-primary font-bold">Prima total</p>
-            <div className="flex h-[34px] text-[14px] text-black w-36 items-center bg-white ring-1 ring-inset ring-gray-400 rounded-md focus-within:ring-primary focus-within:ring-2 ease-in-out">
-              <span className="ml-2">$</span>
-              <input
-                className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
+            <div>
+              <p className="block text-primary font-bold">Prima total</p>
+              <InputPrima
                 value={prima_total}
                 onChange={(e) => setPrima_total(e.target.value)}
-                type="number"
-                placeholder="0,00"
                 disabled
               />
-              <span className="mr-2">MXN</span>
             </div>
-          </div>
-          <div>
-            <p className="block text-primary font-bold">Importe total</p>
-            <div className="flex h-[34px] text-[14px] text-black w-36 items-center bg-white ring-1 ring-inset ring-gray-400 rounded-md focus-within:ring-primary focus-within:ring-2 ease-in-out">
-              <span className="ml-2">$</span>
-              <input
-                className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
+            <div>
+              <p className="block text-primary font-bold">Importe total</p>
+              <InputPrima
                 value={importe_total}
                 onChange={(e) => setImporte_total(e.target.value)}
-                type="number"
-                placeholder="0,00"
                 disabled
               />
-              <span className="mr-2">MXN</span>
             </div>
           </div>
-        </div>
-        <div className="pt-36">
+          <div className="pt-10">
+            <p className="block text-primary font-bold">
+              Observaciones de pago
+            </p>
+            <textarea
+              type="text"
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+              className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
+              placeholder=""
+            ></textarea>
+          </div>
+          <div className="flex items-center justify-center p-5">
+            <button
+              className="border border-primary hover:bg-primary hover:text-white p-3 px-5 rounded-lg"
+              type="submit"
+            >
+              Aceptar
+            </button>
+          </div>
+        </form>
+        <div className="pt-5">
           <p className="text-center font-bold text-primary text-2xl">
             Observaciones
           </p>
@@ -362,16 +384,22 @@ function TramiteCliente() {
             {movimientos.map((dato, index) => (
               <div
                 key={index}
-                className="p-2 z-50 flex  w-5/6 rounded-xl border border-primary"
+                className=" z-50 flex  w-5/6 rounded-xl border border-primary"
               >
-                <div className="mx-2.5 w-full">
-                  <p className="mt-1.5 text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
-                    {dato.fecha}
-                  </p>
-                  <p className="leading-5 break-words text-primary">
-                    {dato.movimiento}
-                  </p>
-                  <p className="text-sm text-black/40">{dato.nombre}</p>
+                <div className="flex">
+                  <div className="bg-yellow-300 rounded-tl-xl rounded-bl-xl  w-[30px]"></div>
+                  <div className="mx-2.5 w-full">
+                    <p className="mt-1.5 text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
+                      {dato.fecha}
+                    </p>
+                    <p className="leading-5 break-words text-primary">
+                      {dato.movimiento}
+                    </p>
+                    <p className="text-sm text-black/40">{dato.nombre}</p>
+                  </div>
+                  <div className=" justify-end">
+                    <button>a</button>
+                  </div>
                 </div>
               </div>
             ))}
