@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Toaster, toast } from "sonner";
-import { estatus, agente } from "../components/Constans";
+import { estatus, agente, movimientos } from "../components/Constans";
 const FormularioTramite = ({ isVisible, onClose }) => {
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
@@ -188,20 +188,10 @@ const FormularioTramite = ({ isVisible, onClose }) => {
               Selecciona un movimiento:
             </label>
             <Select
-              options={movimiento}
+              options={movimientos}
               value={movimientoSeleccionado}
               onChange={setMovimiento}
               placeholder="Buscar movimiento..."
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Observaciones:</label>
-            <textarea
-              type="text"
-              className="w-full px-3 py-2 border  rounded"
-              placeholder=""
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
             />
           </div>
 

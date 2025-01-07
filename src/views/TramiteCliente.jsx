@@ -4,7 +4,9 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Toaster, toast } from "sonner";
+import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
 import { estatus, estatus_pagos } from "../components/Constans";
 function TramiteCliente() {
@@ -13,31 +15,21 @@ function TramiteCliente() {
   const [movimientos, setMovimientos] = useState([]);
   const [fechaTermino, setFechaTermino] = useState(null);
   const [fechaPago, setFechaPago] = useState(null);
-  const [nombre, setNombre] = useState("");
-  const [folio, setFolio] = useState("");
-  const [fecha, setFecha] = useState("");
-  const [fiado, setFiado] = useState("");
-  const [agente, setAgente] = useState("");
-  const [beneficiario, setBeneficiario] = useState("");
   const [movimiento, setMovimiento] = useState("");
-  const [afianzadora, setAfianzadora] = useState("");
   const [observaciones, setObservaciones] = useState("");
-  const [id_cliente, setId_cliente] = useState("");
   const [fianza, setFianza] = useState("");
   const [prima_inicial, setPrima_inicial] = useState("");
   const [prima_futura, setPrima_futura] = useState("");
   const [prima_total, setPrima_total] = useState("");
   const [importe_total, setImporte_total] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const apiUrl = "https://bitacorabc.site/backend/";
+  const [estatusSeleccionado, setEstatus] = useState(null);
+  const { id } = location.state || {}; // Obtener el id desde el estado
+  const navigate = useNavigate();
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
-
-  const apiUrl = "https://bitacorabc.site/backend/";
-  const [estatusSeleccionado, setEstatus] = useState(null);
-  const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
-  const { id } = location.state || {}; // Obtener el id desde el estado
-  const navigate = useNavigate();
   if (!id) {
     return <div>Error: No se encontró el ID del cliente.</div>;
   }
@@ -69,13 +61,6 @@ function TramiteCliente() {
         );
         setEstatus(estatusDefaultOption);
 
-        // Si se encuentra el cliente, establecer el estatus de pago por defecto
-        const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
-        const estatusPagoDefaultOption = estatus_pagos.find(
-          (option) => option.value === estatusPagoPorDefecto
-        );
-        setEstatusPago(estatusPagoDefaultOption);
-
         console.log(clienteEncontrado);
 
         const movimientosResponse = await fetch(
@@ -85,6 +70,7 @@ function TramiteCliente() {
 
         setMovimientos(
           movimientosData.map((movimiento) => ({
+            id_movimiento: movimiento.id_movimiento,
             movimiento: movimiento.movimiento,
             fecha: movimiento.fecha,
             nombre: movimiento.nombre,
@@ -102,14 +88,43 @@ function TramiteCliente() {
   const handleEstatusChange = (selectedOption) => {
     setEstatus(selectedOption);
   };
-  const handleEstatusPagoChange = (selectedOption) => {
-    setEstatusPago(selectedOption);
-  };
 
   // Buscar el cliente por el id
   const clienteEncontrado = clientes.find(
     (cliente) => cliente.id_tramite === id
   );
+
+  const alerta = async (e) => {
+    e.preventDefault();
+
+    toast.custom(
+      (t) => (
+        <div className="flex flex-col items-center justify-center bg-white p-10 rounded-3xl shadow-2xl border border-primary">
+          <p className="text-primary text-xl">¿Desea guardar cambios?</p>
+          <div className="flex gap-5 mt-5">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                handleSubmit(); // Llamamos a handleSubmit cuando el usuario confirma
+              }}
+              className="p-2 bg-[#16C47F] rounded-xl w-[100px] hover:bg-[#16C47F] hover:opacity-40 text-white transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
+            >
+              Confirmar
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)} // Cierra la alerta si el usuario cancela
+              className="p-2 bg-[#E82561] rounded-xl hover:bg-red-300 w-[100px] text-white transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // Mantener la alerta visible hasta que se decida
+      }
+    );
+  };
 
   const agregarMovimiento = async (e) => {
     e.preventDefault();
@@ -141,13 +156,42 @@ function TramiteCliente() {
         toast.success("Movimiento guardado exitosamente.");
         navigate(0);
       } else {
-        toast.error("Error al guardar el trámite.");
+        toast.error("Error al guardar el movimiento.");
       }
       console.log(result);
       setMovimiento("");
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
-      toast.error("Hubo un problema al guardar el trámite.");
+      toast.error("Hubo un problema al guardar el movimiento.");
+    }
+  };
+
+  const borrarMovimiento = async ( id_movimiento) => {
+    try {
+      const response = await fetch(`${apiUrl}movimientos.php`, {
+        method: "DELETE", // Método DELETE para eliminar el recurso
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_movimiento: id_movimiento }), // Enviar el id_tramite en el cuerpo de la solicitud
+      });
+
+      const result = await response.json(); // Parsear la respuesta a JSON
+
+      if (response.ok && result.success) {
+        toast.success("Movimiento borrado exitosamente.");
+        setTimeout(() => {
+          navigate(0);
+        }, 1500);
+      } else {
+        toast.error("Error al borrar el movimiento."); // Mostrar mensaje de error si algo sale mal
+      }
+
+      console.log(result); // Loguear el resultado para debugging
+      setMovimiento(""); // Limpiar el estado relacionado si es necesario
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
+      toast.error("Hubo un problema al borrar el movimiento."); // Mostrar mensaje de error genérico
     }
   };
 
@@ -164,22 +208,32 @@ function TramiteCliente() {
     );
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    const fecha = new Date();
+    const opciones = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
+    const horas = String(fecha.getHours()).padStart(2, "0");
+    const minutos = String(fecha.getMinutes()).padStart(2, "0");
+    const horaFormateada = `${horas}:${minutos}`;
+    const estatusPago = fechaPago === null ? "NO PAGADA" : "PAGADA";
+    const estatusTerminado =
+      estatusSeleccionado?.value === "TERMINADO"
+        ? `${fechaFormateada} ${horaFormateada}`
+        : null;
+    console.log(`${fechaFormateada} ${horaFormateada}`);
     const data = {
       id_tramite: id,
-      estatus: estatusSeleccionado.value,
-      observaciones: observaciones,
-      fianza: fianza,
-      prima_inicial: prima_inicial,
-      prima_futura: prima_futura,
-      prima_total: prima_total,
-      importe_total: importe_total,
-      fecha_termino: fechaTermino,
-      fecha_pago: fechaPago,
-      estatus_pago: estatusPagoSeleccionado.value,
+      estatus: estatusSeleccionado?.value || "", // Manejar valor no definido
+      observaciones: observaciones || "",
+      fianza: fianza || 0,
+      prima_inicial: prima_inicial || 0,
+      prima_futura: prima_futura || 0,
+      prima_total: prima_total || 0,
+      importe_total: importe_total || 0,
+      fecha_termino: estatusTerminado || null,
+      fecha_pago: fechaPago || null,
+      estatus_pago: estatusPago,
     };
-
     try {
       const response = await fetch(`${apiUrl}tramites.php`, {
         method: "PUT",
@@ -209,7 +263,7 @@ function TramiteCliente() {
   return (
     <div className="flex items-center justify-center p-5">
       <div className="bg-white w-4/6 p-5 rounded-xl shadow-2xl">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={alerta}>
           <div className="flex justify-between">
             <p className="text-primary font-bold">
               Fecha: {clienteEncontrado.fecha}
@@ -218,6 +272,12 @@ function TramiteCliente() {
               Folio: {clienteEncontrado.folio}
             </p>
           </div>
+          {clienteEncontrado.fecha_termino != null ? (
+            <div>
+              <p className="text-primary font-bold">Fecha de Termino:</p>
+              <p>{clienteEncontrado.fecha_termino}</p>
+            </div>
+          ) : null}
           <div>
             <p className="text-primary font-bold">Fiado:</p>
             <p>{clienteEncontrado.nombre}</p>
@@ -241,24 +301,32 @@ function TramiteCliente() {
             </div>
           </div>
           <div className="flex gap-20 pt-5">
-            <div className="mb-4">
-              <label className="block text-primary font-bold">Estatus:</label>
-              <Select
-                options={estatus}
-                defaultValue={estatusSeleccionado}
-                value={estatusSeleccionado}
-                onChange={handleEstatusChange}
-                placeholder="Seleccionar estatus..."
-                theme={(theme) => ({
-                  ...theme,
-                  colors: {
-                    ...theme.colors,
-                    primary25: "#DDBE86",
-                    primary: "#076163",
-                  },
-                })}
-              />
-            </div>
+            {clienteEncontrado.estatus != "TERMINADO" ? (
+              <div className="mb-4">
+                <label className="block text-primary font-bold">Estatus:</label>
+                <Select
+                  options={estatus}
+                  defaultValue={estatusSeleccionado}
+                  value={estatusSeleccionado}
+                  onChange={handleEstatusChange}
+                  placeholder="Seleccionar estatus..."
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary25: "#DDBE86",
+                      primary: "#076163",
+                    },
+                  })}
+                />
+              </div>
+            ) : (
+              <div>
+                <p className="block text-primary font-bold">Estatus:</p>
+                <p>{clienteEncontrado.estatus}</p>
+              </div>
+            )}
+
             <div>
               <label htmlFor="fianza" className="block text-primary font-bold">
                 Fianza
@@ -276,20 +344,6 @@ function TramiteCliente() {
           </div>
           <div className="pt-5 flex gap-20 ">
             <div>
-              <p className="block text-primary font-bold">Fecha de termino</p>
-              <DatePicker
-                selected={fechaTermino}
-                showIcon
-                toggleCalendarOnIconClick
-                onChange={(date) => {
-                  if (date) {
-                    setFechaTermino(date);
-                  }
-                }}
-                className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
-              />
-            </div>
-            <div>
               <p className="block text-primary font-bold">Fecha de pago</p>
               <DatePicker
                 showIcon
@@ -303,27 +357,12 @@ function TramiteCliente() {
                 className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
               />
             </div>
-            <div className="mb-4">
-              <label className="block text-primary font-bold">
-                Estatus de pago:
-              </label>
-              <Select
-                options={estatus_pagos}
-                value={estatusPagoSeleccionado}
-                onChange={handleEstatusPagoChange}
-                placeholder="Seleccionar estatus..."
-                theme={(theme) => ({
-                  ...theme,
-                  colors: {
-                    ...theme.colors,
-                    primary25: "#DDBE86",
-                    primary: "#076163",
-                  },
-                })}
-              />
+            <div>
+              <p className="block text-primary font-bold">Estatus de pago:</p>
+              <p className="mt-1">{clienteEncontrado.estatus_pago}</p>
             </div>
           </div>
-          <div className="flex gap-20">
+          <div className="flex gap-20 mt-10">
             <div>
               <p className="block text-primary font-bold">Prima inicial</p>
               <InputPrima
@@ -367,12 +406,18 @@ function TramiteCliente() {
               placeholder=""
             ></textarea>
           </div>
-          <div className="flex items-center justify-center p-5">
+          <div className="flex items-center justify-center p-5 gap-5">
             <button
-              className="border border-primary hover:bg-primary hover:text-white p-3 px-5 rounded-lg"
+              className="w-[200px] border border-primary hover:bg-primary hover:text-white p-3 px-5 rounded-lg transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
               type="submit"
             >
-              Aceptar
+              Guardar cambios
+            </button>
+            <button
+              className="w-[200px] text-white border border-[#E82561] hover:opacity-80 bg-[#E82561] hover:text-white p-3 px-5 rounded-lg transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
+              onClick={() => {navigate("/tramites")}}
+            >
+              Cancelar
             </button>
           </div>
         </form>
@@ -380,15 +425,16 @@ function TramiteCliente() {
           <p className="text-center font-bold text-primary text-2xl">
             Observaciones
           </p>
+
           <div className="flex flex-wrap justify-center gap-4">
             {movimientos.map((dato, index) => (
               <div
                 key={index}
                 className=" z-50 flex  w-5/6 rounded-xl border border-primary"
               >
-                <div className="flex">
-                  <div className="bg-yellow-300 rounded-tl-xl rounded-bl-xl  w-[30px]"></div>
-                  <div className="mx-2.5 w-full">
+                <div className="flex w-full items-center">
+                  <div className="bg-[#FFF574] rounded-tl-xl rounded-bl-xl w-4 h-full"></div>
+                  <div className="mx-2.5 flex-grow px-4">
                     <p className="mt-1.5 text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
                       {dato.fecha}
                     </p>
@@ -397,8 +443,20 @@ function TramiteCliente() {
                     </p>
                     <p className="text-sm text-black/40">{dato.nombre}</p>
                   </div>
-                  <div className=" justify-end">
-                    <button>a</button>
+                  <div className=" px-4 py-2 rounded">
+                    {estatusSeleccionado?.value != "TERMINADO" ? (
+                      <button onClick={() => borrarMovimiento(dato.id_movimiento)}>
+                        <IconContext.Provider
+                          value={{
+                            color: "#E82561",
+                            className: "global-class-name",
+                            size: "1.5em",
+                          }}
+                        >
+                          <FaTrash />
+                        </IconContext.Provider>
+                      </button>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -428,26 +486,28 @@ function TramiteCliente() {
             </div>
           </div>
           <div className="flex items-center justify-center p-5">
-            <button
-              className="group cursor-pointer outline-none hover:rotate-90 duration-300"
-              title="Agregar movimiento"
-              onClick={toggleFormulario}
-            >
-              <svg
-                className="stroke-teal-500 fill-none group-hover:fill-teal-800 group-active:stroke-teal-200 group-active:fill-teal-600 group-active:duration-0 duration-300"
-                viewBox="0 0 24 24"
-                height="50px"
-                width="50px"
-                xmlns="http://www.w3.org/2000/svg"
+            {estatusSeleccionado?.value != "TERMINADO" ? (
+              <button
+                className="group cursor-pointer outline-none hover:rotate-90 duration-300"
+                title="Agregar movimiento"
+                onClick={toggleFormulario}
               >
-                <path
-                  strokeWidth="1.5"
-                  d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                ></path>
-                <path strokeWidth="1.5" d="M8 12H16"></path>
-                <path strokeWidth="1.5" d="M12 16V8"></path>
-              </svg>
-            </button>
+                <svg
+                  className="stroke-teal-500 fill-none group-hover:fill-teal-800 group-active:stroke-teal-200 group-active:fill-teal-600 group-active:duration-0 duration-300"
+                  viewBox="0 0 24 24"
+                  height="50px"
+                  width="50px"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeWidth="1.5"
+                    d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                  ></path>
+                  <path strokeWidth="1.5" d="M8 12H16"></path>
+                  <path strokeWidth="1.5" d="M12 16V8"></path>
+                </svg>
+              </button>
+            ) : null}
           </div>
         </div>
       </div>
