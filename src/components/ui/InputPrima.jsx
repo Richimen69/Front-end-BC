@@ -4,7 +4,7 @@ export function InputPrima(props) {
         <span className="ml-2">$</span>
         <input
           className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
-          type="number"
+          type="text"
           placeholder="0,00"
           {...props}
         />

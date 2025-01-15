@@ -10,7 +10,7 @@ export const movimientos = [
     { value: "CANCELACION Y DEV. DEP PREND.", label: "CANCELACION Y DEV. DEP PREND." },
     { value: "CORRECCIÓN", label: "CORRECCIÓN" },
     { value: "PRÓRROGA", label: "PRÓRROGA" },
-    { value: "DEV. DEP. PRENDARIO", label: "DEV. DEP. PRENDARIO" },
+    { value: "EXPEDICION CON DEP. PRENDARIO", label: "EXPEDICION CON DEP. PRENDARIO" },
     { value: "COTIZACIÓN", label: "COTIZACIÓN" },
     { value: "ALTA", label: "ALTA" },
     { value: "ANUENCIA", label: "ANUENCIA" },

@@ -154,6 +154,7 @@ function TramiteCliente() {
       const result = await response.json();
       if (result.success) {
         toast.success("Movimiento guardado exitosamente.");
+        handleSubmit();
         navigate(0);
       } else {
         toast.error("Error al guardar el movimiento.");
@@ -181,6 +182,7 @@ function TramiteCliente() {
       if (response.ok && result.success) {
         toast.success("Movimiento borrado exitosamente.");
         setTimeout(() => {
+          handleSubmit();
           navigate(0);
         }, 1500);
       } else {
@@ -220,14 +222,13 @@ function TramiteCliente() {
       estatusSeleccionado?.value === "TERMINADO"
         ? `${fechaFormateada} ${horaFormateada}`
         : null;
-    console.log(`${fechaFormateada} ${horaFormateada}`);
     const data = {
       id_tramite: id,
       estatus: estatusSeleccionado?.value || "", // Manejar valor no definido
       observaciones: observaciones || "",
-      fianza: fianza || 0,
-      prima_inicial: prima_inicial || 0,
-      prima_futura: prima_futura || 0,
+      fianza: fianza || "",
+      prima_inicial: prima_inicial || "",
+      prima_futura: prima_futura || "",
       prima_total: prima_total || 0,
       importe_total: importe_total || 0,
       fecha_termino: estatusTerminado || null,
@@ -380,7 +381,7 @@ function TramiteCliente() {
             <div>
               <p className="block text-primary font-bold">Prima total</p>
               <InputPrima
-                value={prima_total}
+                value={(Number(prima_futura) || 0) + (Number(prima_inicial) || 0)}
                 onChange={(e) => setPrima_total(e.target.value)}
                 disabled
               />

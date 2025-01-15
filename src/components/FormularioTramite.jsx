@@ -77,10 +77,15 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       toast.error("Rellene los campos");
       return;
     }
-
+    const fecha = new Date();
+    const opciones = { day: "2-digit", month: "2-digit", year: "numeric" };
+    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
+    const horas = String(fecha.getHours()).padStart(2, "0");
+    const minutos = String(fecha.getMinutes()).padStart(2, "0");
+    const horaFormateada = `${horas}:${minutos}`;
     const data = {
       folio: Math.floor(Math.random() * 9000) + 1000, // Generar o usar un folio dinámico
-      fecha: new Date().toISOString().slice(0, 19).replace("T", " "), // Fecha actual en formato correcto
+      fecha: `${fechaFormateada} ${horaFormateada}`, // Fecha actual en formato correcto
       agente: agenteSeleccionado.value,
       beneficiario: beneficiarioSeleccionado.value,
       movimiento: movimientoSeleccionado.value,
