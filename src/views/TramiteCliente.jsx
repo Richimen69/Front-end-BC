@@ -9,10 +9,23 @@ import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
 import { estatus, estatus_pagos } from "../components/Constans";
+import { fetchTramites } from "../services/tramitesClientes";
+import { format } from "date-fns";
+import { updateTramite } from "../services/tramitesClientes";
+import {
+  buscarMovimiento,
+  createMovimiento,
+  deleteMovimiento,
+} from "../services/movimientos";
 function TramiteCliente() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const storedUser = localStorage.getItem("user");
+
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [usuario, setUsuario] = useState("");
+  const [estatusSeleccionado, setEstatus] = useState(null);
   const [fechaTermino, setFechaTermino] = useState(null);
   const [fechaPago, setFechaPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
@@ -23,10 +36,9 @@ function TramiteCliente() {
   const [prima_total, setPrima_total] = useState("");
   const [importe_total, setImporte_total] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const apiUrl = "https://bitacorabc.site/backend/";
-  const [estatusSeleccionado, setEstatus] = useState(null);
+
   const { id } = location.state || {}; // Obtener el id desde el estado
-  const navigate = useNavigate();
+
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
   };
@@ -35,55 +47,67 @@ function TramiteCliente() {
   }
 
   useEffect(() => {
-    const fetchClientes = async () => {
+    if (storedUser) {
       try {
-        const response = await fetch(`${apiUrl}tramites.php`);
-        const data = await response.json();
+        const user = JSON.parse(storedUser);
+        const formattedUser =
+          user.usuario_usu.charAt(0).toUpperCase() +
+          user.usuario_usu.slice(1).toLowerCase();
+        setUsuario(formattedUser);
+      } catch (error) {
+        console.error(
+          "Error al analizar el usuario desde localStorage:",
+          error
+        );
+      }
+    }
+  }, [storedUser]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchTramites();
         setClientes(data);
 
-        // Encontrar el cliente por el id
+        // Encontrar cliente específico
         const clienteEncontrado = data.find(
           (cliente) => cliente.id_tramite === id
         );
-        setPrima_inicial(clienteEncontrado.prima_inicial);
-        setPrima_futura(clienteEncontrado.prima_futura);
-        setPrima_total(clienteEncontrado.prima_total);
-        setImporte_total(clienteEncontrado.importe_total);
-        setImporte_total(clienteEncontrado.importe_total);
-        setFianza(clienteEncontrado.fianza);
-        setFechaTermino(clienteEncontrado?.fecha_termino?.trim() || null);
-        setFechaPago(clienteEncontrado?.fecha_pago?.trim() || null);
-        setObservaciones(clienteEncontrado.observaciones);
-        // Si se encuentra el cliente, establecer el estatus por defecto
-        const estatusPorDefecto = clienteEncontrado.estatus;
-        const estatusDefaultOption = estatus.find(
-          (option) => option.value === estatusPorDefecto
-        );
-        setEstatus(estatusDefaultOption);
+        if (clienteEncontrado) {
+          setPrima_inicial(clienteEncontrado.prima_inicial || "");
+          setPrima_futura(clienteEncontrado.prima_futura || "");
+          setPrima_total(clienteEncontrado.prima_total || "");
+          setImporte_total(clienteEncontrado.importe_total || "");
+          setFianza(clienteEncontrado.fianza || "");
+          setFechaTermino(clienteEncontrado.fecha_termino || null);
+          setFechaPago(clienteEncontrado.fecha_pago || null);
+          setObservaciones(clienteEncontrado.observaciones || "");
 
-        console.log(clienteEncontrado);
+          // Asignar estatus inicial
+          const estatusPorDefecto = clienteEncontrado.estatus;
+          setEstatus(
+            estatus.find((option) => option.value === estatusPorDefecto) || null
+          );
 
-        const movimientosResponse = await fetch(
-          `${apiUrl}movimientos.php?id=${id}`
-        );
-        const movimientosData = await movimientosResponse.json();
-
-        setMovimientos(
-          movimientosData.map((movimiento) => ({
-            id_movimiento: movimiento.id_movimiento,
-            movimiento: movimiento.movimiento,
-            fecha: movimiento.fecha,
-            nombre: movimiento.nombre,
-            id_tramite: movimiento.id_tramite,
-          }))
-        );
+          // Obtener movimientos
+          const movimientosData = await buscarMovimiento(id);
+          setMovimientos(
+            movimientosData.map((mov) => ({
+              id_movimiento: mov.id_movimiento,
+              movimiento: mov.movimiento,
+              fecha: mov.fecha,
+              nombre: mov.nombre,
+              id_tramite: mov.id_tramite,
+            }))
+          );
+        }
       } catch (error) {
-        console.error("Error al obtener los clientes:", error);
+        console.error("Error al obtener los datos:", error);
       }
     };
 
-    fetchClientes();
-  }, [id]); // Dependencia del id para actualizar si cambia
+    fetchData();
+  }, [id]);
 
   const handleEstatusChange = (selectedOption) => {
     setEstatus(selectedOption);
@@ -128,30 +152,17 @@ function TramiteCliente() {
 
   const agregarMovimiento = async (e) => {
     e.preventDefault();
-    const fecha = new Date();
-    const opciones = { day: "2-digit", month: "2-digit", year: "numeric" };
-    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
-    const horas = String(fecha.getHours()).padStart(2, "0");
-    const minutos = String(fecha.getMinutes()).padStart(2, "0");
-    const horaFormateada = `${horas}:${minutos}`;
+    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     setMostrarFormulario(false);
     const data = {
       movimiento: movimiento,
-      fecha: `${fechaFormateada} ${horaFormateada}`,
-      nombre: "Ricardo",
+      fecha: `${fechaFormateada}`,
+      nombre: usuario,
       id_tramite: id,
     };
 
     try {
-      const response = await fetch(`${apiUrl}movimientos.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      console.log(response);
-      const result = await response.json();
+      const result = await createMovimiento(data);
       if (result.success) {
         toast.success("Movimiento guardado exitosamente.");
         handleSubmit();
@@ -167,19 +178,11 @@ function TramiteCliente() {
     }
   };
 
-  const borrarMovimiento = async ( id_movimiento) => {
+  const borrarMovimiento = async (id_movimiento) => {
     try {
-      const response = await fetch(`${apiUrl}movimientos.php`, {
-        method: "DELETE", // Método DELETE para eliminar el recurso
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ id_movimiento: id_movimiento }), // Enviar el id_tramite en el cuerpo de la solicitud
-      });
+      const result = await deleteMovimiento(id_movimiento); // Parsear la respuesta a JSON
 
-      const result = await response.json(); // Parsear la respuesta a JSON
-
-      if (response.ok && result.success) {
+      if (result.success) {
         toast.success("Movimiento borrado exitosamente.");
         setTimeout(() => {
           handleSubmit();
@@ -211,17 +214,10 @@ function TramiteCliente() {
   }
 
   const handleSubmit = async () => {
-    const fecha = new Date();
-    const opciones = { day: "2-digit", month: "2-digit", year: "numeric" };
-    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
-    const horas = String(fecha.getHours()).padStart(2, "0");
-    const minutos = String(fecha.getMinutes()).padStart(2, "0");
-    const horaFormateada = `${horas}:${minutos}`;
+    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     const estatusPago = fechaPago === null ? "NO PAGADA" : "PAGADA";
     const estatusTerminado =
-      estatusSeleccionado?.value === "TERMINADO"
-        ? `${fechaFormateada} ${horaFormateada}`
-        : null;
+      estatusSeleccionado?.value === "TERMINADO" ? `${fechaFormateada}` : null;
     const data = {
       id_tramite: id,
       estatus: estatusSeleccionado?.value || "", // Manejar valor no definido
@@ -229,22 +225,14 @@ function TramiteCliente() {
       fianza: fianza || "",
       prima_inicial: prima_inicial || "",
       prima_futura: prima_futura || "",
-      prima_total: prima_total || 0,
-      importe_total: importe_total || 0,
+      prima_total:  (Number(prima_futura) || 0) + (Number(prima_inicial) || 0),
+      importe_total: importe_total || "",
       fecha_termino: estatusTerminado || null,
       fecha_pago: fechaPago || null,
       estatus_pago: estatusPago,
     };
     try {
-      const response = await fetch(`${apiUrl}tramites.php`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      console.log(response);
-      const result = await response.json();
+      const result = await updateTramite(data);
       if (result.success) {
         toast.success("Trámite guardado exitosamente.");
         setTimeout(() => {
@@ -381,7 +369,9 @@ function TramiteCliente() {
             <div>
               <p className="block text-primary font-bold">Prima total</p>
               <InputPrima
-                value={(Number(prima_futura) || 0) + (Number(prima_inicial) || 0)}
+                value={
+                  (Number(prima_futura) || 0) + (Number(prima_inicial) || 0)
+                }
                 onChange={(e) => setPrima_total(e.target.value)}
                 disabled
               />
@@ -416,7 +406,9 @@ function TramiteCliente() {
             </button>
             <button
               className="w-[200px] text-white border border-[#E82561] hover:opacity-80 bg-[#E82561] hover:text-white p-3 px-5 rounded-lg transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
-              onClick={() => {navigate("/tramites")}}
+              onClick={() => {
+                navigate("/tramites");
+              }}
             >
               Cancelar
             </button>
@@ -433,20 +425,21 @@ function TramiteCliente() {
                 key={index}
                 className=" z-50 flex  w-5/6 rounded-xl border border-primary"
               >
-                <div className="flex w-full items-center">
-                  <div className="bg-[#FFF574] rounded-tl-xl rounded-bl-xl w-4 h-full"></div>
+                <div className="flex w-full items-center py-1">
                   <div className="mx-2.5 flex-grow px-4">
-                    <p className="mt-1.5 text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
+                    <p className=" text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
                       {dato.fecha}
                     </p>
                     <p className="leading-5 break-words text-primary">
                       {dato.movimiento}
                     </p>
-                    <p className="text-sm text-black/40">{dato.nombre}</p>
+                      <p className="mt-3 text-sm text-black/80 font-bold">{dato.nombre}</p>
                   </div>
                   <div className=" px-4 py-2 rounded">
                     {estatusSeleccionado?.value != "TERMINADO" ? (
-                      <button onClick={() => borrarMovimiento(dato.id_movimiento)}>
+                      <button
+                        onClick={() => borrarMovimiento(dato.id_movimiento)}
+                      >
                         <IconContext.Provider
                           value={{
                             color: "#E82561",

@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./views/NotFound";
 import Tramites from "./views/Tramites";
 import TramiteCliente from "./views/TramiteCliente";
+import VistaTramite from "./views/VistaTramite";
 function App() {
   return (
     <div className="bg-background min-h-screen">
@@ -25,6 +26,15 @@ function App() {
             <ProtectedRoute>
               <Header />
               <Tramites />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/vistaprevia"
+          element={
+            <ProtectedRoute>
+              <Header />
+              <VistaTramite />
             </ProtectedRoute>
           }
         />

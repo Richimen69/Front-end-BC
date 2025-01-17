@@ -1,29 +1,41 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Toaster, toast } from "sonner";
-import { estatus, agente, movimientos } from "../components/Constans";
+import { agente, movimientos } from "../components/Constans";
+import {
+  fetchClientes,
+  fetchAfianzadoras,
+  fetchBeficiarios,
+} from "../services/datosTramites";
+import { createTramite } from "../services/tramitesClientes";
+import { format } from "date-fns";
 const FormularioTramite = ({ isVisible, onClose }) => {
+  const storedUser = localStorage.getItem("user");
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [movimientoSeleccionado, setMovimiento] = useState(null);
-  const [estatusSeleccionado, setEstatus] = useState(null);
   const [agenteSeleccionado, setAgente] = useState(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [afianzadoraSeleccionada, setAfianzadoraSeleccionada] = useState(null);
   const [beneficiarioSeleccionado, setBeneficiarioSeleccionado] =
     useState(null);
-  const [observaciones, setObservaciones] = useState("");
-  const apiUrl = "https://bitacorabc.site/backend/";
+  const [usuario, setUsuario] = useState("")
   useEffect(() => {
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        const formattedUser = user.usuario_usu.charAt(0).toUpperCase(); 
+        setUsuario(formattedUser);
+      } catch (error) {
+        console.error("Error al analizar el usuario desde localStorage:", error);
+      }
+    }    
     // Función para cargar datos desde diferentes endpoints
     const fetchData = async () => {
       try {
         // Cargar clientes
-        const clientesResponse = await fetch(
-          `${apiUrl}datos_tramites.php?table=clientes`
-        );
-        const clientesData = await clientesResponse.json();
+        const clientesData = await fetchClientes();
         setClientes(
           clientesData.map((cliente) => ({
             value: cliente.id_cli,
@@ -32,10 +44,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
         );
 
         // Cargar afianzadoras
-        const afianzadorasResponse = await fetch(
-          `${apiUrl}datos_tramites.php?table=afianzadoras`
-        );
-        const afianzadorasData = await afianzadorasResponse.json();
+        const afianzadorasData = await fetchAfianzadoras();
         setAfianzadoras(
           afianzadorasData.map((afianzadora) => ({
             value: afianzadora.nombre_afi,
@@ -44,10 +53,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
         );
 
         // Cargar beneficiarios
-        const beneficiariosResponse = await fetch(
-          `${apiUrl}datos_tramites.php?table=beneficiarios`
-        );
-        const beneficiariosData = await beneficiariosResponse.json();
+        const beneficiariosData = await fetchBeficiarios();
         setBeneficiarios(
           beneficiariosData.map((beneficiario) => ({
             value: beneficiario.nombre_ben,
@@ -70,41 +76,27 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       !clienteSeleccionado ||
       !afianzadoraSeleccionada ||
       !beneficiarioSeleccionado ||
-      !estatusSeleccionado ||
       !agenteSeleccionado ||
       !movimientoSeleccionado
     ) {
       toast.error("Rellene los campos");
       return;
     }
-    const fecha = new Date();
-    const opciones = { day: "2-digit", month: "2-digit", year: "numeric" };
-    const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
-    const horas = String(fecha.getHours()).padStart(2, "0");
-    const minutos = String(fecha.getMinutes()).padStart(2, "0");
-    const horaFormateada = `${horas}:${minutos}`;
+    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     const data = {
-      folio: Math.floor(Math.random() * 9000) + 1000, // Generar o usar un folio dinámico
-      fecha: `${fechaFormateada} ${horaFormateada}`, // Fecha actual en formato correcto
+      folio: `${usuario}${"-"}${Math.floor(Math.random() * 9000) + 1000}`,
+      fecha: `${fechaFormateada}`,
       agente: agenteSeleccionado.value,
       beneficiario: beneficiarioSeleccionado.value,
       movimiento: movimientoSeleccionado.value,
       afianzadora: afianzadoraSeleccionada.value,
-      estatus: estatusSeleccionado.value,
-      observaciones: observaciones,
+      estatus: "REVISANDO DOCUMENTACIÓN",
+      observaciones: "",
       id_cliente: clienteSeleccionado.value,
     };
 
     try {
-      const response = await fetch(`${apiUrl}tramites.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      console.log(response);
-      const result = await response.json();
+      const result = await createTramite(data);
       if (result.success) {
         toast.success("Trámite guardado exitosamente.");
         setTimeout(() => {
@@ -166,15 +158,6 @@ const FormularioTramite = ({ isVisible, onClose }) => {
               onChange={setBeneficiarioSeleccionado}
               placeholder="Seleccionar beneficiario..."
               isClearable
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Estatus:</label>
-            <Select
-              options={estatus}
-              value={estatusSeleccionado}
-              onChange={setEstatus}
-              placeholder="Buscar estatus..."
             />
           </div>
           <div className="mb-4">

@@ -5,7 +5,13 @@ import { movimientos, estatus } from "../components/Constans";
 import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { Link } from "react-router-dom";
+import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import useProtectedData from "../hooks/useProtectedData";
+import {
+  buscarTramitePorFolio,
+  fetchTramites,
+} from "../services/tramitesClientes";
 function Tramites() {
   const [clientes, setClientes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,23 +19,18 @@ function Tramites() {
   const [estatusFiltro, setEstatusFiltro] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [folio, setFolio] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const apiUrl = "https://bitacorabc.site/backend/";
   // Consulta los clientes en el Backend
   useEffect(() => {
     const fetchClientes = async () => {
       try {
-        const response = await fetch(
-          "https://bitacorabc.site/backend/tramites.php"
-        );
-        const data = await response.json();
+        const data = await fetchTramites();
         setClientes(data);
       } catch (error) {
         console.error("Error al obtener los clientes:", error);
       }
     };
-
-    // Llamar a la función para obtener los datos al cargar el componente
     fetchClientes();
 
     // Configurar el polling para actualizar cada 5 segundos
@@ -41,30 +42,21 @@ function Tramites() {
     return () => clearInterval(interval);
   }, []); // Solo se ejecuta una vez al montar el componente
 
-  const buscarFolio = async (folio) => {
+  const buscarFolio = async (e, folio) => {
+    e.preventDefault();
     try {
-      // Realizar la solicitud GET con el folio como parámetro en la URL
-      const response = await fetch(`${apiUrl}tramites.php?folio=${folio}`);
-
-      // Verificar si la respuesta es exitosa
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success !== false) {
-          console.log("Trámite encontrado:", data);
-          navigate("/tramitecliente", {
-            state: { id: data.id_tramite },
-          });
-        } else {
-          console.log("Trámite no encontrado.");
-          // Aquí puedes mostrar un mensaje de error si no se encuentra el trámite
-        }
+      const data = await buscarTramitePorFolio(folio);
+      if (data.success !== false) {
+        console.log("Trámite encontrado:", data);
+        navigate("/tramitecliente", { state: { id: data.id_tramite } });
       } else {
-        console.error("Error en la solicitud:", response.status);
-        // Maneja el error si la solicitud falla
+        console.log("Trámite no encontrado.");
+        setError("No se encontró un trámite con ese folio.");
+        toast.error(error);
       }
     } catch (error) {
       console.error("Error al hacer la solicitud:", error);
-      // Maneja el error de la red o el servidor
+      setError(error.message); // Muestra el mensaje del error capturado
     }
   };
 
@@ -87,25 +79,27 @@ function Tramites() {
       <div className="flex flex-col">
         <div className="flex w-full">
           <h1 className="text-[36px] text-primary">Trámites</h1>
-          <input
-            id="user"
-            type="text"
-            placeholder="Folio"
-            value={folio}
-            onChange={(e) => setFolio(e.target.value)}
-            className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[120px] ml-10 mx-2 focus:outline-none placeholder:text-black/70"
-          />
-          <button onClick={() => buscarFolio(folio)}>
-            <IconContext.Provider
-              value={{
-                color: "#076163",
-                className: "global-class-name",
-                size: "1.5em",
-              }}
-            >
-              <FaSearch />
-            </IconContext.Provider>
-          </button>
+          <form onSubmit={(e) => buscarFolio(e, folio)} className="flex w-full">
+            <input
+              id="user"
+              type="text"
+              placeholder="Folio"
+              value={folio}
+              onChange={(e) => setFolio(e.target.value)}
+              className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[120px] ml-10 mx-2 focus:outline-none placeholder:text-black/70"
+            />
+            <button type="submit">
+              <IconContext.Provider
+                value={{
+                  color: "#076163",
+                  className: "global-class-name",
+                  size: "1.5em",
+                }}
+              >
+                <FaSearch />
+              </IconContext.Provider>
+            </button>
+          </form>
         </div>
         <div className="flex mt-5">
           <input
@@ -181,17 +175,20 @@ function Tramites() {
             </thead>
             <tbody>
               {filteredClientes.map((cliente) => (
-                <tr key={cliente.id_tramite}>
+                <tr
+                  key={cliente.id_tramite}
+                  className="hover:bg-secondary hover:cursor-pointer "
+                  onClick={() =>
+                    navigate(`/vistaprevia`, {
+                      state: { id: cliente.id_tramite },
+                    })
+                  }
+                >
                   <td className="border-2 border-secondary p-2">
                     {cliente.folio}
                   </td>
                   <td className="border-2 border-secondary p-2">
-                    <Link
-                      to="/tramitecliente"
-                      state={{ id: cliente.id_tramite }}
-                    >
                       {cliente.nombre}
-                    </Link>
                   </td>
 
                   <td className="border-2 border-secondary p-2">
@@ -203,9 +200,19 @@ function Tramites() {
                   <td className="border-2 border-secondary p-2">
                     {cliente.afianzadora}
                   </td>
-                  <td className="border-2 border-secondary p-2">
-                    {cliente.estatus}
-                  </td>
+                  {cliente.estatus === "TERMINADO" ? (
+                    <td className="border-2 text-[#2E7D32] border-secondary p-2 bg-[#DFFFE2]">
+                      {cliente.estatus}
+                    </td>
+                  ) : cliente.estatus === "EN PROCESO" ? (
+                    <td className="border-2 text-[#F57F17] border-secondary p-2 bg-[#FFF9C4]">
+                      {cliente.estatus}
+                    </td>
+                  ) : (
+                    <td className="border-2 text-[#C62828] border-secondary p-2 bg-[#FFCDD2]">
+                      {cliente.estatus}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -216,6 +223,7 @@ function Tramites() {
         isVisible={isFormVisible}
         onClose={() => setIsFormVisible(false)}
       />
+      <Toaster position="top-center" richColors />
     </div>
   );
 }

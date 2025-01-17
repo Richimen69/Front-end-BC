@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const defaultTheme = require("tailwindcss/defaultTheme");
+const { fontFamily } = require("tailwindcss/defaultTheme");
 export default {
   content: [
     "./index.html",
@@ -8,7 +9,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Montserrat", ...defaultTheme.fontFamily.sans],
+        sans: ["Inter", ...fontFamily.sans],
       },
       colors: {
         primary: '#076163', // Color primario
@@ -20,4 +21,3 @@ export default {
   },
   plugins: [],
 }
-

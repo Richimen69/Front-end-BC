@@ -32,6 +32,7 @@ export const movimientos = [
     { value: "NO PROCEDE", label: "NO PROCEDE" },
     { value: "PENDIENTE", label: "PENDIENTE" },
     { value: "TERMINADO", label: "TERMINADO" },
+    { value: "REVISANDO DOCUMENTACIÓN", label: "REVISANDO DOCUMENTACIÓN" },
   ];
 
   export const agente = [

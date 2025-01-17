@@ -3,7 +3,7 @@ import LogoPrincipal from "../assets/logos/LogoPrincipal.svg";
 import Next from "../assets/botones/next.svg";
 import LogoPrincipalBlanco from "../assets/logos/LogoPrincipalBlanco.png";
 import { useNavigate } from "react-router-dom";
-
+import { data } from "autoprefixer";
 function Login() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
@@ -34,12 +34,11 @@ function Login() {
       });
   
       const data = await response.json();
-  
+      
       if (data.status === 'success') {
         // Guardar el token JWT en localStorage
         localStorage.setItem('token', data.token);
-        // Redirigir al usuario a una página protegida
-        navigate("/tramites");
+        navigate("/");
       } else {
         setError(data.message || "Credenciales incorrectas.");
       }

@@ -10,5 +10,6 @@ export function InputPrima(props) {
         />
         <span className="mr-2">MXN</span>
       </div>
+      
     )
 }
