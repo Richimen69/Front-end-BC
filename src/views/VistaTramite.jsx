@@ -12,6 +12,7 @@ function VistaTramite() {
   const [error, setError] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [dias, setDias] = useState("");
 
   const { id } = location.state || {}; // Obtener el id desde el estado
 
@@ -41,6 +42,53 @@ function VistaTramite() {
           } else {
             setError("No hay observaciones disponibles.");
           }
+
+          // Calcular días de diferencia si el cliente está encontrado
+          if (clienteEncontrado?.fecha && clienteEncontrado?.fecha_pago) {
+            const calcularDiasDeDiferencia = (fecha1, fecha2) => {
+              const convertirAFecha = (fechaStr) => {
+                const [dia, mes, anio] = fechaStr.split("/").map(Number);
+                // Asegurándonos de que las fechas sean interpretadas correctamente
+                const fechaFormateada = `${anio}-${
+                  mes < 10 ? "0" + mes : mes
+                }-${dia < 10 ? "0" + dia : dia}`;
+                console.log("Fecha formateada: ", fechaFormateada); // Verifica cómo se convierte la fecha
+                return new Date(fechaFormateada);
+              };
+
+              // Convertir ambas fechas
+              const date1 = convertirAFecha(fecha1);
+              const date2 = convertirAFecha(fecha2);
+
+              // Calcular la diferencia en milisegundos
+              const diferenciaEnMilisegundos = date2 - date1;
+              console.log(
+                "Diferencia en milisegundos: ",
+                diferenciaEnMilisegundos
+              );
+
+              // Verificar si la fecha es válida
+              if (isNaN(diferenciaEnMilisegundos)) {
+                console.error("Una de las fechas no es válida.");
+                return NaN; // Si alguna fecha es inválida, retornamos NaN
+              }
+              // Convertir la diferencia a días y redondear hacia abajo
+              return Math.floor(
+                diferenciaEnMilisegundos / (1000 * 60 * 60 * 24)
+              );
+            };
+
+            const diasDeDiferencia = calcularDiasDeDiferencia(
+              clienteEncontrado.fecha_termino,
+              clienteEncontrado.fecha_pago
+            );
+
+            if(diasDeDiferencia >= 0){
+              setDias(diasDeDiferencia);
+            }else{
+              setDias("0");
+            }
+          }
         }
       } catch (error) {
         setError("Error al obtener los datos.");
@@ -48,7 +96,6 @@ function VistaTramite() {
     };
     fetchData();
   }, [id]);
-
   const clienteEncontrado = clientes.find(
     (cliente) => cliente.id_tramite === id
   );
@@ -63,6 +110,7 @@ function VistaTramite() {
       </div>
     );
   }
+
   return (
     <div className="container mx-auto p-6">
       <div className="w-full bg-white p-5 rounded-xl">
@@ -118,8 +166,20 @@ function VistaTramite() {
                 <p>{clienteEncontrado.movimiento}</p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-primary">Estatus</h3>
-                <p>{clienteEncontrado.estatus}</p>
+                <h3 className="font-semibold text-primary">Estado</h3>
+                <p
+                  className={`inline-block px-2 py-1 rounded ${
+                    clienteEncontrado.estatus === "TERMINADO"
+                      ? "bg-[#2E7D32] text-white"
+                      : clienteEncontrado.estatus === "EN PROCESO"
+                      ? "bg-[#F57F17] text-white"
+                      : clienteEncontrado.estatus === "PENDIENTE"
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-300 text-black" // Fondo por defecto si no coincide con ningún caso
+                  }`}
+                >
+                  {clienteEncontrado.estatus}
+                </p>
               </div>
             </div>
             <div>
@@ -128,13 +188,51 @@ function VistaTramite() {
             <div>
               {clienteEncontrado.estatus === "TERMINADO" ? (
                 <div>
-                  <div className="grid gap-6 md:grid-cols-2">
+                  <div className="grid gap-6 md:grid-cols-3">
                     <div className="space-y-2">
                       <h3 className="font-semibold text-primary">
                         Fecha de pago
                       </h3>
                       <p>{clienteEncontrado.fecha_pago}</p>
                     </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-primary">
+                        Dias de atraso
+                      </h3>
+                      <p>{dias}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-primary">
+                        Estado de pago
+                      </h3>
+                      <p
+                        className={`inline-block px-2 py-1 rounded ${
+                          clienteEncontrado.estatus_pago === "PAGADA"
+                            ? "bg-[#2E7D32] text-white"
+                            : clienteEncontrado.estatus_pago ===
+                              "SE MANDO RECIVO"
+                            ? "bg-[#F57F17] text-white"
+                            : clienteEncontrado.estatus_pago === "NO PAGADA"
+                            ? "bg-red-500 text-white"
+                            : "bg-gray-300 text-black" // Fondo por defecto si no coincide con ningún caso
+                        }`}
+                      >
+                        {clienteEncontrado.estatus_pago}
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    {clienteEncontrado.observaciones != "" ? (
+                      <div>
+                        <h3 className="font-semibold text-primary">
+                          Observaciones de pago
+                        </h3>
+                        <p>{clienteEncontrado.observaciones}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div>
+                    <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
                   </div>
                   <div className="grid gap-6 md:grid-cols-4 mt-5">
                     <div className="space-y-2">
@@ -184,7 +282,8 @@ function VistaTramite() {
                 </div>
               ))}
             </div>
-            {clienteEncontrado.estatus === "TERMINADO" ? (
+            {clienteEncontrado.estatus_pago === "PAGADA" &&
+            clienteEncontrado.estatus === "TERMINADO" ? (
               <div className="flex justify-center">
                 <button
                   onClick={() => {

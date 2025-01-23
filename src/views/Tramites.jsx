@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import useProtectedData from "../hooks/useProtectedData";
+import { FiChevronDown } from "react-icons/fi";
 import {
   buscarTramitePorFolio,
   fetchTramites,
@@ -48,7 +49,7 @@ function Tramites() {
       const data = await buscarTramitePorFolio(folio);
       if (data.success !== false) {
         console.log("Trámite encontrado:", data);
-        navigate("/tramitecliente", { state: { id: data.id_tramite } });
+        navigate("/vistaprevia", { state: { id: data.id_tramite } });
       } else {
         console.log("Trámite no encontrado.");
         setError("No se encontró un trámite con ese folio.");
@@ -111,32 +112,38 @@ function Tramites() {
             className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[250x] mx-20 focus:outline-none placeholder:text-black/70"
           />
           {/* Filtro por movimiento */}
-          <select
-            value={movimientoFiltro}
-            onChange={(e) => setMovimientoFiltro(e.target.value)}
-            className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
-          >
-            <option value="">Todos los movimientos</option>
-            {movimientos.map((movimiento) => (
-              <option key={movimiento.value} value={movimiento.value}>
-                {movimiento.label}
-              </option>
-            ))}
-          </select>
+          <div className="relative w-[250px] mx-2 flex">
+            <select
+              value={movimientoFiltro}
+              onChange={(e) => setMovimientoFiltro(e.target.value)}
+              className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-full focus:outline-none appearance-none hover:cursor-pointer hover:border-primary"
+            >
+              <option value="">Todos los movimientos</option>
+              {movimientos.map((movimiento) => (
+                <option key={movimiento.value} value={movimiento.value}>
+                  {movimiento.label}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
 
           {/* Filtro por estatus */}
-          <select
-            value={estatusFiltro}
-            onChange={(e) => setEstatusFiltro(e.target.value)}
-            className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-[250px] mx-2 focus:outline-none"
-          >
-            <option value="">Todos los estatus</option>
-            {estatus.map((estatusOption) => (
-              <option key={estatusOption.value} value={estatusOption.value}>
-                {estatusOption.label}
-              </option>
-            ))}
-          </select>
+          <div className="relative w-[250px] mx-2 flex">
+            <select
+              value={estatusFiltro}
+              onChange={(e) => setEstatusFiltro(e.target.value)}
+              className="border-secondary text-black input px-[10px] text-lg bg-white border-2 rounded-[19px] w-full focus:outline-none appearance-none hover:cursor-pointer hover:border-primary"
+            >
+              <option value="">Todos los estatus</option>
+              {estatus.map((estatusOption) => (
+                <option key={estatusOption.value} value={estatusOption.value}>
+                  {estatusOption.label}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
           <button
             className="ml-auto mr-10 border border-secondary rounded-[19px] p-3 bg-white hover:bg-primary hover:text-white"
             onClick={() => setIsFormVisible(true)}
@@ -188,7 +195,7 @@ function Tramites() {
                     {cliente.folio}
                   </td>
                   <td className="border-2 border-secondary p-2">
-                      {cliente.nombre}
+                    {cliente.nombre}
                   </td>
 
                   <td className="border-2 border-secondary p-2">

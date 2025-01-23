@@ -90,7 +90,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       beneficiario: beneficiarioSeleccionado.value,
       movimiento: movimientoSeleccionado.value,
       afianzadora: afianzadoraSeleccionada.value,
-      estatus: "REVISANDO DOCUMENTACIÓN",
+      estatus: "EN REVISIÓN DE DOCUMENTOS",
       observaciones: "",
       id_cliente: clienteSeleccionado.value,
     };

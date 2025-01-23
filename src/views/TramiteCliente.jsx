@@ -10,7 +10,7 @@ import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
 import { estatus, estatus_pagos } from "../components/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { updateTramite } from "../services/tramitesClientes";
 import {
   buscarMovimiento,
@@ -26,7 +26,7 @@ function TramiteCliente() {
   const [movimientos, setMovimientos] = useState([]);
   const [usuario, setUsuario] = useState("");
   const [estatusSeleccionado, setEstatus] = useState(null);
-  const [fechaTermino, setFechaTermino] = useState(null);
+  const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [fechaPago, setFechaPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
   const [observaciones, setObservaciones] = useState("");
@@ -76,10 +76,8 @@ function TramiteCliente() {
         if (clienteEncontrado) {
           setPrima_inicial(clienteEncontrado.prima_inicial || "");
           setPrima_futura(clienteEncontrado.prima_futura || "");
-          setPrima_total(clienteEncontrado.prima_total || "");
           setImporte_total(clienteEncontrado.importe_total || "");
           setFianza(clienteEncontrado.fianza || "");
-          setFechaTermino(clienteEncontrado.fecha_termino || null);
           setFechaPago(clienteEncontrado.fecha_pago || null);
           setObservaciones(clienteEncontrado.observaciones || "");
 
@@ -88,6 +86,25 @@ function TramiteCliente() {
           setEstatus(
             estatus.find((option) => option.value === estatusPorDefecto) || null
           );
+
+          const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
+
+          // Verificar si el valor de estatus_pago es "PAGADA"
+          if (estatusPagoPorDefecto === "PAGADA") {
+            setEstatusPago({ value: "PAGADA", label: "PAGADA" });
+          } else {
+            // Si no es "PAGADA", buscar el valor en estatus_pagos o asignar "PENDIENTE"
+            const estatusPagoSeleccionado = estatus_pagos.find(
+              (option) => option.value === estatusPagoPorDefecto
+            );
+
+            setEstatusPago(
+              estatusPagoSeleccionado || {
+                value: "PENDIENTE",
+                label: "PENDIENTE",
+              }
+            );
+          }
 
           // Obtener movimientos
           const movimientosData = await buscarMovimiento(id);
@@ -111,6 +128,9 @@ function TramiteCliente() {
 
   const handleEstatusChange = (selectedOption) => {
     setEstatus(selectedOption);
+  };
+  const handleEstatusPagoChange = (selectedOption) => {
+    setEstatusPago(selectedOption);
   };
 
   // Buscar el cliente por el id
@@ -214,8 +234,9 @@ function TramiteCliente() {
   }
 
   const handleSubmit = async () => {
-    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
-    const estatusPago = fechaPago === null ? "NO PAGADA" : "PAGADA";
+    const fechaFormateada = format(new Date(), "dd/MM/yyyy");
+    const estatusPago =
+      fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
     const estatusTerminado =
       estatusSeleccionado?.value === "TERMINADO" ? `${fechaFormateada}` : null;
     const data = {
@@ -223,10 +244,10 @@ function TramiteCliente() {
       estatus: estatusSeleccionado?.value || "", // Manejar valor no definido
       observaciones: observaciones || "",
       fianza: fianza || "",
-      prima_inicial: prima_inicial || "",
-      prima_futura: prima_futura || "",
-      prima_total:  (Number(prima_futura) || 0) + (Number(prima_inicial) || 0),
-      importe_total: importe_total || "",
+      prima_inicial: prima_inicial || null,
+      prima_futura: prima_futura || null,
+      prima_total: (Number(prima_futura) || 0) + (Number(prima_inicial) || 0),
+      importe_total: importe_total || null,
       fecha_termino: estatusTerminado || null,
       fecha_pago: fechaPago || null,
       estatus_pago: estatusPago,
@@ -337,20 +358,65 @@ function TramiteCliente() {
               <DatePicker
                 showIcon
                 toggleCalendarOnIconClick
-                selected={fechaPago}
+                selected={
+                  fechaPago
+                    ? parse(fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
+                    : null
+                }
                 onChange={(date) => {
                   if (date) {
-                    setFechaPago(date);
+                    const formattedDate = format(date, "dd/MM/yyyy"); // Asegura el formato deseado.
+                    setFechaPago(formattedDate); // Guarda la fecha formateada en el estado.
                   }
                 }}
+                dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
                 className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
               />
             </div>
-            <div>
-              <p className="block text-primary font-bold">Estatus de pago:</p>
-              <p className="mt-1">{clienteEncontrado.estatus_pago}</p>
+            <div className="mb-4">
+              <label className="block text-primary font-bold">
+                Estado de pago:
+              </label>
+
+              {estatusPagoSeleccionado.value === "PAGADA" ? (
+                <div><p className="mt-1">PAGADA</p></div>
+              ) : (
+                <div>
+                  <Select
+                    options={estatus_pagos}
+                    defaultValue={estatusPagoSeleccionado}
+                    value={estatusPagoSeleccionado}
+                    onChange={handleEstatusPagoChange}
+                    placeholder="Seleccionar estatus..."
+                    theme={(theme) => ({
+                      ...theme,
+                      colors: {
+                        ...theme.colors,
+                        primary25: "#DDBE86",
+                        primary: "#076163",
+                      },
+                    })}
+                  />
+                </div>
+              )}
             </div>
           </div>
+          {estatusPagoSeleccionado.value === "NO PAGADA" ? (
+            <div className="pt-5 flex items-center justify-center">
+              <div className="w-3/6">
+                <p className="block text-primary font-bold">
+                  Observaciones de pago
+                </p>
+                <textarea
+                  type="text"
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                  className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
+                  placeholder=""
+                ></textarea>
+              </div>
+            </div>
+          ) : null}
           <div className="flex gap-20 mt-10">
             <div>
               <p className="block text-primary font-bold">Prima inicial</p>
@@ -381,21 +447,8 @@ function TramiteCliente() {
               <InputPrima
                 value={importe_total}
                 onChange={(e) => setImporte_total(e.target.value)}
-                disabled
               />
             </div>
-          </div>
-          <div className="pt-10">
-            <p className="block text-primary font-bold">
-              Observaciones de pago
-            </p>
-            <textarea
-              type="text"
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
-              placeholder=""
-            ></textarea>
           </div>
           <div className="flex items-center justify-center p-5 gap-5">
             <button
@@ -433,7 +486,9 @@ function TramiteCliente() {
                     <p className="leading-5 break-words text-primary">
                       {dato.movimiento}
                     </p>
-                      <p className="mt-3 text-sm text-black/80 font-bold">{dato.nombre}</p>
+                    <p className="mt-3 text-sm text-black/80 font-bold">
+                      {dato.nombre}
+                    </p>
                   </div>
                   <div className=" px-4 py-2 rounded">
                     {estatusSeleccionado?.value != "TERMINADO" ? (
