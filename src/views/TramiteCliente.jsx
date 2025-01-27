@@ -17,6 +17,7 @@ import {
   createMovimiento,
   deleteMovimiento,
 } from "../services/movimientos";
+import { PendientesBC } from "@/components/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function TramiteCliente() {
   const [prima_total, setPrima_total] = useState("");
   const [importe_total, setImporte_total] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-
+  const [showDialog, setShowDialog] = useState(false);
   const { id } = location.state || {}; // Obtener el id desde el estado
 
   const toggleFormulario = () => {
@@ -379,7 +380,9 @@ function TramiteCliente() {
               </label>
 
               {estatusPagoSeleccionado.value === "PAGADA" ? (
-                <div><p className="mt-1">PAGADA</p></div>
+                <div>
+                  <p className="mt-1">PAGADA</p>
+                </div>
               ) : (
                 <div>
                   <Select
@@ -458,13 +461,17 @@ function TramiteCliente() {
               Guardar cambios
             </button>
             <button
-              className="w-[200px] text-white border border-[#E82561] hover:opacity-80 bg-[#E82561] hover:text-white p-3 px-5 rounded-lg transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
-              onClick={() => {
-                navigate("/tramites");
+              className="w-[200px] text-white border border-[#E82561] hover:opacity-80 bg-[#E82561] hover:text-white p-3 px-5 rounded-lg transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowDialog(true); // Mostrar el componente PendientesBC
               }}
             >
               Cancelar
             </button>
+            {showDialog && (
+              <PendientesBC onClose={() => setShowDialog(false)} id={id}/>
+            )}
           </div>
         </form>
         <div className="pt-5">
@@ -559,6 +566,7 @@ function TramiteCliente() {
             ) : null}
           </div>
         </div>
+        <div></div>
       </div>
       <Toaster position="top-center" richColors />
     </div>

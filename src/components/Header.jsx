@@ -26,18 +26,27 @@ function header() {
         </div>
         <nav>
           <ul className="flex space-x-6">
-            <Link to="/tramites">
-              <li className="hover:text-secondary">Trámites</li>
-            </Link>
-            {/* 
             <Link to="/">
               <li className="hover:text-secondary">Dashboard</li>
             </Link>
+            <Link to="/tramites">
+              <li className="hover:text-secondary">Trámites</li>
+            </Link>
+            <Link to="/tramites">
+              <li className="hover:text-secondary">Clientes</li>
+            </Link>
+            <Link to="/tramites">
+              <li className="hover:text-secondary">RPP</li>
+            </Link>
+            {/* 
             <Link to="/reportes">
               <li className="hover:text-secondary">Generar reporte</li>
             </Link> */}
             <li>
-              <button className="hover:opacity-45 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300" onClick={handleLogout}>
+              <button
+                className="hover:opacity-45 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
+                onClick={handleLogout}
+              >
                 <IconContext.Provider
                   value={{
                     color: "#076163",
@@ -48,6 +57,9 @@ function header() {
                   <MdOutlineLogout />
                 </IconContext.Provider>
               </button>
+            </li>
+            <li>
+              
             </li>
           </ul>
         </nav>

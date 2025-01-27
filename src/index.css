@@ -13,3 +13,9 @@ input[type="number"] {
   -moz-appearance: textfield; /* Para Firefox */
   appearance: none; /* Para navegadores más modernos */
 }
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
