@@ -1,18 +1,17 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import FormularioTramite from "../components/FormularioTramite";
-import { movimientos, estatus } from "../components/Constans";
+import FormularioTramite from "@/components/forms/FormularioTramite";
+import { movimientos, estatus } from "@/utils/Constans";
 import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { Link } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import useProtectedData from "../hooks/useProtectedData";
 import { FiChevronDown } from "react-icons/fi";
 import {
   buscarTramitePorFolio,
   fetchTramites,
-} from "../services/tramitesClientes";
+} from "@/services/tramitesClientes";
 function Tramites() {
   const [clientes, setClientes] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -215,8 +214,24 @@ function Tramites() {
                     <td className="border-2 text-[#F57F17] border-secondary p-2 bg-[#FFF9C4]">
                       {cliente.estatus}
                     </td>
-                  ) : (
+                  ) : cliente.estatus === "EN REVISIÓN DE DOCUMENTOS" ? (
+                    <td className="border-2 text-[#2196F3] border-secondary p-2 bg-[#E3F2FD]">
+                      {cliente.estatus}
+                    </td>
+                  ) : cliente.estatus === "EN REVISIÓN DE PREVIAS" ? (
+                    <td className="border-2 text-[#64B5F6] border-secondary p-2 bg-[#BBDEFB]">
+                      {cliente.estatus}
+                    </td>
+                  ) : cliente.estatus === "NO PROCEDE" ? (
                     <td className="border-2 text-[#C62828] border-secondary p-2 bg-[#FFCDD2]">
+                      {cliente.estatus}
+                    </td>
+                  ) : cliente.estatus === "PENDIENTE" ? (
+                    <td className="border-2 text-[#9E9E9E] border-secondary p-2 bg-[#F5F5F5]">
+                      {cliente.estatus}
+                    </td>
+                  ) : (
+                    <td className="border-2 text-[#000000] border-secondary p-2 bg-[#E0E0E0]">
                       {cliente.estatus}
                     </td>
                   )}

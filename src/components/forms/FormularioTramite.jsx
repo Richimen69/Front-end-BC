@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Toaster, toast } from "sonner";
-import { agente, movimientos } from "../components/Constans";
+import { agente, movimientos } from "@/utils/Constans";
 import {
   fetchClientes,
   fetchAfianzadoras,
   fetchBeficiarios,
-} from "../services/datosTramites";
-import { createTramite } from "../services/tramitesClientes";
+} from "@/services/datosTramites";
+import { createTramite } from "@/services/tramitesClientes";
 import { format } from "date-fns";
 const FormularioTramite = ({ isVisible, onClose }) => {
+
   const storedUser = localStorage.getItem("user");
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);

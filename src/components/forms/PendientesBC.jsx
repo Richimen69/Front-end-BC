@@ -34,56 +34,70 @@ import {
 } from "@/components/ui/popover";
 import { fetchTramites } from "@/services/tramitesClientes";
 import { updateTramite } from "@/services/tramitesClientes";
-export function PendientesBC({ onClose, id }) {
+import { useNavigate } from "react-router-dom";
+
+export function PendientesBC({ onClose, id, datosCliente }) {
+  const navigate = useNavigate();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
-  const [date, setDate] = React.useState();
+  const [date, setDate] = React.useState(null);
   const [clientes, setClientes] = useState([]);
   const [observaciones, setObservaciones] = useState("");
   const [tieneCompromiso, setTieneCompromiso] = useState("");
-  const [fecha, setFecha] = useState("");
   const [categoria, setCategoria] = useState("");
+
   useEffect(() => {
     const fetchData = async () => {
+      console.log(datosCliente);
       try {
         const data = await fetchTramites();
         setClientes(data);
-        
+
         // Encontrar el cliente directamente después de obtener los datos
-        const clienteEncontrado = data.find((cliente) => cliente.id_tramite === id);
-        
+        const clienteEncontrado = data.find(
+          (cliente) => cliente.id_tramite === id
+        );
+
         if (clienteEncontrado) {
           setObservaciones(clienteEncontrado.observacion_compromiso || "");
-          if(clienteEncontrado.tiene_compromiso === "SI"){
-            setIsSwitchOn(true)
+          if (clienteEncontrado.tiene_compromiso === "SI") {
+            setIsSwitchOn(true);
           }
-          setDate(clienteEncontrado.fecha_compromiso)
-
+          setDate(clienteEncontrado.fecha_compromiso);
         }
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       }
     };
-  
+
     fetchData();
   }, [id]);
-  
 
   const clienteEncontrado = clientes.find(
     (cliente) => cliente.id_tramite === id
   );
 
   const handleSubmit = async () => {
-    if(isSwitchOn=== true){
-        setTieneCompromiso("SI")
+    if (isSwitchOn === true) {
+      setTieneCompromiso("SI");
+    } else if (isSwitchOn === false) {
+      setTieneCompromiso("NO");
     }
-    else if (isSwitchOn=== false) {
-        setTieneCompromiso("NO")
-    }
+    const fechaCompromiso = date ? format(date, "MM/dd/yyyy") : null;
     const data = {
       id_tramite: id,
+      estatus: datosCliente.estatusSeleccionado.value || "",
+      observaciones: datosCliente.observaciones || "",
+      fianza: datosCliente.fianza || "",
+      prima_inicial: datosCliente.prima_inicial || null,
+      prima_futura: datosCliente.prima_futura || null,
+      prima_total: datosCliente.importe_total || null,
+      importe_total: datosCliente.importe_total || null,
+      fecha_termino: datosCliente.fecha_termino || null,
+      fecha_pago: datosCliente.fechaPago || null,
+      estatus_pago: datosCliente.estatusPago,
       tiene_compromiso: tieneCompromiso,
       observacion_compromiso: observaciones,
-      fecha_compromiso: format(date, "MM/dd/yyyy"),
+      fecha_compromiso: fechaCompromiso,
       categoria_compromiso: categoria,
     };
     try {
@@ -96,8 +110,6 @@ export function PendientesBC({ onClose, id }) {
       } else {
         toast.error("Error al guardar el Compromiso.");
       }
-      console.log(result);
-      console.log(data);
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
@@ -108,18 +120,24 @@ export function PendientesBC({ onClose, id }) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>¿Tiene Compromisos?</DialogTitle>
+          {datosCliente.estatusSeleccionado.value === "TERMINADO" ? (
+            <DialogTitle>¿Tiene Compromisos?</DialogTitle>
+          ) : (
+            <DialogTitle>¿Desea guardar los cambios?</DialogTitle>
+          )}
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="airplane-mode"
-            checked={isSwitchOn}
-            onCheckedChange={setIsSwitchOn}
-          />
-          <Label htmlFor="airplane-mode" className="text-left">
-            {isSwitchOn ? "Sí" : "No"}
-          </Label>
-        </div>
+        {datosCliente.estatusSeleccionado.value === "TERMINADO" ? (
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="airplane-mode"
+              checked={isSwitchOn}
+              onCheckedChange={setIsSwitchOn}
+            />
+            <Label htmlFor="airplane-mode" className="text-left">
+              {isSwitchOn ? "Sí" : "No"}
+            </Label>
+          </div>
+        ) : null}
         {isSwitchOn && (
           <div className="grid gap-4 py-4 items-center justify-center">
             <div className="grid w-full grid-cols-4 items-center gap-4">
@@ -130,8 +148,12 @@ export function PendientesBC({ onClose, id }) {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>COMPROMISOS</SelectLabel>
-                    <SelectItem value="BC-AFIANZADORA">BC-AFIANZADORA</SelectItem>
-                    <SelectItem value="CLIENTES-AFIANZADORA">CLIENTES-AFIANZADORA</SelectItem>
+                    <SelectItem value="BC-AFIANZADORA">
+                      BC-AFIANZADORA
+                    </SelectItem>
+                    <SelectItem value="CLIENTES-AFIANZADORA">
+                      CLIENTES-AFIANZADORA
+                    </SelectItem>
                     <SelectItem value="CLIENTES-BC">CLIENTES-BC</SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -146,7 +168,8 @@ export function PendientesBC({ onClose, id }) {
                 onChange={(e) => setObservaciones(e.target.value)}
               />
             </div>
-            <div>
+            <div className="grid w-full gap-1.5">
+              <Label htmlFor="message">Fecha de compromiso</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -183,7 +206,7 @@ export function PendientesBC({ onClose, id }) {
               handleSubmit(); // Cierra el diálogo al guardar cambios
             }}
           >
-            Save changes
+            Guardar Tramite
           </Button>
         </DialogFooter>
       </DialogContent>

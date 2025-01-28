@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { StatCard } from "@/components/stat-card"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 import { PieChart, Pie, Cell } from "recharts"
-
+import useProtectedData from "@/hooks/useProtectedData";
 const approvalData = [
   { name: "Ene", value1: 40, value2: 30, value3: 45, value4: 35 },
   { name: "Feb", value1: 35, value2: 45, value3: 40, value4: 40 },
@@ -19,6 +19,7 @@ const donutData = [
 ]
 
 export default function Dashboard() {
+  useProtectedData()
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>

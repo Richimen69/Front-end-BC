@@ -1,8 +1,8 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "./views/Login";
-import Header from "./components/Header";
+import Header from "./components/layout/Header";
 import Dashboard from "./views/Dashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./components/utils/ProtectedRoute";
 import NotFound from "./views/NotFound";
 import Tramites from "./views/Tramites";
 import TramiteCliente from "./views/TramiteCliente";

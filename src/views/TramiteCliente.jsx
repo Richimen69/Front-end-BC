@@ -8,7 +8,7 @@ import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
-import { estatus, estatus_pagos } from "../components/Constans";
+import { estatus, estatus_pagos } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
 import { updateTramite } from "../services/tramitesClientes";
@@ -17,7 +17,7 @@ import {
   createMovimiento,
   deleteMovimiento,
 } from "../services/movimientos";
-import { PendientesBC } from "@/components/PendientesBC";
+import { PendientesBC } from "@/components/forms/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -26,19 +26,27 @@ function TramiteCliente() {
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
   const [usuario, setUsuario] = useState("");
-  const [estatusSeleccionado, setEstatus] = useState(null);
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
-  const [fechaPago, setFechaPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
-  const [observaciones, setObservaciones] = useState("");
-  const [fianza, setFianza] = useState("");
-  const [prima_inicial, setPrima_inicial] = useState("");
-  const [prima_futura, setPrima_futura] = useState("");
-  const [prima_total, setPrima_total] = useState("");
   const [importe_total, setImporte_total] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const { id } = location.state || {}; // Obtener el id desde el estado
+  const { id } = location.state || {};
+  const [formData, setFormData] = useState({
+    id: location.state.id,
+    estatusSeleccionado: null,
+    estatusPago: null,
+    fechaPago: null,
+    fecha_termino: null,
+    observaciones: "",
+    fianza: "",
+    prima_inicial: "",
+    prima_futura: "",
+    prima_total: "",
+    importe_total: "",
+  });
+
+  // Obtener el id desde el estado
 
   const toggleFormulario = () => {
     setMostrarFormulario(!mostrarFormulario);
@@ -75,21 +83,21 @@ function TramiteCliente() {
           (cliente) => cliente.id_tramite === id
         );
         if (clienteEncontrado) {
-          setPrima_inicial(clienteEncontrado.prima_inicial || "");
-          setPrima_futura(clienteEncontrado.prima_futura || "");
-          setImporte_total(clienteEncontrado.importe_total || "");
-          setFianza(clienteEncontrado.fianza || "");
-          setFechaPago(clienteEncontrado.fecha_pago || null);
-          setObservaciones(clienteEncontrado.observaciones || "");
-
-          // Asignar estatus inicial
-          const estatusPorDefecto = clienteEncontrado.estatus;
-          setEstatus(
-            estatus.find((option) => option.value === estatusPorDefecto) || null
-          );
+          setFormData((prevState) => ({
+            ...prevState, // Mantén el resto de las propiedades
+            prima_inicial: clienteEncontrado.prima_inicial || "",
+            prima_futura: clienteEncontrado.prima_futura || "",
+            prima_total: clienteEncontrado.prima_total || "",
+            fianza: clienteEncontrado.fianza || "",
+            fechaPago: clienteEncontrado.fecha_pago || null,
+            observaciones: clienteEncontrado.observaciones || "",
+            estatusSeleccionado:
+              estatus.find(
+                (option) => option.value === clienteEncontrado.estatus
+              ) || null,
+          }));
 
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
-
           // Verificar si el valor de estatus_pago es "PAGADA"
           if (estatusPagoPorDefecto === "PAGADA") {
             setEstatusPago({ value: "PAGADA", label: "PAGADA" });
@@ -98,7 +106,6 @@ function TramiteCliente() {
             const estatusPagoSeleccionado = estatus_pagos.find(
               (option) => option.value === estatusPagoPorDefecto
             );
-
             setEstatusPago(
               estatusPagoSeleccionado || {
                 value: "PENDIENTE",
@@ -108,16 +115,8 @@ function TramiteCliente() {
           }
 
           // Obtener movimientos
-          const movimientosData = await buscarMovimiento(id);
-          setMovimientos(
-            movimientosData.map((mov) => ({
-              id_movimiento: mov.id_movimiento,
-              movimiento: mov.movimiento,
-              fecha: mov.fecha,
-              nombre: mov.nombre,
-              id_tramite: mov.id_tramite,
-            }))
-          );
+          actualizarMovimientos(id);
+
         }
       } catch (error) {
         console.error("Error al obtener los datos:", error);
@@ -127,8 +126,33 @@ function TramiteCliente() {
     fetchData();
   }, [id]);
 
+  const actualizarMovimientos = async (id) => {
+    try {
+      const movimientosData = await buscarMovimiento(id);
+      if (Array.isArray(movimientosData) && movimientosData.length > 0) {
+        setMovimientos(
+          movimientosData.map((mov) => ({
+            id_movimiento: mov.id_movimiento,
+            movimiento: mov.movimiento,
+            fecha: mov.fecha,
+            nombre: mov.nombre,
+            id_tramite: mov.id_tramite,
+          }))
+        );
+      } else {
+        setMovimientos([]); // Si no hay movimientos, establece el estado como vacío
+      }
+    } catch (error) {
+      console.error("Error al obtener los movimientos:", error);
+    }
+  };
+  
+
   const handleEstatusChange = (selectedOption) => {
-    setEstatus(selectedOption);
+    setFormData((prevState) => ({
+      ...prevState,
+      estatusSeleccionado: selectedOption,
+    }));
   };
   const handleEstatusPagoChange = (selectedOption) => {
     setEstatusPago(selectedOption);
@@ -138,38 +162,6 @@ function TramiteCliente() {
   const clienteEncontrado = clientes.find(
     (cliente) => cliente.id_tramite === id
   );
-
-  const alerta = async (e) => {
-    e.preventDefault();
-
-    toast.custom(
-      (t) => (
-        <div className="flex flex-col items-center justify-center bg-white p-10 rounded-3xl shadow-2xl border border-primary">
-          <p className="text-primary text-xl">¿Desea guardar cambios?</p>
-          <div className="flex gap-5 mt-5">
-            <button
-              onClick={() => {
-                toast.dismiss(t.id);
-                handleSubmit(); // Llamamos a handleSubmit cuando el usuario confirma
-              }}
-              className="p-2 bg-[#16C47F] rounded-xl w-[100px] hover:bg-[#16C47F] hover:opacity-40 text-white transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
-            >
-              Confirmar
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)} // Cierra la alerta si el usuario cancela
-              className="p-2 bg-[#E82561] rounded-xl hover:bg-red-300 w-[100px] text-white transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        duration: Infinity, // Mantener la alerta visible hasta que se decida
-      }
-    );
-  };
 
   const agregarMovimiento = async (e) => {
     e.preventDefault();
@@ -185,39 +177,48 @@ function TramiteCliente() {
     try {
       const result = await createMovimiento(data);
       if (result.success) {
-        toast.success("Movimiento guardado exitosamente.");
-        handleSubmit();
-        navigate(0);
+        toast.success("Observaciones guardadas exitosamente.");
+        actualizarMovimientos(id); 
+        setMovimientos((prevMovimientos) => [
+          ...prevMovimientos,
+          {
+            id_movimiento: result.id_movimiento,
+            movimiento: movimiento,
+            fecha: fechaFormateada,
+            nombre: usuario,
+            id_tramite: id,
+          },
+        ]);
       } else {
-        toast.error("Error al guardar el movimiento.");
+        toast.error("Error al guardar Observaciones.");
       }
       console.log(result);
       setMovimiento("");
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
-      toast.error("Hubo un problema al guardar el movimiento.");
+      toast.error("Hubo un problema al guardar las Observaciones.");
     }
   };
 
   const borrarMovimiento = async (id_movimiento) => {
+    console.log(movimientos)
     try {
       const result = await deleteMovimiento(id_movimiento); // Parsear la respuesta a JSON
 
       if (result.success) {
-        toast.success("Movimiento borrado exitosamente.");
-        setTimeout(() => {
-          handleSubmit();
-          navigate(0);
-        }, 1500);
+        toast.success("Observaciones borradas exitosamente.");
+        setMovimientos((prevMovimientos) =>
+          prevMovimientos.filter((mov) => mov.id_movimiento !== id_movimiento)
+        );
       } else {
-        toast.error("Error al borrar el movimiento."); // Mostrar mensaje de error si algo sale mal
+        toast.error("Error al borrar las Observaciones."); // Mostrar mensaje de error si algo sale mal
       }
 
       console.log(result); // Loguear el resultado para debugging
       setMovimiento(""); // Limpiar el estado relacionado si es necesario
     } catch (error) {
       console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
-      toast.error("Hubo un problema al borrar el movimiento."); // Mostrar mensaje de error genérico
+      toast.error("Hubo un problema al borrar las Observaciones."); // Mostrar mensaje de error genérico
     }
   };
 
@@ -234,47 +235,37 @@ function TramiteCliente() {
     );
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     const fechaFormateada = format(new Date(), "dd/MM/yyyy");
     const estatusPago =
-      fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
+      formData.fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
     const estatusTerminado =
-      estatusSeleccionado?.value === "TERMINADO" ? `${fechaFormateada}` : null;
-    const data = {
-      id_tramite: id,
-      estatus: estatusSeleccionado?.value || "", // Manejar valor no definido
-      observaciones: observaciones || "",
-      fianza: fianza || "",
-      prima_inicial: prima_inicial || null,
-      prima_futura: prima_futura || null,
-      prima_total: (Number(prima_futura) || 0) + (Number(prima_inicial) || 0),
-      importe_total: importe_total || null,
-      fecha_termino: estatusTerminado || null,
-      fecha_pago: fechaPago || null,
-      estatus_pago: estatusPago,
-    };
-    try {
-      const result = await updateTramite(data);
-      if (result.success) {
-        toast.success("Trámite guardado exitosamente.");
-        setTimeout(() => {
-          navigate("/tramites");
-        }, 1500);
-      } else {
-        toast.error("Error al guardar el trámite.");
-      }
-      console.log(result);
-      console.log(data);
-    } catch (error) {
-      console.error("Error al enviar la solicitud:", error);
-      toast.error("Hubo un problema al guardar el trámite.");
-    }
+      formData.estatusSeleccionado.value === "TERMINADO"
+        ? `${fechaFormateada}`
+        : null;
+
+    setFormData((prevState) => {
+      const nuevaPrimaTotal =
+        (Number(prevState.prima_inicial) || 0) +
+        (Number(prevState.prima_futura) || 0);
+
+      return {
+        ...prevState, // Mantén el resto de las propiedades
+        estatusPago: estatusPago || null,
+        fecha_termino: estatusTerminado || null,
+        prima_total: nuevaPrimaTotal,
+      };
+    });
+
+    // Mostrar el diálogo cambiando el estado
+    setShowDialog(true);
   };
 
   return (
     <div className="flex items-center justify-center p-5">
       <div className="bg-white w-4/6 p-5 rounded-xl shadow-2xl">
-        <form onSubmit={alerta}>
+        <form onSubmit={handleSubmit}>
           <div className="flex justify-between">
             <p className="text-primary font-bold">
               Fecha: {clienteEncontrado.fecha}
@@ -317,8 +308,8 @@ function TramiteCliente() {
                 <label className="block text-primary font-bold">Estatus:</label>
                 <Select
                   options={estatus}
-                  defaultValue={estatusSeleccionado}
-                  value={estatusSeleccionado}
+                  defaultValue={formData.estatusSeleccionado}
+                  value={formData.estatusSeleccionado}
                   onChange={handleEstatusChange}
                   placeholder="Seleccionar estatus..."
                   theme={(theme) => ({
@@ -345,8 +336,13 @@ function TramiteCliente() {
               <div>
                 <input
                   type="text"
-                  value={fianza}
-                  onChange={(e) => setFianza(e.target.value)}
+                  value={formData.fianza}
+                  onChange={(e) =>
+                    setFormData((prevState) => ({
+                      ...prevState,
+                      fianza: e.target.value,
+                    }))
+                  }
                   name="fianza"
                   className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
                 />
@@ -360,14 +356,17 @@ function TramiteCliente() {
                 showIcon
                 toggleCalendarOnIconClick
                 selected={
-                  fechaPago
-                    ? parse(fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
+                  formData.fechaPago
+                    ? parse(formData.fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
                     : null
                 }
                 onChange={(date) => {
                   if (date) {
-                    const formattedDate = format(date, "dd/MM/yyyy"); // Asegura el formato deseado.
-                    setFechaPago(formattedDate); // Guarda la fecha formateada en el estado.
+                    const formattedDate = format(date, "dd/MM/yyyy");
+                    setFormData((prevState) => ({
+                      ...prevState,
+                      fechaPago: formattedDate,
+                    }));
                   }
                 }}
                 dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
@@ -412,8 +411,13 @@ function TramiteCliente() {
                 </p>
                 <textarea
                   type="text"
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
+                  value={formData.observaciones}
+                  onChange={(e) =>
+                    setFormData((prevState) => ({
+                      ...prevState,
+                      observaciones: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
                   placeholder=""
                 ></textarea>
@@ -424,32 +428,47 @@ function TramiteCliente() {
             <div>
               <p className="block text-primary font-bold">Prima inicial</p>
               <InputPrima
-                value={prima_inicial}
-                onChange={(e) => setPrima_inicial(e.target.value)}
+                value={formData.prima_inicial}
+                onChange={(e) =>
+                  setFormData((prevState) => ({
+                    ...prevState,
+                    prima_inicial: e.target.value,
+                  }))
+                }
               />
             </div>
             <div>
               <p className="block text-primary font-bold">Prima futura</p>
               <InputPrima
-                value={prima_futura}
-                onChange={(e) => setPrima_futura(e.target.value)}
+                value={formData.prima_futura}
+                onChange={(e) =>
+                  setFormData((prevState) => ({
+                    ...prevState,
+                    prima_futura: e.target.value,
+                  }))
+                }
               />
             </div>
             <div>
               <p className="block text-primary font-bold">Prima total</p>
               <InputPrima
                 value={
-                  (Number(prima_futura) || 0) + (Number(prima_inicial) || 0)
+                  (Number(formData.prima_inicial) || 0) +
+                  (Number(formData.prima_futura) || 0)
                 }
-                onChange={(e) => setPrima_total(e.target.value)}
                 disabled
               />
             </div>
             <div>
               <p className="block text-primary font-bold">Importe total</p>
               <InputPrima
-                value={importe_total}
-                onChange={(e) => setImporte_total(e.target.value)}
+                value={formData.importe_total}
+                onChange={(e) =>
+                  setFormData((prevState) => ({
+                    ...prevState,
+                    importe_total: e.target.value,
+                  }))
+                }
               />
             </div>
           </div>
@@ -460,17 +479,22 @@ function TramiteCliente() {
             >
               Guardar cambios
             </button>
+
             <button
               className="w-[200px] text-white border border-[#E82561] hover:opacity-80 bg-[#E82561] hover:text-white p-3 px-5 rounded-lg transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
               onClick={(e) => {
                 e.preventDefault();
-                setShowDialog(true); // Mostrar el componente PendientesBC
+                navigate("/tramites");
               }}
             >
               Cancelar
             </button>
             {showDialog && (
-              <PendientesBC onClose={() => setShowDialog(false)} id={id}/>
+              <PendientesBC
+                onClose={() => setShowDialog(false)}
+                id={id}
+                datosCliente={formData}
+              />
             )}
           </div>
         </form>
@@ -498,7 +522,7 @@ function TramiteCliente() {
                     </p>
                   </div>
                   <div className=" px-4 py-2 rounded">
-                    {estatusSeleccionado?.value != "TERMINADO" ? (
+                    {formData.estatusSeleccionado.value != "TERMINADO" ? (
                       <button
                         onClick={() => borrarMovimiento(dato.id_movimiento)}
                       >
@@ -542,7 +566,7 @@ function TramiteCliente() {
             </div>
           </div>
           <div className="flex items-center justify-center p-5">
-            {estatusSeleccionado?.value != "TERMINADO" ? (
+            {formData.estatusSeleccionado.value != "TERMINADO" ? (
               <button
                 className="group cursor-pointer outline-none hover:rotate-90 duration-300"
                 title="Agregar movimiento"

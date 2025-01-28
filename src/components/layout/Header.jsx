@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import LogoPrincipal from "../assets/logos/LogoPrincipal.svg";
+import LogoPrincipal from "@/assets/logos/LogoPrincipal.svg";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { MdOutlineLogout } from "react-icons/md";
