@@ -35,7 +35,7 @@ function header() {
             <Link to="/tramites">
               <li className="hover:text-secondary">Clientes</li>
             </Link>
-            <Link to="/tramites">
+            <Link to="/rpp">
               <li className="hover:text-secondary">RPP</li>
             </Link>
             {/* 

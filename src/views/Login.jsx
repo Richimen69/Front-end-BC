@@ -63,7 +63,7 @@ function Login() {
     >
       <img src={LogoPrincipal} alt="Logo Principal" className="w-[440px]" />
       <p className="text-primary font-bold text-2xl sm:text-xl md:text-3xl lg:text-4xl">
-        Log in
+        Iniciar sesión
       </p>
       <form onSubmit={handleLogin} className="p-5 space-y-3 flex flex-col justify-center items-center w-full">
         {error && <p className="text-red-500 text-sm">{error}</p>}

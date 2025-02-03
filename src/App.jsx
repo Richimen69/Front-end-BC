@@ -7,6 +7,7 @@ import NotFound from "./views/NotFound";
 import Tramites from "./views/Tramites";
 import TramiteCliente from "./views/TramiteCliente";
 import VistaTramite from "./views/VistaTramite";
+import Rpp from "./views/Rpp";
 function App() {
   return (
     <div className="bg-background min-h-screen">
@@ -17,6 +18,15 @@ function App() {
             <ProtectedRoute>
               <Header />
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/rpp"
+          element={
+            <ProtectedRoute>
+              <Header />
+              <Rpp />
             </ProtectedRoute>
           }
         />
