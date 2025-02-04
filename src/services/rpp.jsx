@@ -27,3 +27,25 @@ export const obtenerTramites = async () => {
       body: JSON.stringify(),
     });
   };
+
+  export const obtenerAgentes = async () => {
+    return await fetchApi(`agentes.php`, {
+      method: "GET",
+      body: JSON.stringify(),
+    });
+  };
+
+  export const updateTramites = async (data) => {
+    return await fetchApi(`agentes.php`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  };
+
+  export const nuevoUsuario = async (usuario) => {
+    console.log(usuario)
+    return await fetchApi(`nuevo_usuario.php`, {
+      method: "POST",
+      body: JSON.stringify(usuario),
+    });
+  };
