@@ -48,12 +48,12 @@ export function FormularioUsers({ onClose }) {
     };
     const response = await nuevoUsuario(data);
     if (response.success) {
-      toast.success("Agente asignado exitosamente.");
+      toast.success("Usuario agredado exitosamente.");
       setTimeout(() => {
         navigate(0);
       }, 1500);
     } else {
-      toast.error("Error en la asignacion.");
+      toast.error("Error en agregar.");
     }
   };
 
@@ -82,11 +82,11 @@ export function FormularioUsers({ onClose }) {
             <Label htmlFor="username" className="text-right">
               Contraseña
             </Label>
-            <input
+            <Input
               type="text"
               value={password}
               readOnly
-              className="col-span-2 w-full p-2 border border-gray-300 rounded-md mb-4"
+              className="col-span-2 w-full"
             />
             <button
               onClick={() => generatePassword()}

@@ -40,11 +40,11 @@ export default function TableRpp() {
 
   const statusStyles = {
     "EN PROCESO":
-      "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold whitespace-nowrap",
+      "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold",
     TERMINADO:
       "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
-    ERROR:
-      "bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-base font-semibold",
+    "EN REVISION":
+      "bg-orange-300 text-gray-600 px-3 py-1 rounded-full text-nowrap text-base font-semibold",
   };
   return (
     <div className="overflow-x-auto w-full p-5">
@@ -100,7 +100,7 @@ export default function TableRpp() {
                 <td className="p-4">
                   {tramite.direccion_bi}, {tramite.distrito_ciudad}
                 </td>
-                <td className="p-4 w-50">
+                <td className="p-4 w-50 text-nowrap">
                   <span
                     className={
                       statusStyles[tramite.estatus] ||
@@ -139,7 +139,7 @@ export default function TableRpp() {
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="p-4 text-center text-gray-600">
+              <td colSpan="12" className="p-4 text-center text-gray-600">
                 No se encontraron trámites.
               </td>
             </tr>
