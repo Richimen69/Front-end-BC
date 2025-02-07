@@ -52,6 +52,7 @@ export function AsignarAgente({ onClose, id_tramite }) {
       for (let i = 0; i < id_tramite.length; i++) {
         const data = {
           id: id_tramite[i],
+          estatus: "EN PROCESO",
           pagado_a_gestor_rpp: costo,
           agente: agenteSeleccionado,
         };

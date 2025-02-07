@@ -48,3 +48,15 @@ export const movimientos = [
     { value: "NO PAGADA", label: "NO PAGADA" },
     { value: "PENDIENTE", label: "PENDIENTE" },
   ];
+
+  export const statusStyles = {
+    "NUEVO": "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold",
+    "EN PROCESO": "bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-base font-semibold",
+    "EN REVISION": "bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
+    "CORRECCION INTERNA": "bg-red-100 text-red-600 px-3 py-1 rounded-full text-base font-semibold",
+    "EN ESPERA DE APROBACION": "bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-base font-semibold",
+    "CORRECCION": "bg-red-200 text-red-700 px-3 py-1 rounded-full text-base font-semibold",
+    "APROBADO": "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
+    "FACTURA ENVIADA": "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
+    "FINALIZADO": "bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-base font-semibold",
+  };

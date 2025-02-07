@@ -48,7 +48,7 @@ export function FormularioUsers({ onClose }) {
     };
     const response = await nuevoUsuario(data);
     if (response.success) {
-      toast.success("Usuario agredado exitosamente.");
+      toast.success("Usuario agregado exitosamente.");
       setTimeout(() => {
         navigate(0);
       }, 1500);
@@ -126,7 +126,7 @@ export function FormularioUsers({ onClose }) {
               addUser();
             }}
           >
-            Save changes
+            Guardar
           </Button>
         </DialogFooter>
       </DialogContent>

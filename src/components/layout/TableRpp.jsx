@@ -3,10 +3,13 @@ import { obtenerTramites } from "@/services/rpp";
 import { FaFileDownload } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { AsignarAgente } from "../forms/AsignarAgente";
+import AprobarTramite from "../forms/AprobarTramite";
+import { statusStyles } from "@/utils/Constans";
 import { Toaster } from "sonner";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [showDialogAprobar, setShowDialogAprobar] = useState(false);
   useEffect(() => {
     // Solicitar opciones al backend
     const fetchTramites = async () => {
@@ -38,14 +41,6 @@ export default function TableRpp() {
     }
   };
 
-  const statusStyles = {
-    "EN PROCESO":
-      "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold",
-    TERMINADO:
-      "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
-    "EN REVISION":
-      "bg-orange-300 text-gray-600 px-3 py-1 rounded-full text-nowrap text-base font-semibold",
-  };
   return (
     <div className="overflow-x-auto w-full p-5">
       <table className="w-full border-collapse text-left">
@@ -74,6 +69,7 @@ export default function TableRpp() {
             <th className="p-4 font-semibold">AGENTE</th>
             <th className="p-4 font-semibold">OBSERVACIONES</th>
             <th className="p-4 font-semibold text-right">ARCHIVO</th>
+            <th className="p-4 font-semibold text-right">CERTIFICADO</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -135,6 +131,29 @@ export default function TableRpp() {
                     </IconContext.Provider>
                   </button>
                 </td>
+                <td className="p-4 text-center">
+                  {tramite.estatus === "EN REVISION" ? (
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://bitacorabc.site/Backend_RPP/uploads/${tramite.url_certificado}`,
+                          "_blank"
+                        )
+                      }
+                      className="cursor-pointer"
+                    >
+                      <IconContext.Provider
+                        value={{
+                          color: "#076163",
+                          className: "global-class-name",
+                          size: "1.5em",
+                        }}
+                      >
+                        <FaFileDownload />
+                      </IconContext.Provider>
+                    </button>
+                  ) : null}
+                </td>
               </tr>
             ))
           ) : (
@@ -147,11 +166,37 @@ export default function TableRpp() {
         </tbody>
       </table>
       {selected.length > 0 && (
-        <button className="fixed bottom-5 right-5 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80" onClick={() => {setShowDialog(true)}}>
-          Asignar ({selected.length})
-        </button>
+        <div className="flex">
+          <button
+            className="fixed bottom-5 right-5 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
+            onClick={() => {
+              setShowDialog(true);
+            }}
+          >
+            Asignar ({selected.length})
+          </button>
+          <button
+            className="fixed bottom-5 right-40 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
+            onClick={() => {
+              setShowDialogAprobar(true);
+            }}
+          >
+            Enviar ({selected.length})
+          </button>
+        </div>
       )}
-      {showDialog && <AsignarAgente onClose={() => setShowDialog(false)} id_tramite={selected}/>}
+      {showDialog && (
+        <AsignarAgente
+          onClose={() => setShowDialog(false)}
+          id_tramite={selected}
+        />
+      )}
+      {showDialogAprobar && (
+        <AprobarTramite
+          onClose={() => setShowDialogAprobar(false)}
+          id_tramite={selected}
+        />
+      )}
       <Toaster position="top-center" richColors />
     </div>
   );

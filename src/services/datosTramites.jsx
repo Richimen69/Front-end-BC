@@ -11,3 +11,5 @@ export const fetchAfianzadoras = async () => {
 export const fetchBeficiarios = async () => {
   return await fetchApi(`datos_tramites.php?table=beneficiarios`);
 };
+
+
