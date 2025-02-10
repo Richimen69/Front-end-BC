@@ -49,3 +49,13 @@ export const obtenerTramites = async () => {
       body: JSON.stringify(usuario),
     });
   };
+
+  export const uploadArchivo = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    return await fetchApi(`upload.php`, {
+      method: "POST",
+      body: formData,
+    });
+  };

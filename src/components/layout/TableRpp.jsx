@@ -6,10 +6,12 @@ import { AsignarAgente } from "../forms/AsignarAgente";
 import AprobarTramite from "../forms/AprobarTramite";
 import { statusStyles } from "@/utils/Constans";
 import { Toaster } from "sonner";
+import EnviarFactura from "../forms/EnviarFactura";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [showDialogAprobar, setShowDialogAprobar] = useState(false);
+  const [showDialogFactura, setShowDialogFactura] = useState(false);
   useEffect(() => {
     // Solicitar opciones al backend
     const fetchTramites = async () => {
@@ -26,19 +28,13 @@ export default function TableRpp() {
   const [selected, setSelected] = useState([]);
 
   // Manejar selección de un solo checkbox
-  const handleCheckboxChange = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  };
-
-  // Seleccionar/deseleccionar todos
-  const handleSelectAll = () => {
-    if (selected.length === tramites.length) {
-      setSelected([]);
-    } else {
-      setSelected(tramites.map((tramite) => tramite.id));
-    }
+  const handleCheckboxChange = (id, estatus, costo) => {
+    setSelected((prev) => {
+      const exists = prev.some((item) => item.id === id);
+      return exists
+        ? prev.filter((item) => item.id !== id) // Elimina si ya existe
+        : [...prev, { id, estatus, costo }]; // Agrega el nuevo objeto
+    });
   };
 
   return (
@@ -48,14 +44,7 @@ export default function TableRpp() {
           <tr>
             <th className="p-4 w-10">
               <div className="dark:bg-black/10">
-                <label className="text-white">
-                  <input
-                    className="dark:border-white-400/20 dark:scale-100 transition-all duration-500 ease-in-out dark:hover:scale-110 dark:checked:scale-100 w-5 h-5 cursor-pointer"
-                    type="checkbox"
-                    checked={selected.length === tramites.length}
-                    onChange={handleSelectAll}
-                  />
-                </label>
+                <label className="text-white"></label>
               </div>
             </th>
             <th className="p-4 font-semibold">FECHA</th>
@@ -82,8 +71,16 @@ export default function TableRpp() {
                       <input
                         className="dark:border-white-400/20 dark:scale-100 transition-all duration-500 ease-in-out dark:hover:scale-110 dark:checked:scale-100 w-5 h-5 cursor-pointer"
                         type="checkbox"
-                        checked={selected.includes(tramite.id)}
-                        onChange={() => handleCheckboxChange(tramite.id)}
+                        checked={selected.some(
+                          (item) => item.id === tramite.id
+                        )}
+                        onChange={() =>
+                          handleCheckboxChange(
+                            tramite.id,
+                            tramite.estatus,
+                            tramite.costo_tramite
+                          )
+                        }
                       />
                     </label>
                   </div>
@@ -167,34 +164,55 @@ export default function TableRpp() {
       </table>
       {selected.length > 0 && (
         <div className="flex">
-          <button
-            className="fixed bottom-5 right-5 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
-            onClick={() => {
-              setShowDialog(true);
-            }}
-          >
-            Asignar ({selected.length})
-          </button>
-          <button
-            className="fixed bottom-5 right-40 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
-            onClick={() => {
-              setShowDialogAprobar(true);
-            }}
-          >
-            Enviar ({selected.length})
-          </button>
+          {selected.every((item) => item.estatus === "APROBADO") && (
+            <button
+              className="fixed bottom-5 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
+              onClick={() => {
+                setShowDialogFactura(true);
+              }}
+            >
+              Enviar factura ({selected.length})
+            </button>
+          )}
+          {selected.every((item) => item.estatus === "NUEVO") && (
+            <button
+              className="fixed bottom-5 right-5 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
+              onClick={() => {
+                setShowDialog(true);
+              }}
+            >
+              Asignar ({selected.length})
+            </button>
+          )}
+          {selected.every((item) => item.estatus === "EN REVISION") && (
+            <button
+              className="fixed bottom-5 right-40 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
+              onClick={() => {
+                setShowDialogAprobar(true);
+              }}
+            >
+              Enviar ({selected.length})
+            </button>
+          )}
         </div>
       )}
       {showDialog && (
         <AsignarAgente
           onClose={() => setShowDialog(false)}
-          id_tramite={selected}
+          id_tramite={selected.map((item) => item.id)}
         />
       )}
       {showDialogAprobar && (
         <AprobarTramite
           onClose={() => setShowDialogAprobar(false)}
-          id_tramite={selected}
+          id_tramite={selected.map((item) => item.id)}
+        />
+      )}
+      {showDialogFactura && (
+        <EnviarFactura 
+          onClose={() => setShowDialogFactura(false)}
+          id_tramite={selected.map((item) => item.id)}
+          costo={selected.map((item) => item.costo)}
         />
       )}
       <Toaster position="top-center" richColors />
