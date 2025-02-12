@@ -43,28 +43,37 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       toast.error("Selecciona un archivo");
       return;
     }
-    handleUpload();
-    console.log(file);
-    const data = {
-      id: id_tramite[0],
-      estatus: "ESPERANDO PAGO",
-      url_factura: file.name,
-    };
-
-    try {
-      const result = await updateTramites(data);
-      if (result.message) {
-        toast.success("Trámite guardado exitosamente.");
-      } else {
-        toast.error("Error al guardar el trámite.");
+    const response = await handleUpload(); // Espera la subida del archivo
+    if (!response || !response.message) {
+      toast.error("Error al subir el archivo.");
+      return;
+    }
+    for (let i = 0; i < id_tramite.length; i++) {
+      const data = {
+        id: id_tramite[i],
+        estatus: "ESPERANDO PAGO",
+        url_factura: response.path, // Usa la URL de respuesta del backend
+      };
+      try {
+        const result = await updateTramites(data);
+        if (result.message) {
+          toast.success("Trámite guardado exitosamente.");
+          setTimeout(() => {
+            navigate(0);
+          }, 1500);
+        } else {
+          toast.error("Error al guardar el trámite.");
+        }
+      } catch (error) {
+        toast.error("Hubo un problema al guardar el trámite.");
       }
-    } catch (error) {
-      toast.error("Hubo un problema al guardar el trámite.");
     }
   };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
+    console.log("Archivo seleccionado:", selectedFile);
+
     if (selectedFile) {
       setFile(selectedFile);
     }
@@ -77,12 +86,15 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
     }
 
     try {
-      const response = await uploadArchivo(file); // Asumiendo que esta función maneja la subida
-      if (response.message) {
-        console.log("Archivo subido correctamente", response);
+      const response = await uploadArchivo(file);
+
+      console.log("Respuesta del backend:", response);
+
+      if (response?.message) {
+        toast.success("Archivo subido correctamente");
         return response;
       } else {
-        console.log(response.error);
+        toast.error("Error en la respuesta del backend");
         return null;
       }
     } catch (error) {
@@ -91,6 +103,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       return null;
     }
   };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogTrigger asChild>

@@ -1,15 +1,20 @@
 const baseURL = "https://bitacorabc.site/Backend_RPP/";
 
 const fetchApi = async (endpoint, options = {}) => {
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
+  // Clonar las opciones para evitar modificar el objeto original
+  const config = { ...options };
 
-  const config = {
-    ...options,
-    headers,
-  };
+  // Verifica si se está enviando FormData
+  if (config.body instanceof FormData) {
+    if (config.headers) {
+      delete config.headers["Content-Type"]; // Solo eliminar Content-Type
+    }
+  } else {
+    config.headers = {
+      "Content-Type": "application/json",
+      ...config.headers,
+    };
+  }
 
   const response = await fetch(baseURL + endpoint, config);
 
@@ -22,40 +27,51 @@ const fetchApi = async (endpoint, options = {}) => {
 };
 
 export const obtenerTramites = async () => {
-    return await fetchApi(`tramites.php`, {
-      method: "GET",
-      body: JSON.stringify(),
-    });
-  };
+  return await fetchApi(`tramites.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
 
-  export const obtenerAgentes = async () => {
-    return await fetchApi(`agentes.php`, {
-      method: "GET",
-      body: JSON.stringify(),
-    });
-  };
+export const obtenerAgentes = async () => {
+  return await fetchApi(`agentes.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
 
-  export const updateTramites = async (data) => {
-    return await fetchApi(`agentes.php`, {
-      method: "PUT",
-      body: JSON.stringify(data),
-    });
-  };
+export const updateTramites = async (data) => {
+  return await fetchApi(`agentes.php`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+};
 
-  export const nuevoUsuario = async (usuario) => {
-    console.log(usuario)
-    return await fetchApi(`nuevo_usuario.php`, {
-      method: "POST",
-      body: JSON.stringify(usuario),
-    });
-  };
+export const nuevoUsuario = async (usuario) => {
+  console.log(usuario);
+  return await fetchApi(`nuevo_usuario.php`, {
+    method: "POST",
+    body: JSON.stringify(usuario),
+  });
+};
 
-  export const uploadArchivo = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-  
-    return await fetchApi(`upload.php`, {
+export const uploadArchivo = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetchApi(`upload.php`, {
       method: "POST",
       body: formData,
     });
-  };
+
+    if (!response) {
+      throw new Error("La respuesta de la API es inválida.");
+    }
+
+    return response; // Suponiendo que fetchApi ya devuelve un JSON
+  } catch (error) {
+    console.error("Error al subir el archivo:", error);
+    return { success: false, error: error.message };
+  }
+};

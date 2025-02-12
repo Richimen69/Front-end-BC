@@ -59,12 +59,13 @@ export default function TableRpp() {
             <th className="p-4 font-semibold">OBSERVACIONES</th>
             <th className="p-4 font-semibold text-right">ARCHIVO</th>
             <th className="p-4 font-semibold text-right">CERTIFICADO</th>
+            <th className="p-4 font-semibold text-right">COMP. PAGO</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {tramites.length > 0 ? (
             tramites.map((tramite) => (
-              <tr key={tramite.id} className="hover:bg-gray-50">
+              <tr key={tramite.id} className="hover:bg-gray-50 ">
                 <td className="p-4 w-10">
                   <div className="dark:bg-black/10">
                     <label className="text-white">
@@ -93,7 +94,7 @@ export default function TableRpp() {
                 <td className="p-4">
                   {tramite.direccion_bi}, {tramite.distrito_ciudad}
                 </td>
-                <td className="p-4 w-50 text-nowrap">
+                <td className="p-4 w-50 text-nowrap text-center">
                   <span
                     className={
                       statusStyles[tramite.estatus] ||
@@ -130,6 +131,29 @@ export default function TableRpp() {
                 </td>
                 <td className="p-4 text-center">
                   {tramite.estatus === "EN REVISION" ? (
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://bitacorabc.site/Backend_RPP/uploads/${tramite.url_certificado}`,
+                          "_blank"
+                        )
+                      }
+                      className="cursor-pointer"
+                    >
+                      <IconContext.Provider
+                        value={{
+                          color: "#076163",
+                          className: "global-class-name",
+                          size: "1.5em",
+                        }}
+                      >
+                        <FaFileDownload />
+                      </IconContext.Provider>
+                    </button>
+                  ) : null}
+                </td>
+                <td className="p-4 text-center">
+                  {tramite.estatus === "FINALIZADO" ? (
                     <button
                       onClick={() =>
                         window.open(
@@ -209,7 +233,7 @@ export default function TableRpp() {
         />
       )}
       {showDialogFactura && (
-        <EnviarFactura 
+        <EnviarFactura
           onClose={() => setShowDialogFactura(false)}
           id_tramite={selected.map((item) => item.id)}
           costo={selected.map((item) => item.costo)}
