@@ -52,7 +52,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       const data = {
         id: id_tramite[i],
         estatus: "ESPERANDO PAGO",
-        url_factura: response.path, // Usa la URL de respuesta del backend
+        url_factura: response.path,
       };
       try {
         const result = await updateTramites(data);
