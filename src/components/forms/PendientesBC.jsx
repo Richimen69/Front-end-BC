@@ -77,11 +77,8 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   );
 
   const handleSubmit = async () => {
-    if (isSwitchOn === true) {
-      setTieneCompromiso("SI");
-    } else if (isSwitchOn === false) {
-      setTieneCompromiso("NO");
-    }
+    const tieneCompromisoValue = isSwitchOn ? "SI" : "NO";
+
     const fechaCompromiso = date ? format(date, "MM/dd/yyyy") : null;
     const data = {
       id_tramite: id,
@@ -95,10 +92,11 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       fecha_termino: datosCliente.fecha_termino || null,
       fecha_pago: datosCliente.fechaPago || null,
       estatus_pago: datosCliente.estatusPago,
-      tiene_compromiso: tieneCompromiso,
+      tiene_compromiso: tieneCompromisoValue,
       observacion_compromiso: observaciones,
       fecha_compromiso: fechaCompromiso,
       categoria_compromiso: categoria,
+      tipo_proceso: datosCliente.estadoTramite.value,
     };
     try {
       const result = await updateTramite(data);

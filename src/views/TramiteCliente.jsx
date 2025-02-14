@@ -8,7 +8,7 @@ import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
-import { estatus, estatus_pagos } from "../utils/Constans";
+import { estatus, estatus_pagos, estadoTramite } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
 import { updateTramite } from "../services/tramitesClientes";
@@ -44,6 +44,7 @@ function TramiteCliente() {
     prima_futura: "",
     prima_total: "",
     importe_total: "",
+    estadoTramite: ""
   });
 
   // Obtener el id desde el estado
@@ -77,7 +78,6 @@ function TramiteCliente() {
       try {
         const data = await fetchTramites();
         setClientes(data);
-
         // Encontrar cliente específico
         const clienteEncontrado = data.find(
           (cliente) => cliente.id_tramite === id
@@ -116,7 +116,6 @@ function TramiteCliente() {
 
           // Obtener movimientos
           actualizarMovimientos(id);
-
         }
       } catch (error) {
         console.error("Error al obtener los datos:", error);
@@ -146,12 +145,17 @@ function TramiteCliente() {
       console.error("Error al obtener los movimientos:", error);
     }
   };
-  
 
   const handleEstatusChange = (selectedOption) => {
     setFormData((prevState) => ({
       ...prevState,
       estatusSeleccionado: selectedOption,
+    }));
+  };
+  const handleEstadoTramiteChange = (selectedOption) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      estadoTramite: selectedOption,
     }));
   };
   const handleEstatusPagoChange = (selectedOption) => {
@@ -178,7 +182,7 @@ function TramiteCliente() {
       const result = await createMovimiento(data);
       if (result.success) {
         toast.success("Observaciones guardadas exitosamente.");
-        actualizarMovimientos(id); 
+        actualizarMovimientos(id);
         setMovimientos((prevMovimientos) => [
           ...prevMovimientos,
           {
@@ -201,7 +205,7 @@ function TramiteCliente() {
   };
 
   const borrarMovimiento = async (id_movimiento) => {
-    console.log(movimientos)
+    console.log(movimientos);
     try {
       const result = await deleteMovimiento(id_movimiento); // Parsear la respuesta a JSON
 
@@ -347,6 +351,24 @@ function TramiteCliente() {
                   className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
                 />
               </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-primary font-bold">Estatus tramite</label>
+              <Select
+                options={estadoTramite}
+                defaultValue={formData.estadoTramite}
+                value={formData.estadoTramite}
+                onChange={handleEstadoTramiteChange}
+                placeholder="Seleccionar estatus..."
+                theme={(theme) => ({
+                  ...theme,
+                  colors: {
+                    ...theme.colors,
+                    primary25: "#DDBE86",
+                    primary: "#076163",
+                  },
+                })}
+              />
             </div>
           </div>
           <div className="pt-5 flex gap-20 ">

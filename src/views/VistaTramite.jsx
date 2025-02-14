@@ -83,9 +83,9 @@ function VistaTramite() {
               clienteEncontrado.fecha_pago
             );
 
-            if(diasDeDiferencia >= 0){
+            if (diasDeDiferencia >= 0) {
               setDias(diasDeDiferencia);
-            }else{
+            } else {
               setDias("0");
             }
           }
@@ -160,7 +160,7 @@ function VistaTramite() {
             <div>
               <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-3">
               <div className="space-y-2">
                 <h3 className="font-semibold text-primary">Movimiento</h3>
                 <p>{clienteEncontrado.movimiento}</p>
@@ -181,10 +181,35 @@ function VistaTramite() {
                   {clienteEncontrado.estatus}
                 </p>
               </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold text-primary">.</h3>
+                <p>{clienteEncontrado.tipo_proceso}</p>
+              </div>
             </div>
-            <div>
-              <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
-            </div>
+            {clienteEncontrado.tiene_compromiso === "SI" ? (
+              <div>
+                <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">Compromiso</h3>
+                    <p>{clienteEncontrado.categoria_compromiso}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">Observaciones</h3>
+                    <p className="bg-red-500 inline-block px-2 py-1 rounded text-white">
+                      {clienteEncontrado.observacion_compromiso}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">
+                      Fecha de compromiso
+                    </h3>
+                    <p>{clienteEncontrado.fecha_compromiso}</p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
             <div>
               {clienteEncontrado.estatus === "TERMINADO" ? (
                 <div>

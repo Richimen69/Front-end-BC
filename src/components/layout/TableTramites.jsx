@@ -190,6 +190,8 @@ export default function TableTramites() {
               <th className="p-4 font-semibold">
                 Estatus
               </th>
+              <th className="p-4 font-semibold">
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -228,6 +230,9 @@ export default function TableTramites() {
                   >
                     {cliente.estatus}
                   </span>
+                </td>
+                <td className="p-4">
+                  {cliente.tipo_proceso}
                 </td>
               </tr>
             ))}

@@ -35,6 +35,12 @@ export const movimientos = [
     { value: "PENDIENTE", label: "PENDIENTE" },
   ];
 
+  export const estadoTramite = [
+    { value: "BC-AFIANZADORA", label: "BC-AFIANZADORA" },
+    { value: "CLIENTES-AFIANZADORA", label: "CLIENTES-AFIANZADORA" },
+    { value: "CLIENTES-BC", label: "CLIENTES-BC" },
+  ];
+
   export const agente = [
     { value: "RBG", label: "RBG" },
     { value: "BPS", label: "BPS" },

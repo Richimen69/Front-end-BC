@@ -19,3 +19,6 @@ export const buscarTramitePorFolio = async (folio) => {
 export const fetchTramites = async () => {
   return await fetchApi("tramites.php");
 };
+export const fetchFolios = async () => {
+  return await fetchApi("obtener_folios.php");
+};

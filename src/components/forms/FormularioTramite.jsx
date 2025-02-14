@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import { Toaster, toast } from "sonner";
 import { agente, movimientos } from "@/utils/Constans";
+import { fetchFolios } from "@/services/tramitesClientes";
 import {
   fetchClientes,
   fetchAfianzadoras,
@@ -9,29 +10,34 @@ import {
 } from "@/services/datosTramites";
 import { createTramite } from "@/services/tramitesClientes";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 const FormularioTramite = ({ isVisible, onClose }) => {
-
   const storedUser = localStorage.getItem("user");
+  const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [movimientoSeleccionado, setMovimiento] = useState(null);
   const [agenteSeleccionado, setAgente] = useState(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [folios, setFolios] = useState([]);
   const [afianzadoraSeleccionada, setAfianzadoraSeleccionada] = useState(null);
   const [beneficiarioSeleccionado, setBeneficiarioSeleccionado] =
     useState(null);
-  const [usuario, setUsuario] = useState("")
+  const [usuario, setUsuario] = useState("");
   useEffect(() => {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        const formattedUser = user.usuario_usu.charAt(0).toUpperCase(); 
+        const formattedUser = user.usuario_usu.charAt(0).toUpperCase();
         setUsuario(formattedUser);
       } catch (error) {
-        console.error("Error al analizar el usuario desde localStorage:", error);
+        console.error(
+          "Error al analizar el usuario desde localStorage:",
+          error
+        );
       }
-    }    
+    }
     // Función para cargar datos desde diferentes endpoints
     const fetchData = async () => {
       try {
@@ -43,6 +49,9 @@ const FormularioTramite = ({ isVisible, onClose }) => {
             label: cliente.nombre_cli,
           }))
         );
+
+        const obtenerFolios = await fetchFolios();
+        setFolios(obtenerFolios.folios);
 
         // Cargar afianzadoras
         const afianzadorasData = await fetchAfianzadoras();
@@ -69,6 +78,22 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     fetchData();
   }, []);
 
+  const generarFolio = () => {
+    const inicial = usuario.charAt(0).toUpperCase();
+    const foliosUsuario = folios
+      .filter((folio) => folio.startsWith(inicial + "-"))
+      .map((folio) => parseInt(folio.split("-")[1]))
+      .sort((a, b) => a - b);
+    const ultimoNumero =
+      foliosUsuario.length > 0 ? foliosUsuario[foliosUsuario.length - 1] : 0;
+
+    const nuevoNumero = (ultimoNumero + 1).toString().padStart(4, "0");
+
+    return `${inicial}-${nuevoNumero}`;
+  };
+
+  const nuevoFolio = generarFolio(folios, usuario);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -85,7 +110,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     }
     const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     const data = {
-      folio: `${usuario}${"-"}${Math.floor(Math.random() * 9000) + 1000}`,
+      folio: nuevoFolio,
       fecha: `${fechaFormateada}`,
       agente: agenteSeleccionado.value,
       beneficiario: beneficiarioSeleccionado.value,
@@ -101,7 +126,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       if (result.success) {
         toast.success("Trámite guardado exitosamente.");
         setTimeout(() => {
-          onClose();
+          navigate(0);
         }, 1500);
       } else {
         toast.error("Error al guardar el trámite.");
