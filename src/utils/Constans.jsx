@@ -36,9 +36,9 @@ export const movimientos = [
   ];
 
   export const estadoTramite = [
-    { value: "BC-AFIANZADORA", label: "BC-AFIANZADORA" },
-    { value: "CLIENTES-AFIANZADORA", label: "CLIENTES-AFIANZADORA" },
-    { value: "CLIENTES-BC", label: "CLIENTES-BC" },
+    { value: "AFIANZADORA", label: "AFIANZADORA" },
+    { value: "BC", label: "BC" },
+    { value: "FIADO", label: "FIADO" },
   ];
 
   export const agente = [

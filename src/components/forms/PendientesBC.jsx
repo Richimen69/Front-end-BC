@@ -47,7 +47,6 @@ export function PendientesBC({ onClose, id, datosCliente }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(datosCliente);
       try {
         const data = await fetchTramites();
         setClientes(data);
@@ -87,7 +86,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       fianza: datosCliente.fianza || "",
       prima_inicial: datosCliente.prima_inicial || null,
       prima_futura: datosCliente.prima_futura || null,
-      prima_total: datosCliente.importe_total || null,
+      prima_total: datosCliente.prima_total || null,
       importe_total: datosCliente.importe_total || null,
       fecha_termino: datosCliente.fecha_termino || null,
       fecha_pago: datosCliente.fechaPago || null,
@@ -167,7 +166,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
               />
             </div>
             <div className="grid w-full gap-1.5">
-              <Label htmlFor="message">Fecha de compromiso</Label>
+              <Label htmlFor="message">Fecha</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button

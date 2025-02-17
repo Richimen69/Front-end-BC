@@ -6,6 +6,8 @@ import { IconContext } from "react-icons";
 import { fetchTramites } from "../services/tramitesClientes";
 import { buscarMovimiento } from "../services/movimientos";
 import { TbEdit } from "react-icons/tb";
+import { Toaster, toast } from "sonner";
+import CancelarComp from "@/components/forms/CancelarComp";
 function VistaTramite() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -13,7 +15,8 @@ function VistaTramite() {
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
   const [dias, setDias] = useState("");
-
+  const [showDialog, setShowDialog] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(false);
   const { id } = location.state || {}; // Obtener el id desde el estado
 
   useEffect(() => {
@@ -52,7 +55,6 @@ function VistaTramite() {
                 const fechaFormateada = `${anio}-${
                   mes < 10 ? "0" + mes : mes
                 }-${dia < 10 ? "0" + dia : dia}`;
-                console.log("Fecha formateada: ", fechaFormateada); // Verifica cómo se convierte la fecha
                 return new Date(fechaFormateada);
               };
 
@@ -62,10 +64,6 @@ function VistaTramite() {
 
               // Calcular la diferencia en milisegundos
               const diferenciaEnMilisegundos = date2 - date1;
-              console.log(
-                "Diferencia en milisegundos: ",
-                diferenciaEnMilisegundos
-              );
 
               // Verificar si la fecha es válida
               if (isNaN(diferenciaEnMilisegundos)) {
@@ -195,10 +193,54 @@ function VistaTramite() {
                     <p>{clienteEncontrado.categoria_compromiso}</p>
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-semibold text-primary">Observaciones</h3>
-                    <p className="bg-red-500 inline-block px-2 py-1 rounded text-white">
-                      {clienteEncontrado.observacion_compromiso}
-                    </p>
+                    <h3 className="font-semibold text-primary">
+                      Observaciones
+                    </h3>
+                    <div className="flex gap-2 items-center">
+                      <div>
+                        <p className="bg-red-500 inline-block px-2 py-1 rounded text-white">
+                          {clienteEncontrado.observacion_compromiso}
+                        </p>
+                      </div>
+                      <div
+                        className="group relative flex size-9 items-center justify-center gap-1 rounded-lg border border-black cursor-pointer"
+                        onClick={() => {
+                          setShowDialog(true);
+                        }}
+                      >
+                        <div className="size-1 rounded-full bg-black duration-300 group-hover:opacity-0"></div>
+                        <div className="relative size-1 origin-center rounded-full bg-black duration-300 before:absolute before:right-[2px] before:h-1 before:origin-right before:rounded-full before:bg-black before:delay-300 before:duration-300 after:absolute after:right-[2px] after:h-1 after:origin-right after:rounded-full after:bg-black after:delay-300 after:duration-300 group-hover:w-6 group-hover:before:w-3.5 group-hover:before:-rotate-45 group-hover:after:w-3.5 group-hover:after:rotate-45"></div>
+                        <div className="size-1 rounded-full bg-black duration-300 group-hover:opacity-0"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">
+                      Fecha de compromiso
+                    </h3>
+                    <p>{clienteEncontrado.fecha_compromiso}</p>
+                  </div>
+                </div>
+              </div>
+            ) : clienteEncontrado.compromiso_terminado === "SI" ? (
+              <div>
+                <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">Compromiso</h3>
+                    <p>{clienteEncontrado.categoria_compromiso}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-primary">
+                      Observaciones
+                    </h3>
+                    <div className="flex gap-2 items-center">
+                      <div>
+                        <p className="bg-red-500 inline-block px-2 py-1 rounded text-white">
+                          {clienteEncontrado.observacion_compromiso}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">
@@ -352,6 +394,13 @@ function VistaTramite() {
           </div>
         </div>
       </div>
+      {showDialog && (
+        <CancelarComp
+          onClose={() => setShowDialog(false)}
+          id_tramite={clienteEncontrado.id_tramite}
+        />
+      )}
+      <Toaster position="top-center" richColors />
     </div>
   );
 }

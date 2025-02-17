@@ -1,15 +1,15 @@
 export function InputPrima(props) {
-    return(
-        <div className="flex h-[34px] text-[14px] text-black w-36 items-center bg-white ring-1 ring-inset ring-gray-400 rounded-md focus-within:ring-primary focus-within:ring-2 ease-in-out">
-        <span className="ml-2">$</span>
-        <input
-          className="bg-transparent text-black px-3 py-1 rounded-l-md focus:outline-none w-full appearance-none"
-          type="text"
-          placeholder="0,00"
-          {...props}
-        />
-        <span className="mr-2">MXN</span>
-      </div>
-      
-    )
+  return (
+    <div className="mt-1 flex rounded-md">
+      <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-200 bg-gray-50 px-3 text-gray-500">
+        $
+      </span>
+      <input
+        className="block w-full rounded-r-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-primary"
+        type="text"
+        placeholder="0,00"
+        {...props}
+      />
+    </div>
+  );
 }

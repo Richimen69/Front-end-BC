@@ -28,7 +28,6 @@ function TramiteCliente() {
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
-  const [importe_total, setImporte_total] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const { id } = location.state || {};
@@ -44,7 +43,7 @@ function TramiteCliente() {
     prima_futura: "",
     prima_total: "",
     importe_total: "",
-    estadoTramite: ""
+    estadoTramite: "",
   });
 
   // Obtener el id desde el estado
@@ -88,6 +87,7 @@ function TramiteCliente() {
             prima_inicial: clienteEncontrado.prima_inicial || "",
             prima_futura: clienteEncontrado.prima_futura || "",
             prima_total: clienteEncontrado.prima_total || "",
+            importe_total: clienteEncontrado.importe_total || "",
             fianza: clienteEncontrado.fianza || "",
             fechaPago: clienteEncontrado.fecha_pago || null,
             observaciones: clienteEncontrado.observaciones || "",
@@ -268,150 +268,92 @@ function TramiteCliente() {
 
   return (
     <div className="flex items-center justify-center p-5">
-      <div className="bg-white w-4/6 p-5 rounded-xl shadow-2xl">
-        <form onSubmit={handleSubmit}>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="flex justify-between">
-            <p className="text-primary font-bold">
-              Fecha: {clienteEncontrado.fecha}
-            </p>
-            <p className="text-primary font-bold">
-              Folio: {clienteEncontrado.folio}
-            </p>
-          </div>
-          {clienteEncontrado.fecha_termino != null ? (
-            <div>
-              <p className="text-primary font-bold">Fecha de Termino:</p>
-              <p>{clienteEncontrado.fecha_termino}</p>
-            </div>
-          ) : null}
-          <div>
-            <p className="text-primary font-bold">Fiado:</p>
-            <p>{clienteEncontrado.nombre}</p>
-          </div>
-          <div className="flex gap-20 pt-5">
-            <div>
-              <p className="text-primary font-bold">Afianzadora:</p>
-              <p>{clienteEncontrado.afianzadora}</p>
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Movimiento:</p>
-              <p>{clienteEncontrado.movimiento}</p>
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Agente:</p>
-              <p>{clienteEncontrado.agente}</p>
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Beneficiario:</p>
-              <p>{clienteEncontrado.beneficiario}</p>
-            </div>
-          </div>
-          <div className="flex gap-20 pt-5">
-            {clienteEncontrado.estatus != "TERMINADO" ? (
-              <div className="mb-4">
-                <label className="block text-primary font-bold">Estatus:</label>
-                <Select
-                  options={estatus}
-                  defaultValue={formData.estatusSeleccionado}
-                  value={formData.estatusSeleccionado}
-                  onChange={handleEstatusChange}
-                  placeholder="Seleccionar estatus..."
-                  theme={(theme) => ({
-                    ...theme,
-                    colors: {
-                      ...theme.colors,
-                      primary25: "#DDBE86",
-                      primary: "#076163",
-                    },
-                  })}
-                />
+            <div className="space-y-1">
+              <div className="text-sm text-gray-500">
+                Fecha:
+                <span className="text-gray-900">{clienteEncontrado.fecha}</span>
               </div>
-            ) : (
-              <div>
-                <p className="block text-primary font-bold">Estatus:</p>
-                <p>{clienteEncontrado.estatus}</p>
-              </div>
-            )}
-
-            <div>
-              <label htmlFor="fianza" className="block text-primary font-bold">
-                Fianza
-              </label>
-              <div>
-                <input
-                  type="text"
-                  value={formData.fianza}
-                  onChange={(e) =>
-                    setFormData((prevState) => ({
-                      ...prevState,
-                      fianza: e.target.value,
-                    }))
-                  }
-                  name="fianza"
-                  className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
-                />
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-primary font-bold">Estatus tramite</label>
-              <Select
-                options={estadoTramite}
-                defaultValue={formData.estadoTramite}
-                value={formData.estadoTramite}
-                onChange={handleEstadoTramiteChange}
-                placeholder="Seleccionar estatus..."
-                theme={(theme) => ({
-                  ...theme,
-                  colors: {
-                    ...theme.colors,
-                    primary25: "#DDBE86",
-                    primary: "#076163",
-                  },
-                })}
-              />
-            </div>
-          </div>
-          <div className="pt-5 flex gap-20 ">
-            <div>
-              <p className="block text-primary font-bold">Fecha de pago</p>
-              <DatePicker
-                showIcon
-                toggleCalendarOnIconClick
-                selected={
-                  formData.fechaPago
-                    ? parse(formData.fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
-                    : null
-                }
-                onChange={(date) => {
-                  if (date) {
-                    const formattedDate = format(date, "dd/MM/yyyy");
-                    setFormData((prevState) => ({
-                      ...prevState,
-                      fechaPago: formattedDate,
-                    }));
-                  }
-                }}
-                dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
-                className="block w-36 rounded-md py-1.5 text-[14px] px-2 ring-1 ring-inset ring-gray-400 focus:outline-primary"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-primary font-bold">
-                Estado de pago:
-              </label>
-
-              {estatusPagoSeleccionado.value === "PAGADA" ? (
-                <div>
-                  <p className="mt-1">PAGADA</p>
+              {clienteEncontrado.fecha_termino != null ? (
+                <div className="text-sm text-gray-500">
+                  Fecha de Término:
+                  <span className="text-gray-900">
+                    {clienteEncontrado.fecha_termino}
+                  </span>
                 </div>
-              ) : (
+              ) : null}
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-500">
+                Folio:
+                <span className="font-medium text-teal-600">
+                  {clienteEncontrado.folio}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-lg bg-white p-6 shadow-sm"
+        >
+          <div className="space-y-6">
+            <div>
+              <label className="text-sm font-medium text-teal-600">Fiado</label>
+              <div className="mt-1 text-gray-900">
+                {clienteEncontrado.nombre}
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Afianzadora
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {clienteEncontrado.afianzadora}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Movimiento
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {clienteEncontrado.movimiento}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Agente
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {clienteEncontrado.agente}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Beneficiario
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {clienteEncontrado.beneficiario}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {clienteEncontrado.estatus != "TERMINADO" ? (
                 <div>
+                  <label className="text-sm font-medium text-teal-600">
+                    Estatus:
+                  </label>
                   <Select
-                    options={estatus_pagos}
-                    defaultValue={estatusPagoSeleccionado}
-                    value={estatusPagoSeleccionado}
-                    onChange={handleEstatusPagoChange}
+                    options={estatus}
+                    defaultValue={formData.estatusSeleccionado}
+                    value={formData.estatusSeleccionado}
+                    onChange={handleEstatusChange}
                     placeholder="Seleccionar estatus..."
+                    className="mt-1"
                     theme={(theme) => ({
                       ...theme,
                       colors: {
@@ -422,78 +364,192 @@ function TramiteCliente() {
                     })}
                   />
                 </div>
+              ) : (
+                <div>
+                  <p className="block text-primary font-bold">Estatus:</p>
+                  <p>{clienteEncontrado.estatus}</p>
+                </div>
               )}
-            </div>
-          </div>
-          {estatusPagoSeleccionado.value === "NO PAGADA" ? (
-            <div className="pt-5 flex items-center justify-center">
-              <div className="w-3/6">
-                <p className="block text-primary font-bold">
-                  Observaciones de pago
-                </p>
-                <textarea
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Fianza
+                </label>
+                <input
                   type="text"
-                  value={formData.observaciones}
+                  value={formData.fianza}
                   onChange={(e) =>
                     setFormData((prevState) => ({
                       ...prevState,
-                      observaciones: e.target.value,
+                      fianza: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
-                  placeholder=""
-                ></textarea>
+                  className="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-teal-600">
+                  Estatus tramite
+                </label>
+                <Select
+                  options={estadoTramite}
+                  defaultValue={formData.estadoTramite}
+                  value={formData.estadoTramite}
+                  onChange={handleEstadoTramiteChange}
+                  placeholder="Seleccionar estatus..."
+                  className="mt-1"
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary25: "#DDBE86",
+                      primary: "#076163",
+                    },
+                  })}
+                />
               </div>
             </div>
-          ) : null}
-          <div className="flex gap-20 mt-10">
-            <div>
-              <p className="block text-primary font-bold">Prima inicial</p>
-              <InputPrima
-                value={formData.prima_inicial}
-                onChange={(e) =>
-                  setFormData((prevState) => ({
-                    ...prevState,
-                    prima_inicial: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Prima futura</p>
-              <InputPrima
-                value={formData.prima_futura}
-                onChange={(e) =>
-                  setFormData((prevState) => ({
-                    ...prevState,
-                    prima_futura: e.target.value,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Prima total</p>
-              <InputPrima
-                value={
-                  (Number(formData.prima_inicial) || 0) +
-                  (Number(formData.prima_futura) || 0)
-                }
-                disabled
-              />
-            </div>
-            <div>
-              <p className="block text-primary font-bold">Importe total</p>
-              <InputPrima
-                value={formData.importe_total}
-                onChange={(e) =>
-                  setFormData((prevState) => ({
-                    ...prevState,
-                    importe_total: e.target.value,
-                  }))
-                }
-              />
-            </div>
+
+            {formData.estatusSeleccionado.value === "TERMINADO" ? (
+              <div>
+                {" "}
+                <div className="grid gap-6 md:grid-cols-3">
+                  <div className="flex  flex-col gap-2 ">
+                    <p className="text-sm font-medium text-teal-600">
+                      Fecha de pago
+                    </p>
+                    <DatePicker
+                      showIcon
+                      toggleCalendarOnIconClick
+                      selected={
+                        formData.fechaPago
+                          ? parse(formData.fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
+                          : null
+                      }
+                      onChange={(date) => {
+                        if (date) {
+                          const formattedDate = format(date, "dd/MM/yyyy");
+                          setFormData((prevState) => ({
+                            ...prevState,
+                            fechaPago: formattedDate,
+                          }));
+                        }
+                      }}
+                      dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
+                      className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-teal-600">
+                      Estado de pago:
+                    </label>
+
+                    {estatusPagoSeleccionado.value === "PAGADA" ? (
+                      <div>
+                        <p className="mt-1">PAGADA</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <Select
+                          options={estatus_pagos}
+                          defaultValue={estatusPagoSeleccionado}
+                          value={estatusPagoSeleccionado}
+                          onChange={handleEstatusPagoChange}
+                          placeholder="Seleccionar estatus..."
+                          theme={(theme) => ({
+                            ...theme,
+                            colors: {
+                              ...theme.colors,
+                              primary25: "#DDBE86",
+                              primary: "#076163",
+                            },
+                          })}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {estatusPagoSeleccionado.value === "NO PAGADA" ? (
+                  <div className=" flex items-center justify-center">
+                    <div className="w-3/6">
+                      <p className="text-sm font-medium text-teal-600">
+                        Observaciones de pago
+                      </p>
+                      <textarea
+                        type="text"
+                        value={formData.observaciones}
+                        onChange={(e) =>
+                          setFormData((prevState) => ({
+                            ...prevState,
+                            observaciones: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
+                        placeholder=""
+                      ></textarea>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="grid gap-6 md:grid-cols-4">
+                  <div>
+                    <p className="text-sm font-medium text-teal-600">
+                      Prima inicial
+                    </p>
+                    <InputPrima
+                      value={formData.prima_inicial}
+                      onChange={(e) =>
+                        setFormData((prevState) => ({
+                          ...prevState,
+                          prima_inicial: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-teal-600">
+                      Prima futura
+                    </p>
+                    <InputPrima
+                      value={formData.prima_futura}
+                      onChange={(e) =>
+                        setFormData((prevState) => ({
+                          ...prevState,
+                          prima_futura: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-teal-600">
+                      Prima total
+                    </p>
+                    <InputPrima
+                      value={
+                        (Number(formData.prima_inicial) || 0) +
+                        (Number(formData.prima_futura) || 0)
+                      }
+                      disabled
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-teal-600">
+                      Importe total
+                    </p>
+                    <InputPrima
+                      value={formData.importe_total}
+                      onChange={(e) =>
+                        setFormData((prevState) => ({
+                          ...prevState,
+                          importe_total: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
+
           <div className="flex items-center justify-center p-5 gap-5">
             <button
               className="w-[200px] border border-primary hover:bg-primary hover:text-white p-3 px-5 rounded-lg transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300"
@@ -520,18 +576,18 @@ function TramiteCliente() {
             )}
           </div>
         </form>
-        <div className="pt-5">
-          <p className="text-center font-bold text-primary text-2xl">
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <p className="block text-xl font-medium text-teal-600">
             Observaciones
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 mt-5">
             {movimientos.map((dato, index) => (
               <div
                 key={index}
-                className=" z-50 flex  w-5/6 rounded-xl border border-primary"
+                className=" z-50 flex w-full rounded-xl border border-gray-300 "
               >
-                <div className="flex w-full items-center py-1">
+                <div className="flex w-full items-center py-1 ">
                   <div className="mx-2.5 flex-grow px-4">
                     <p className=" text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
                       {dato.fecha}
@@ -565,17 +621,17 @@ function TramiteCliente() {
             ))}
             <div className="w-full flex justify-center items-center">
               {mostrarFormulario && (
-                <div className="w-5/6">
+                <div className="w-full">
                   <div>
                     <textarea
                       type="text"
-                      className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
+                      className="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                       value={movimiento}
                       onChange={(e) => setMovimiento(e.target.value)}
                       placeholder="Observaciones"
                     />
                   </div>
-                  <div className=" flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center justify-center mt-5">
                     <button
                       className="rounded w-1/5 border border-primary p-2 text-center cursor-pointer hover:bg-primary hover:text-white"
                       onClick={agregarMovimiento}
@@ -612,7 +668,6 @@ function TramiteCliente() {
             ) : null}
           </div>
         </div>
-        <div></div>
       </div>
       <Toaster position="top-center" richColors />
     </div>

@@ -119,6 +119,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       estatus: "EN REVISIÓN DE DOCUMENTOS",
       observaciones: "",
       id_cliente: clienteSeleccionado.value,
+      tipo_proceso: "BC",
     };
 
     try {
