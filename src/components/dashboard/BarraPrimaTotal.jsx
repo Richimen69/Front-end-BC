@@ -35,7 +35,7 @@ export default function Barra() {
     setPrimas(nuevasPrimas);
   }, [afianzadoras]);
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Prima total por afianzadora</CardTitle>
       </CardHeader>

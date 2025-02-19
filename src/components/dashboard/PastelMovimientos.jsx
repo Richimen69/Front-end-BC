@@ -1,17 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { obtenerEstados } from "@/services/kpi";
+import { movimietos } from "@/services/kpi";
 import { useEffect, useState } from "react";
 
-export default function Pastel() {
-  const [Estados, setEstados] = useState("");
-
+export default function PastelMovimientos() {
+  const [movimientosData, setMovimientosData] = useState([]);
   useEffect(() => {
-    const fetchEstados = async () => {
-      const response = await obtenerEstados();
-      setEstados(response);
+    const fetchMovimientos = async () => {
+      const response = await movimietos();
+      setMovimientosData(response);
     };
-    fetchEstados();
+    fetchMovimientos();
   }, []);
 
   function calcularPorcentaje(cantidad, total) {
@@ -19,55 +18,47 @@ export default function Pastel() {
   }
   const estados = [
     {
-      name: "En proceso",
+      name: "Aumento",
       value: calcularPorcentaje(
-        Estados.en_proceso_revision_count,
-        Estados.total_tramites
+        movimientosData.aumento_count,
+        movimientosData.total_movimientos
       ),
       color: "#FDE68A",
     }, // Amarillo pastel
     {
-      name: "Pendiente",
+      name: "Cancelacion",
       value: calcularPorcentaje(
-        Estados.pendiente_count,
-        Estados.total_tramites
+        movimientosData.cancelacion_count,
+        movimientosData.total_movimientos
       ),
       color: "#BFDBFE",
     }, // Azul pastel
     {
-      name: "No procede",
+      name: "Prorroga",
       value: calcularPorcentaje(
-        Estados.no_procede_count,
-        Estados.total_tramites
+        movimientosData.prorroga_count,
+        movimientosData.total_movimientos
       ),
       color: "#FCA5A5",
     }, // Rojo pastel
     {
-      name: "Terminado",
+      name: "Expedicion",
       value: calcularPorcentaje(
-        Estados.terminado_count,
-        Estados.total_tramites
+        movimientosData.expedicion_count,
+        movimientosData.total_movimientos
       ),
       color: "#A7F3D0",
     }, // Verde pastel
-    {
-      name: "En revisión de documentos",
-      value: calcularPorcentaje(
-        Estados.revision_documentos_count,
-        Estados.total_tramites
-      ),
-      color: "#DDD6FE",
-    }, // Púrpura pastel
   ];
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Tramites</CardTitle>
+        <CardTitle>Movimientos</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-6xl font-bold">{Estados.total_tramites}</div>
+          <div className="text-6xl font-bold">{movimientosData.total_movimientos}</div>
           <div className="w-40 h-40">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -82,7 +73,11 @@ export default function Pastel() {
                   dataKey="value"
                 >
                   {estados.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color}  className=" cursor-pointer"/>
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      className=" cursor-pointer"
+                    />
                   ))}
                 </Pie>
                 <Tooltip

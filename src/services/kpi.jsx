@@ -46,7 +46,31 @@ export const primaTotal = async () => {
   });
 };
 export const pendientes = async () => {
-  return await fetchApi(`pendientes_compromisos.php`, {
+  return await fetchApi(`pendientes/pendientes_categoria.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const totalPendientes = async () => {
+  return await fetchApi(`pendientes/total.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const totalCompromisos = async () => {
+  return await fetchApi(`compromisos/total.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const compromisos = async () => {
+  return await fetchApi(`compromisos/compromisos.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const movimietos = async () => {
+  return await fetchApi(`movimientos.php`, {
     method: "GET",
     body: JSON.stringify(),
   });

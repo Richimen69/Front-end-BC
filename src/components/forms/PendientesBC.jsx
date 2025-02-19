@@ -79,6 +79,12 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     const tieneCompromisoValue = isSwitchOn ? "SI" : "NO";
 
     const fechaCompromiso = date ? format(date, "MM/dd/yyyy") : null;
+    let estadoTramite;
+    if (datosCliente.estatusSeleccionado.value === "TERMINADO") {
+      estadoTramite = "";
+    } else {
+      estadoTramite = datosCliente.estadoTramite.value;
+    }
     const data = {
       id_tramite: id,
       estatus: datosCliente.estatusSeleccionado.value || "",
@@ -86,7 +92,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       fianza: datosCliente.fianza || "",
       prima_inicial: datosCliente.prima_inicial || null,
       prima_futura: datosCliente.prima_futura || null,
-      prima_total: datosCliente.prima_total || null,
+      prima_total: datosCliente.prima_total || 0,
       importe_total: datosCliente.importe_total || null,
       fecha_termino: datosCliente.fecha_termino || null,
       fecha_pago: datosCliente.fechaPago || null,
@@ -95,7 +101,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       observacion_compromiso: observaciones,
       fecha_compromiso: fechaCompromiso,
       categoria_compromiso: categoria,
-      tipo_proceso: datosCliente.estadoTramite.value,
+      tipo_proceso: estadoTramite,
     };
     try {
       const result = await updateTramite(data);

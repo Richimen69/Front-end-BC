@@ -1,56 +1,55 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { pendientes } from "@/services/kpi";
+import { pendientes, totalPendientes } from "@/services/kpi";
 import { useEffect, useState } from "react";
 
+function assignColor(tipo_proceso) {
+  switch (tipo_proceso) {
+    case "AFIANZADORA":
+      return "#FDE68A"; // Amarillo pastel
+    case "BC":
+      return "#BFDBFE"; // Azul pastel
+    case "FIADO":
+      return "#FCA5A5"; // Rojo pastel
+    default:
+      return "#ccc"; // Color por defecto
+  }
+}
+
 export default function PastelPendientes() {
-  const [Estados, setEstados] = useState("");
+  const [Estados, setEstados] = useState([]);
+  const [Total, setTotal] = useState("");
 
   useEffect(() => {
     const fetchEstados = async () => {
       const response = await pendientes();
       setEstados(response);
     };
+    const fetchTotal = async () => {
+      const response = await totalPendientes();
+      setTotal(response.total);
+    };
     fetchEstados();
+    fetchTotal();
+
   }, []);
 
-  function calcularPorcentaje(cantidad, total) {
-    return parseFloat(((cantidad / total) * 100).toFixed(0));
+  function calcularPorcentaje(cantidad) {
+    return parseFloat(((cantidad / Total) * 100).toFixed(0));
   }
-  const estados = [
-    {
-      name: "En proceso",
-      value: calcularPorcentaje(
-        Estados.en_proceso_revision_count,
-        Estados.total_tramites
-      ),
-      color: "#FDE68A",
-    }, // Amarillo pastel
-    {
-      name: "Pendiente",
-      value: calcularPorcentaje(
-        Estados.pendiente_count,
-        Estados.total_tramites
-      ),
-      color: "#BFDBFE",
-    }, // Azul pastel
-    {
-      name: "No procede",
-      value: calcularPorcentaje(
-        Estados.no_procede_count,
-        Estados.total_tramites
-      ),
-      color: "#FCA5A5",
-    }, // Rojo pastel
-  ];
+  const estados = Estados.map((item) => ({
+    name: item.tipo_proceso,
+    value: calcularPorcentaje(item.total),
+    color: assignColor(item.tipo_proceso),
+  }));
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Pendientes</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-6xl font-bold">{Estados.total_tramites}</div>
+          <div className="text-6xl font-bold">{Total}</div>
           <div className="w-40 h-40">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

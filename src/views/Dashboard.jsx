@@ -2,16 +2,88 @@ import useProtectedData from "@/hooks/useProtectedData";
 import Pastel from "@/components/dashboard/PastelEstadoTramites";
 import Barra from "@/components/dashboard/BarraPrimaTotal";
 import PastelPendientes from "@/components/dashboard/PastelPendientes";
+import PastelCompromisos from "@/components/dashboard/PastelCompromisos";
+import { obtenerEstados, pendientes, movimietos } from "@/services/kpi";
+import { useEffect, useState } from "react";
+import CardDatos from "@/components/dashboard/CardDatos";
+import { IoMdCheckmarkCircleOutline, IoIosAddCircleOutline } from "react-icons/io";
+import { FaRegPauseCircle } from "react-icons/fa";
+import { BsHourglassTop } from "react-icons/bs";
+import { TbProgressCheck } from "react-icons/tb";
+import PastelMovimientos from "@/components/dashboard/PastelMovimientos";
+import { TbCancel } from "react-icons/tb";
+
+
 export default function Dashboard() {
+  const [Estados, setEstados] = useState([]);
+  const [pendientesBC, setPendientesBC] = useState("");
+  const [movimientosData, setMovimientosData] = useState([]);
+
+  useEffect(() => {
+    const fetchEstados = async () => {
+      const response = await obtenerEstados();
+      setEstados(response);
+    };
+    const fetchPendientes = async () => {
+      const response = await pendientes();
+      setPendientesBC(response[1].total);
+    };
+    const fetchMovimientos = async () => {
+      const response = await movimietos();
+      setMovimientosData(response);
+    };
+    fetchEstados();
+    fetchPendientes();
+    fetchMovimientos();
+  }, []);
   useProtectedData();
   return (
     <div className="p-6 space-y-6 min-h-screen">
-      <h1 className="text-2xl font-semibold text-gray-900 c">Dashboard</h1>
-      <div className="grid grid-cols-5">
-        <Pastel />
-        <PastelPendientes />
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       </div>
-      <Barra />
+      <div className="flex flex-col items-center w-full space-y-5">
+        <div className="grid md:grid-cols-6 grid-cols-1 gap-3 justify-items-center w-full">
+          <CardDatos
+            icon={<IoMdCheckmarkCircleOutline />}
+            tittle={"Tramites terminados"}
+            data={Estados.terminado_count}
+          />
+          <CardDatos
+            icon={<TbProgressCheck />}
+            tittle={"Tramites en proceso"}
+            data={Estados.en_proceso_revision_count}
+          />
+          <CardDatos
+            icon={<BsHourglassTop />}
+            tittle={"Tramites pendientes"}
+            data={Estados.pendiente_count}
+          />
+          <CardDatos
+            icon={<FaRegPauseCircle />}
+            tittle={"Pendientes por BC"}
+            data={pendientesBC}
+          />
+
+          <CardDatos
+            icon={<IoIosAddCircleOutline />}
+            tittle={"Expediciones"}
+            data={movimientosData.cancelacion_count}
+          />
+          <CardDatos
+            icon={<TbCancel />}
+            tittle={"Cancelaciones"}
+            data={movimientosData.expedicion_count}
+          />
+        </div>
+        <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
+          <Pastel />
+          <PastelPendientes />
+          <PastelCompromisos />
+          <PastelMovimientos />
+        </div>
+        <Barra />
+      </div>
     </div>
   );
 }
