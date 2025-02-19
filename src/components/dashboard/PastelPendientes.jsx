@@ -1,42 +1,52 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { obtenerEstados } from "@/services/kpi";
+import { pendientes } from "@/services/kpi";
 import { useEffect, useState } from "react";
 
-const estados = [
-  { name: "En proceso", value: 30, color: "#FFA500" }, // Naranja
-  { name: "Pendiente", value: 60, color: "#FFFF00" }, // Amarillo
-  { name: "No procede", value: 10, color: "#FF0000" }, // Rojo
-  { name: "Terminado", value: 10, color: "#008000" }, // Verde
-  { name: "En revisión de documentos", value: 10, color: "#0000FF" }, // Azul
-];
-
-export default function Pastel() {
+export default function PastelPendientes() {
   const [Estados, setEstados] = useState("");
 
   useEffect(() => {
     const fetchEstados = async () => {
-      const response = await obtenerEstados();
+      const response = await pendientes();
       setEstados(response);
-      console.log(response);
     };
     fetchEstados();
   }, []);
 
   function calcularPorcentaje(cantidad, total) {
-    return parseFloat(((cantidad / total) * 100).toFixed(2));
+    return parseFloat(((cantidad / total) * 100).toFixed(0));
   }
   const estados = [
-    { name: "En proceso", value: calcularPorcentaje(Estados.en_proceso_revision_count, Estados.total_tramites), color: "#FFA500" }, // Naranja
-    { name: "Pendiente", value: calcularPorcentaje(Estados.pendiente_count, Estados.total_tramites), color: "#FFFF00" }, // Amarillo
-    { name: "No procede", value: calcularPorcentaje(Estados.no_procede_count, Estados.total_tramites), color: "#FF0000" }, // Rojo
-    { name: "Terminado", value: calcularPorcentaje(Estados.terminado_count, Estados.total_tramites), color: "#008000" }, // Verde
-    { name: "En revisión de documentos", value: calcularPorcentaje(Estados.revision_documentos_count, Estados.total_tramites), color: "#0000FF" }, // Azul
+    {
+      name: "En proceso",
+      value: calcularPorcentaje(
+        Estados.en_proceso_revision_count,
+        Estados.total_tramites
+      ),
+      color: "#FDE68A",
+    }, // Amarillo pastel
+    {
+      name: "Pendiente",
+      value: calcularPorcentaje(
+        Estados.pendiente_count,
+        Estados.total_tramites
+      ),
+      color: "#BFDBFE",
+    }, // Azul pastel
+    {
+      name: "No procede",
+      value: calcularPorcentaje(
+        Estados.no_procede_count,
+        Estados.total_tramites
+      ),
+      color: "#FCA5A5",
+    }, // Rojo pastel
   ];
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Estados de Tramites</CardTitle>
+        <CardTitle>Pendientes</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
@@ -55,7 +65,11 @@ export default function Pastel() {
                   dataKey="value"
                 >
                   {estados.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      className=" cursor-pointer"
+                    />
                   ))}
                 </Pie>
                 <Tooltip

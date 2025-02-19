@@ -32,3 +32,22 @@ export const obtenerEstados = async () => {
     body: JSON.stringify(),
   });
 };
+export const obtenerTotalAfianzadoras = async () => {
+  return await fetchApi(`afianzadoras.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
+export const primaTotal = async () => {
+  return await fetchApi(`prima_total.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const pendientes = async () => {
+  return await fetchApi(`pendientes_compromisos.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
