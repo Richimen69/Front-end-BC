@@ -6,18 +6,23 @@ import PastelCompromisos from "@/components/dashboard/PastelCompromisos";
 import { obtenerEstados, pendientes, movimietos } from "@/services/kpi";
 import { useEffect, useState } from "react";
 import CardDatos from "@/components/dashboard/CardDatos";
-import { IoMdCheckmarkCircleOutline, IoIosAddCircleOutline } from "react-icons/io";
+import {
+  IoMdCheckmarkCircleOutline,
+  IoIosAddCircleOutline,
+} from "react-icons/io";
 import { FaRegPauseCircle } from "react-icons/fa";
 import { BsHourglassTop } from "react-icons/bs";
 import { TbProgressCheck } from "react-icons/tb";
 import PastelMovimientos from "@/components/dashboard/PastelMovimientos";
 import { TbCancel } from "react-icons/tb";
-
+import TableTramites from "@/components/dashboard/TableTramites";
 
 export default function Dashboard() {
   const [Estados, setEstados] = useState([]);
   const [pendientesBC, setPendientesBC] = useState("");
+  const [tipoTabla, setTipoTabla] = useState("");
   const [movimientosData, setMovimientosData] = useState([]);
+  const [mostrarTabla, setMostrarTabla] = useState(false);
 
   useEffect(() => {
     const fetchEstados = async () => {
@@ -44,38 +49,66 @@ export default function Dashboard() {
       </div>
       <div className="flex flex-col items-center w-full space-y-5">
         <div className="grid md:grid-cols-6 grid-cols-1 gap-3 justify-items-center w-full">
-          <CardDatos
-            icon={<IoMdCheckmarkCircleOutline />}
-            tittle={"Tramites terminados"}
-            data={Estados.terminado_count}
-          />
-          <CardDatos
-            icon={<TbProgressCheck />}
-            tittle={"Tramites en proceso"}
-            data={Estados.en_proceso_revision_count}
-          />
-          <CardDatos
-            icon={<BsHourglassTop />}
-            tittle={"Tramites pendientes"}
-            data={Estados.pendiente_count}
-          />
-          <CardDatos
-            icon={<FaRegPauseCircle />}
-            tittle={"Pendientes por BC"}
-            data={pendientesBC}
-          />
-
+            <CardDatos
+              icon={<IoMdCheckmarkCircleOutline />}
+              tittle={"Tramites terminados"}
+              data={Estados.terminado_count}
+            />
+          <div
+            className="w-full"
+            onClick={() => {
+              setMostrarTabla((prevState) => !prevState);
+              setTipoTabla("PROCESO");
+            }}
+          >
+            <CardDatos
+              icon={<TbProgressCheck />}
+              tittle={"Tramites en proceso"}
+              data={Estados.en_proceso_revision_count}
+            />
+          </div>
+          <div
+            className="w-full"
+            onClick={() => {
+              setMostrarTabla((prevState) => !prevState);
+              setTipoTabla("PENDIENTE");
+            }}
+          >
+            <CardDatos
+              icon={<BsHourglassTop />}
+              tittle={"Tramites pendientes"}
+              data={Estados.pendiente_count}
+            />
+          </div>
+          <div
+            className="w-full"
+            onClick={() => {
+              setMostrarTabla((prevState) => !prevState);
+              setTipoTabla("BC");
+            }}
+          >
+            <CardDatos
+              icon={<FaRegPauseCircle />}
+              tittle={"Pendientes por BC"}
+              data={pendientesBC}
+            />
+          </div>
           <CardDatos
             icon={<IoIosAddCircleOutline />}
             tittle={"Expediciones"}
-            data={movimientosData.cancelacion_count}
+            data={movimientosData.expedicion_count}
           />
           <CardDatos
             icon={<TbCancel />}
             tittle={"Cancelaciones"}
-            data={movimientosData.expedicion_count}
+            data={movimientosData.cancelacion_count}
           />
         </div>
+        {mostrarTabla ? (
+          <div className="w-full">
+            <TableTramites tipo={tipoTabla} />
+          </div>
+        ) : null}
         <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
           <Pastel />
           <PastelPendientes />

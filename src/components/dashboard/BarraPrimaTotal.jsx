@@ -42,7 +42,7 @@ export default function Barra() {
       <CardContent>
         <div className="flex items-center justify-between mb-6">
           <div className="text-4xl font-bold">${primaTotales.total_primas}</div>
-          <div className="w-40 h-40">
+          <div className="w-3/6 h-40">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={primas}>
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
