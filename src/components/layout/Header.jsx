@@ -34,14 +34,13 @@ function header() {
             </Link>
             {/* <Link to="/tramites">
               <li className="hover:text-secondary">Clientes</li>
-            </Link>
-            <Link to="/rpp">
-              <li className="hover:text-secondary">RPP</li>
-            </Link>
-            
+            </Link>            
             <Link to="/reportes">
               <li className="hover:text-secondary">Generar reporte</li>
             </Link> */}
+            <Link to="/rpp">
+              <li className="hover:text-secondary">RPP</li>
+            </Link>
             <li>
               <button
                 className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-lg active:translate-x-1 active:translate-y-1"

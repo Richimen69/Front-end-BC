@@ -45,7 +45,7 @@ export default function PastelPendientes() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Pendientes</CardTitle>
+        <CardTitle>En proceso</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">

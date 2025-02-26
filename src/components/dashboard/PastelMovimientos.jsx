@@ -54,7 +54,7 @@ export default function PastelMovimientos() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Movimientos</CardTitle>
+        <CardTitle>Movimientos generadores</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">

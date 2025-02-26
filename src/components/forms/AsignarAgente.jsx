@@ -36,6 +36,7 @@ export function AsignarAgente({ onClose, id_tramite }) {
       try {
         const response = await obtenerAgentes();
         setAgentes(response);
+        console.log(response)
       } catch (error) {
         console.error("Error al obtener las opciones:", error);
       }
@@ -73,9 +74,6 @@ export function AsignarAgente({ onClose, id_tramite }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Asignar tramites</DialogTitle>
@@ -102,11 +100,12 @@ export function AsignarAgente({ onClose, id_tramite }) {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {agentes.map((agente) => (
-                    <SelectItem key={agente.id} value={agente.nombre_usuario}>
-                      {agente.nombre_usuario}
-                    </SelectItem>
-                  ))}
+                  {Array.isArray(agentes) &&
+                    agentes.map((agente) => (
+                      <SelectItem key={agente.id} value={agente.nombre_usuario}>
+                        {agente.nombre_usuario}
+                      </SelectItem>
+                    ))}
                 </SelectGroup>
               </SelectContent>
             </Select>

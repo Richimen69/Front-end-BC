@@ -87,7 +87,7 @@ export default function TableRpp() {
                   </div>
                 </td>
                 <td className="p-4">{tramite.fecha_solicitud}</td>
-                <td className="p-4">{tramite.folio_re}</td>
+                <td className="p-4 text-nowrap">{tramite.folio_re}</td>
                 <td className="p-4">{tramite.afianzadora}</td>
                 <td className="p-4">{tramite.tramite_solicitado}</td>
                 <td className="p-4">{tramite.nombre_propietario_empresa}</td>
@@ -130,7 +130,7 @@ export default function TableRpp() {
                   </button>
                 </td>
                 <td className="p-4 text-center">
-                  {tramite.estatus === "EN REVISION" ? (
+                  {tramite.url_certificado !== "" && tramite.url_certificado !== null ? (
                     <button
                       onClick={() =>
                         window.open(

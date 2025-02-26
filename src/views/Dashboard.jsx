@@ -31,7 +31,7 @@ export default function Dashboard() {
     };
     const fetchPendientes = async () => {
       const response = await pendientes();
-      setPendientesBC(response[1].total);
+      setPendientesBC(response[0].total);
     };
     const fetchMovimientos = async () => {
       const response = await movimietos();
@@ -48,12 +48,18 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
       </div>
       <div className="flex flex-col items-center w-full space-y-5">
+        <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
+          <Pastel />
+          <PastelPendientes />
+          <PastelCompromisos />
+          <PastelMovimientos />
+        </div>
         <div className="grid md:grid-cols-6 grid-cols-1 gap-3 justify-items-center w-full">
-            <CardDatos
-              icon={<IoMdCheckmarkCircleOutline />}
-              tittle={"Tramites terminados"}
-              data={Estados.terminado_count}
-            />
+          <CardDatos
+            icon={<IoMdCheckmarkCircleOutline />}
+            tittle={"Tramites terminados"}
+            data={Estados.terminado_count} //Poner cuantos son en total
+          />
           <div
             className="w-full"
             onClick={() => {
@@ -63,7 +69,7 @@ export default function Dashboard() {
           >
             <CardDatos
               icon={<TbProgressCheck />}
-              tittle={"Tramites en proceso"}
+              tittle={"Tramites en curso"}
               data={Estados.en_proceso_revision_count}
             />
           </div>
@@ -109,12 +115,6 @@ export default function Dashboard() {
             <TableTramites tipo={tipoTabla} />
           </div>
         ) : null}
-        <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
-          <Pastel />
-          <PastelPendientes />
-          <PastelCompromisos />
-          <PastelMovimientos />
-        </div>
         <Barra />
       </div>
     </div>
