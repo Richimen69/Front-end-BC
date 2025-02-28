@@ -6,12 +6,14 @@ import { AsignarAgente } from "../forms/AsignarAgente";
 import AprobarTramite from "../forms/AprobarTramite";
 import { statusStyles } from "@/utils/Constans";
 import { Toaster } from "sonner";
+import { MdEdit } from "react-icons/md";
 import EnviarFactura from "../forms/EnviarFactura";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [showDialogAprobar, setShowDialogAprobar] = useState(false);
   const [showDialogFactura, setShowDialogFactura] = useState(false);
+  const [enableInput, setEnableInput] = useState(true);
   useEffect(() => {
     // Solicitar opciones al backend
     const fetchTramites = async () => {
@@ -105,32 +107,50 @@ export default function TableRpp() {
                   </span>
                 </td>
                 <td className="p-4 text-green-500 font-semibold text-nowrap">
-                  ${tramite.costo_tramite} MXN
+                  $
+                  <input
+                    type="text"
+                    value={tramite.costo_tramite}
+                    disabled={enableInput}
+                    className="w-20 appearance-none bg-transparent "
+                  />
+                  <button
+                    type="submit"
+                    className="text-green-500 p-1"
+                    onClick={() => {
+                      setEnableInput((prevState) => !prevState);
+                    }}
+                  >
+                    <MdEdit />
+                  </button>
                 </td>
                 <td className="p-4">{tramite.agente}</td>
                 <td className="p-4">{tramite.observaciones}</td>
                 <td className="p-4 text-center">
-                  <button
-                    onClick={() =>
-                      window.open(
-                        `https://bitacorabc.site/Backend_RPP/uploads/${tramite.url_archivo}`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    <IconContext.Provider
-                      value={{
-                        color: "#076163",
-                        className: "global-class-name",
-                        size: "1.5em",
-                      }}
+                  {tramite.url_archivo != "" && tramite.url_archivo != null ? (
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://bitacorabc.site/Backend_RPP/uploads/${tramite.url_archivo}`,
+                          "_blank"
+                        )
+                      }
                     >
-                      <FaFileDownload />
-                    </IconContext.Provider>
-                  </button>
+                      <IconContext.Provider
+                        value={{
+                          color: "#076163",
+                          className: "global-class-name",
+                          size: "1.5em",
+                        }}
+                      >
+                        <FaFileDownload />
+                      </IconContext.Provider>
+                    </button>
+                  ) : null}
                 </td>
                 <td className="p-4 text-center">
-                  {tramite.url_certificado !== "" && tramite.url_certificado !== null ? (
+                  {tramite.url_certificado !== "" &&
+                  tramite.url_certificado !== null ? (
                     <button
                       onClick={() =>
                         window.open(
