@@ -106,12 +106,12 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     try {
       const result = await updateTramite(data);
       if (result.success) {
-        toast.success("Compromiso guardado exitosamente.");
+        toast.success("Guardado exitosamente.");
         setTimeout(() => {
           navigate("/tramites");
         }, 1500);
       } else {
-        toast.error("Error al guardar el Compromiso.");
+        toast.error("Error al guardar.");
       }
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);

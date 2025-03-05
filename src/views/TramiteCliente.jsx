@@ -644,7 +644,6 @@ function TramiteCliente() {
             </div>
           </div>
           <div className="flex items-center justify-center p-5">
-            {formData.estatusSeleccionado.value != "TERMINADO" ? (
               <button
                 className="group cursor-pointer outline-none hover:rotate-90 duration-300"
                 title="Agregar movimiento"
@@ -665,7 +664,6 @@ function TramiteCliente() {
                   <path strokeWidth="1.5" d="M12 16V8"></path>
                 </svg>
               </button>
-            ) : null}
           </div>
         </div>
       </div>

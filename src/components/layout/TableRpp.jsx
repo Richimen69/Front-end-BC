@@ -8,12 +8,15 @@ import { statusStyles } from "@/utils/Constans";
 import { Toaster } from "sonner";
 import { MdEdit } from "react-icons/md";
 import EnviarFactura from "../forms/EnviarFactura";
+import AjustarPrecio from "../forms/AjustarPrecio";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [showDialogAprobar, setShowDialogAprobar] = useState(false);
   const [showDialogFactura, setShowDialogFactura] = useState(false);
-  const [enableInput, setEnableInput] = useState(true);
+  const [enableInput, setEnableInput] = useState(false);
+  const [precio, setPrecio] = useState("");
+  const [idTramite, setID] = useState(false);
   useEffect(() => {
     // Solicitar opciones al backend
     const fetchTramites = async () => {
@@ -107,18 +110,14 @@ export default function TableRpp() {
                   </span>
                 </td>
                 <td className="p-4 text-green-500 font-semibold text-nowrap">
-                  $
-                  <input
-                    type="text"
-                    value={tramite.costo_tramite}
-                    disabled={enableInput}
-                    className="w-20 appearance-none bg-transparent "
-                  />
+                  ${tramite.costo_tramite}
                   <button
                     type="submit"
                     className="text-green-500 p-1"
                     onClick={() => {
-                      setEnableInput((prevState) => !prevState);
+                      setEnableInput(true);
+                      setPrecio(tramite.costo_tramite);
+                      setID(tramite.id);
                     }}
                   >
                     <MdEdit />
@@ -238,6 +237,7 @@ export default function TableRpp() {
               Enviar ({selected.length})
             </button>
           )}
+
         </div>
       )}
       {showDialog && (
@@ -257,6 +257,13 @@ export default function TableRpp() {
           onClose={() => setShowDialogFactura(false)}
           id_tramite={selected.map((item) => item.id)}
           costo={selected.map((item) => item.costo)}
+        />
+      )}
+      {enableInput && (
+        <AjustarPrecio
+          onClose={() => setEnableInput(false)}
+          id_tramite={idTramite}
+          total={precio}
         />
       )}
       <Toaster position="top-center" richColors />

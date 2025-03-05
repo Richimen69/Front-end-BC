@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 export default function AprobarTramite({ onClose, id_tramite }) {
   const navigate = useNavigate();
-    const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null);
   const aprobar = async () => {
     try {
       if (!Array.isArray(id_tramite) || id_tramite.length === 0) {
@@ -25,19 +25,15 @@ export default function AprobarTramite({ onClose, id_tramite }) {
         return;
       }
       handleUpload();
-
       for (let i = 0; i < id_tramite.length; i++) {
         const data = {
           id: id_tramite[i],
           estatus: "EN ESPERA DE APROBACION",
-          url_cert_revisado: file.name
+          url_cert_revisado: file.name,
         };
         const response = await updateTramites(data);
         if (response.success) {
           toast.success("Guardado exitosamente.");
-          setTimeout(() => {
-            navigate(0);
-          }, 1500);
         } else {
           toast.error("Error");
         }
@@ -48,8 +44,7 @@ export default function AprobarTramite({ onClose, id_tramite }) {
   };
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    console.log("Archivo seleccionado:", selectedFile);
-
+    //console.log("Archivo seleccionado:", selectedFile);
     if (selectedFile) {
       setFile(selectedFile);
     }
@@ -64,10 +59,11 @@ export default function AprobarTramite({ onClose, id_tramite }) {
     try {
       const response = await uploadArchivo(file);
 
-      console.log("Respuesta del backend:", response);
-
+      //console.log("Respuesta del backend:", response);
+      
       if (response?.message) {
         toast.success("Archivo subido correctamente");
+        navigate(0);
         return response;
       } else {
         toast.error("Error en la respuesta del backend");

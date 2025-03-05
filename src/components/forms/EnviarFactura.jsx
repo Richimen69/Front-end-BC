@@ -57,7 +57,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       try {
         const result = await updateTramites(data);
         if (result.message) {
-          toast.success("Trámite guardado exitosamente.");
+          toast.success("Guardado exitosamente.");
           setTimeout(() => {
             navigate(0);
           }, 1500);
