@@ -32,12 +32,9 @@ function header() {
             <Link to="/tramites">
               <li className="hover:text-secondary">Trámites</li>
             </Link>
-            {/* <Link to="/tramites">
+            <Link to="/clientes">
               <li className="hover:text-secondary">Clientes</li>
             </Link>            
-            <Link to="/reportes">
-              <li className="hover:text-secondary">Generar reporte</li>
-            </Link> */}
             <Link to="/rpp">
               <li className="hover:text-secondary">RPP</li>
             </Link>

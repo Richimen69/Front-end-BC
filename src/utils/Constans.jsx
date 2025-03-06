@@ -66,3 +66,14 @@ export const movimientos = [
     "FACTURA ENVIADA": "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
     "FINALIZADO": "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
   };
+  export const estatusRPP = [
+    {value: "EN ESPERA DE APROBACION"},
+    {value: "FINALIZADO"},
+    {value: "EN PROCESO"},
+    {value: "NUEVO"},
+    {value: "EN REVISION"},
+    {value: "APROBADO"},
+    {value: "CORRECCION"},
+    {value: "EN ESPERA DE PAGO"},
+  
+  ]

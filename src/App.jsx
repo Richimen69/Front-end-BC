@@ -8,6 +8,7 @@ import Tramites from "./views/Tramites";
 import TramiteCliente from "./views/TramiteCliente";
 import VistaTramite from "./views/VistaTramite";
 import Rpp from "./views/Rpp";
+import Clientes from "./views/Clientes";
 function App() {
   return (
     <div className="bg-background min-h-screen">
@@ -21,12 +22,21 @@ function App() {
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/rpp"
           element={
             <ProtectedRoute>
               <Header />
               <Rpp />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/clientes"
+          element={
+            <ProtectedRoute>
+              <Header />
+              <Clientes />
             </ProtectedRoute>
           }
         />

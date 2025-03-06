@@ -8,7 +8,10 @@ function Rpp() {
   return (
     <div className="p-5">
       <div className="flex flex-col items-center justify-center bg-white shadow-lg rounded-3xl overflow-hidden w-full">
-        <div className="p-5 mr-5 flex justify-end w-full">
+        <div className="p-5 mr-5 flex justify-between w-full">
+          <h1 className="text-3xl font-semibold tracking-tight text-gray-900 p-1">
+            Trámites
+          </h1>
           <button
             className=" text-primary  transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
             onClick={() => {
@@ -25,7 +28,9 @@ function Rpp() {
             </IconContext.Provider>
           </button>
         </div>
-        <TableRpp />
+        <div className="p-5 w-full">
+          <TableRpp />
+        </div>
       </div>
       {showDialog && <FormularioUsers onClose={() => setShowDialog(false)} />}
     </div>

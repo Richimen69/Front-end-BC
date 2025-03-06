@@ -29,6 +29,7 @@ import { updateTramites } from "@/services/rpp";
 export default function EnviarFactura({ onClose, id_tramite, costo }) {
   const navigate = useNavigate();
   const [total, setTotal] = useState(0);
+  const [calculos, setCalculos] = useState(null);
   const [file, setFile] = useState(null);
   useEffect(() => {
     let sum = 0;
@@ -36,6 +37,20 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       sum += parseFloat(costo[i]) || 0;
     }
     setTotal(sum);
+    const comisiones = Number(sum);
+    const iva = comisiones * 0.16;
+    const subtotal = iva + comisiones;
+    const ivaRet = (iva / 3) * 2;
+    const isrRet = comisiones * 0.1;
+    const totalH = subtotal - ivaRet - isrRet;
+    setCalculos({
+      comisiones: comisiones,
+      iva: iva,
+      subtotal: subtotal,
+      ivaRet: ivaRet,
+      isrRet: isrRet,
+      total: totalH,
+    });
   }, [costo]);
 
   const actualizarTramite = async () => {
@@ -58,9 +73,6 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         const result = await updateTramites(data);
         if (result.message) {
           toast.success("Guardado exitosamente.");
-          setTimeout(() => {
-            navigate(0);
-          }, 1500);
         } else {
           toast.error("Error al guardar el trámite.");
         }
@@ -116,10 +128,50 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-3 items-center gap-4">
             <Label htmlFor="name" className="text-right">
-              Total a pagar
+              Comisiones
             </Label>
             <Label htmlFor="name" className="text-right">
               ${total} MXN
+            </Label>
+          </div>
+          <div className="grid grid-cols-3 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              IVA
+            </Label>
+            <Label htmlFor="name" className="text-right">
+            ${calculos?.iva?.toFixed(2)} MXN
+            </Label>
+          </div>
+          <div className="grid grid-cols-3 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Subtotal
+            </Label>
+            <Label htmlFor="name" className="text-right">
+            ${calculos?.subtotal?.toFixed(2)} MXN
+            </Label>
+          </div>
+          <div className="grid grid-cols-3 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              IVA Ret
+            </Label>
+            <Label htmlFor="name" className="text-right">
+            ${calculos?.ivaRet?.toFixed(2)} MXN
+            </Label>
+          </div>
+          <div className="grid grid-cols-3 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              ISR Ret
+            </Label>
+            <Label htmlFor="name" className="text-right">
+            ${calculos?.isrRet?.toFixed(2)} MXN
+            </Label>
+          </div>
+          <div className="grid grid-cols-3 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Total
+            </Label>
+            <Label htmlFor="name" className="text-right">
+              ${calculos?.total?.toFixed(2)} MXN
             </Label>
           </div>
           <div className="grid items-center gap-1.5">
