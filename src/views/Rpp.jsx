@@ -3,6 +3,8 @@ import TableRpp from "@/components/layout/TableRpp";
 import { IoMdPersonAdd } from "react-icons/io";
 import { IconContext } from "react-icons";
 import { FormularioUsers } from "@/components/forms/FormularioUsers";
+import { MdAttachMoney } from "react-icons/md";
+import { Link } from "react-router-dom";
 function Rpp() {
   const [showDialog, setShowDialog] = useState(false);
   return (
@@ -12,21 +14,39 @@ function Rpp() {
           <h1 className="text-3xl font-semibold tracking-tight text-gray-900 p-1">
             Trámites
           </h1>
-          <button
-            className=" text-primary  transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
-            onClick={() => {
-              setShowDialog(true);
-            }}
-          >
-            <IconContext.Provider
-              value={{
-                className: "global-class-name",
-                size: "3em",
+          <div className="flex gap-5">
+            <Link
+            to="/catalogo"
+              className=" text-primary  transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
+              onClick={() => {
+                setShowDialog(true);
               }}
             >
-              <IoMdPersonAdd />
-            </IconContext.Provider>
-          </button>
+              <IconContext.Provider
+                value={{
+                  className: "global-class-name",
+                  size: "3em",
+                }}
+              >
+                <MdAttachMoney />
+              </IconContext.Provider>
+            </Link>
+            <button
+              className=" text-primary  transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
+              onClick={() => {
+                setShowDialog(true);
+              }}
+            >
+              <IconContext.Provider
+                value={{
+                  className: "global-class-name",
+                  size: "3em",
+                }}
+              >
+                <IoMdPersonAdd />
+              </IconContext.Provider>
+            </button>
+          </div>
         </div>
         <div className="p-5 w-full">
           <TableRpp />

@@ -30,9 +30,6 @@ export function AsignarAgente({ onClose, id_tramite }) {
   const [agentes, setAgentes] = useState([]);
   const [agenteSeleccionado, setAgenteSeleccionado] = useState("");
   const [costo, setCosto] = useState("");
-  const [folio, setFolio] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [distrito, setDistrito] = useState("");
 
   useEffect(() => {
     const fetchAgentes = async () => {
@@ -56,9 +53,6 @@ export function AsignarAgente({ onClose, id_tramite }) {
       for (let i = 0; i < id_tramite.length; i++) {
         const data = {
           id: id_tramite[i],
-          direccion_bi: direccion,
-          folio_re: folio,
-          distrito_ciudad: distrito,
           estatus: "EN PROCESO",
           pagado_a_gestor_rpp: costo,
           agente: agenteSeleccionado,
@@ -85,39 +79,6 @@ export function AsignarAgente({ onClose, id_tramite }) {
           <DialogTitle>Asignar tramites</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="direccion" className="text-right">
-              Direccion
-            </Label>
-            <Input
-              id="direccion"
-              placeholder="DEPTO. 502, #16, Col. Centro"
-              className="col-span-3"
-              onChange={(e) => setDireccion(e.target.value)}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="distrito" className="text-right">
-              Distrito
-            </Label>
-            <Input
-              id="distrito"
-              placeholder="Acapulco, Gro"
-              className="col-span-3"
-              onChange={(e) => setDistrito(e.target.value)}
-            />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="folio" className="text-right">
-              Folio
-            </Label>
-            <Input
-              id="folio"
-              placeholder="123456"
-              className="col-span-3"
-              onChange={(e) => setFolio(e.target.value)}
-            />
-          </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="costo" className="text-right">
               Costo

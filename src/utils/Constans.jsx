@@ -62,9 +62,12 @@ export const movimientos = [
     "CORRECCION INTERNA": "bg-red-100 text-red-600 px-3 py-1 rounded-full text-base font-semibold",
     "EN ESPERA DE APROBACION": "bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-base font-semibold",
     "CORRECCION": "bg-red-200 text-red-700 px-3 py-1 rounded-full text-base font-semibold",
+    "ESPERANDO PAGO":
+    "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
     "APROBADO": "bg-lime-100 text-lime-600 px-3 py-1 rounded-full text-base font-semibold",
     "FACTURA ENVIADA": "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
     "FINALIZADO": "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
+    "CANCELADO": "bg-red-600 text-red-100 px-3 py-1 rounded-full text-base font-semibold",
   };
   export const estatusRPP = [
     {value: "EN ESPERA DE APROBACION"},
@@ -75,5 +78,6 @@ export const movimientos = [
     {value: "APROBADO"},
     {value: "CORRECCION"},
     {value: "EN ESPERA DE PAGO"},
+    {value: "CANCELADO"},
   
   ]

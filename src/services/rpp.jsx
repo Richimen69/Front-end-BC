@@ -33,10 +33,44 @@ export const obtenerTramites = async () => {
   });
 };
 
+export const obtenerTramitesId = async (data) => {
+  return await fetchApi(`tramites_id.php?id_tramite=${data}`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
+export const borrarTramite = async (data) => {
+  return await fetchApi(`tramites_id.php?id_tramite=${data}`, {
+    method: "DELETE",
+    body: JSON.stringify(),
+  });
+};
+
 export const obtenerAgentes = async () => {
   return await fetchApi(`agentes.php`, {
     method: "GET",
     body: JSON.stringify(),
+  });
+};
+
+export const catalagos = async () => {
+  return await fetchApi(`tramites-catalogo.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+export const catalagosID = async (id) => {
+  return await fetchApi(`tramites-catalogo.php?id=${id}`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
+export const updateCatalago = async (data) => {
+  return await fetchApi(`tramites-catalogo.php`, {
+    method: "PUT",
+    body: JSON.stringify(data),
   });
 };
 
