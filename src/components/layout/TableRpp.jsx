@@ -436,7 +436,7 @@ export default function TableRpp() {
                       <button
                         onClick={() =>
                           window.open(
-                            `https://bitacorabc.site/Backend_RPP/${tramite.url_xml}`,
+                            `https://bitacorabc.site/Backend_RPP/uploads/${tramite.url_xml}`,
                             "_blank"
                           )
                         }

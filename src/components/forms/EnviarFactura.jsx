@@ -31,6 +31,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
   const [total, setTotal] = useState(0);
   const [calculos, setCalculos] = useState(null);
   const [file, setFile] = useState(null);
+  const [fileXML, setFileXML] = useState(null);
   useEffect(() => {
     let sum = 0;
     for (let i = 0; i < costo.length; i++) {
@@ -58,7 +59,8 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       toast.error("Selecciona un archivo");
       return;
     }
-    const response = await handleUpload(); // Espera la subida del archivo
+    const response = await handleUpload();
+    console.log(response) // Espera la subida del archivo
     if (!response || !response.message) {
       toast.error("Error al subir el archivo.");
       return;
@@ -68,6 +70,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         id: id_tramite[i],
         estatus: "ESPERANDO PAGO",
         url_factura: response.path,
+        url_xml: fileXML.name
       };
       try {
         const result = await updateTramites(data);
@@ -80,6 +83,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         toast.error("Hubo un problema al guardar el trámite.");
       }
     }
+    navigate(0)
   };
 
   const handleFileChange = (e) => {
@@ -88,6 +92,14 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
 
     if (selectedFile) {
       setFile(selectedFile);
+    }
+  };
+  const handleXMLChange = (e) => {
+    const selectedFile = e.target.files[0];
+    console.log("Archivo seleccionado:", selectedFile);
+
+    if (selectedFile) {
+      setFileXML(selectedFile);
     }
   };
 
@@ -99,10 +111,11 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
 
     try {
       const response = await uploadArchivo(file);
+      const responseXML = await uploadArchivo(fileXML);
 
       console.log("Respuesta del backend:", response);
-
-      if (response?.message) {
+      console.log("Respuesta del backend:", responseXML);
+      if (response?.message && responseXML?.message) {
         toast.success("Archivo subido correctamente");
         return response;
       } else {
@@ -177,6 +190,10 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
           <div className="grid items-center gap-1.5">
             <Label htmlFor="picture">Factura</Label>
             <Input id="picture" type="file" onChange={handleFileChange} />
+          </div>
+          <div className="grid items-center gap-1.5">
+            <Label htmlFor="picture">XML</Label>
+            <Input id="picture" type="file" onChange={handleXMLChange} />
           </div>
         </div>
         <DialogFooter>
