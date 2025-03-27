@@ -76,26 +76,26 @@ export default function CancelarComp({ onClose, id_tramite }) {
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant={"outline"}
+                  id="fecha"
+                  variant="outline"
                   className={cn(
-                    "w-[280px] justify-start text-left font-normal",
+                    "w-full justify-start text-left h-12 font-normal",
                     !date && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? (
-                    format(date, "dd/MM/yyyy", { locale: es }) // Formatea la fecha en formato español
-                  ) : (
-                    <span>Selecciona una fecha</span>
-                  )}
+                  {date
+                    ? format(date, "PPP", { locale: es })
+                    : "Selecciona una fecha"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={setDate}
                   initialFocus
+                  locale={es}
                 />
               </PopoverContent>
             </Popover>

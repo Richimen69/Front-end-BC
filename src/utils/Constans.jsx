@@ -20,6 +20,8 @@ export const movimientos = [
   { value: "ENDOSO POR DIFERIMIENTO DE PLAZO", label: "ENDOSO POR DIFERIMIENTO DE PLAZO" },
   { value: "EXPEDICIÓN CON DEP. PRENDARIO", label: "EXPEDICIÓN CON DEP. PRENDARIO" },
   { value: "EXPEDICIÓN", label: "EXPEDICIÓN" },
+  { value: "MOVIMIENTO ESPECIAL P-A", label: "MOVIMIENTO ESPECIAL P-A" },
+  { value: "EXPEDICIÓN FIANZA-FIDELIDAD", label: "EXPEDICIÓN FIANZA-FIDELIDAD" },
   { value: "PRÓRROGA", label: "PRÓRROGA" },
   { value: "SEGUIMIENTO", label: "SEGUIMIENTO" },
   { value: "SEGURO MAQUINARIA", label: "SEGURO MAQUINARIA" },
@@ -53,6 +55,7 @@ export const movimientos = [
     { value: "SE MANDÓ RECIBO", label: "SE MANDÓ RECIBO" },
     { value: "NO PAGADA", label: "NO PAGADA" },
     { value: "PENDIENTE", label: "PENDIENTE" },
+    { value: "NO APLICA", label: "NO APLICA" },
   ];
 
   export const statusStyles = {

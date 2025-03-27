@@ -87,6 +87,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     }
     const data = {
       id_tramite: id,
+      afianzadora: datosCliente.afianzadora.value || "",
       estatus: datosCliente.estatusSeleccionado.value || "",
       observaciones: datosCliente.observaciones || "",
       fianza: datosCliente.fianza || "",

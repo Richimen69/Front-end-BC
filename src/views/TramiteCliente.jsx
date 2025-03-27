@@ -17,6 +17,7 @@ import {
   createMovimiento,
   deleteMovimiento,
 } from "../services/movimientos";
+import { fetchAfianzadoras } from "@/services/datosTramites";
 import { PendientesBC } from "@/components/forms/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
@@ -25,6 +26,7 @@ function TramiteCliente() {
 
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [afianzadoras, setAfianzadoras] = useState([]);
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
@@ -44,6 +46,7 @@ function TramiteCliente() {
     prima_total: "",
     importe_total: "",
     estadoTramite: "",
+    afianzadora: "",
   });
 
   // Obtener el id desde el estado
@@ -74,6 +77,19 @@ function TramiteCliente() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const afianzadorasData = await fetchAfianzadoras();
+      setAfianzadoras(
+        afianzadorasData.map((afianzadora) => ({
+          value: afianzadora.nombre_afi,
+          label: afianzadora.nombre_afi,
+        }))
+      );
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
         const data = await fetchTramites();
         setClientes(data);
@@ -95,6 +111,14 @@ function TramiteCliente() {
               estatus.find(
                 (option) => option.value === clienteEncontrado.estatus
               ) || null,
+            estadoTramite:
+              estadoTramite.find(
+                (option) => option.value === clienteEncontrado.tipo_proceso
+              ) || null,
+            afianzadora:
+              afianzadoras.find(
+                (option) => option.value === clienteEncontrado.afianzadora
+              )
           }));
 
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
@@ -121,9 +145,11 @@ function TramiteCliente() {
         console.error("Error al obtener los datos:", error);
       }
     };
-
     fetchData();
-  }, [id]);
+    if (afianzadoras.length > 0) {
+      fetchData();
+    }
+  }, [afianzadoras, id]);
 
   const actualizarMovimientos = async (id) => {
     try {
@@ -160,6 +186,12 @@ function TramiteCliente() {
   };
   const handleEstatusPagoChange = (selectedOption) => {
     setEstatusPago(selectedOption);
+  };
+  const handleAfianzadora = (selectedOption) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      afianzadora: selectedOption,
+    }));
   };
 
   // Buscar el cliente por el id
@@ -308,12 +340,32 @@ function TramiteCliente() {
             </div>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label className="text-sm font-medium text-teal-600">
-                  Afianzadora
-                </label>
-                <div className="mt-1 text-gray-900">
-                  {clienteEncontrado.afianzadora}
-                </div>
+                {clienteEncontrado.movimiento === "SEGURO RC" ? (
+                  <label className="text-sm font-medium text-teal-600">
+                    Aseguradora
+                  </label>
+                ) : (
+                  <div>
+                    <label className="text-sm font-medium text-teal-600">
+                      Afianzadora
+                    </label>
+                    <Select
+                      options={afianzadoras}
+                      value={formData.afianzadora}
+                      onChange={handleAfianzadora}
+                      placeholder="Seleccionar estatus..."
+                      className="mt-1"
+                      theme={(theme) => ({
+                        ...theme,
+                        colors: {
+                          ...theme.colors,
+                          primary25: "#DDBE86",
+                          primary: "#076163",
+                        },
+                      })}
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
@@ -342,38 +394,37 @@ function TramiteCliente() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {clienteEncontrado.estatus != "TERMINADO" ? (
-                <div>
-                  <label className="text-sm font-medium text-teal-600">
-                    Estatus:
-                  </label>
-                  <Select
-                    options={estatus}
-                    defaultValue={formData.estatusSeleccionado}
-                    value={formData.estatusSeleccionado}
-                    onChange={handleEstatusChange}
-                    placeholder="Seleccionar estatus..."
-                    className="mt-1"
-                    theme={(theme) => ({
-                      ...theme,
-                      colors: {
-                        ...theme.colors,
-                        primary25: "#DDBE86",
-                        primary: "#076163",
-                      },
-                    })}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <p className="block text-primary font-bold">Estatus:</p>
-                  <p>{clienteEncontrado.estatus}</p>
-                </div>
-              )}
               <div>
                 <label className="text-sm font-medium text-teal-600">
-                  Fianza
+                  Estatus:
                 </label>
+                <Select
+                  options={estatus}
+                  defaultValue={formData.estatusSeleccionado}
+                  value={formData.estatusSeleccionado}
+                  onChange={handleEstatusChange}
+                  placeholder="Seleccionar estatus..."
+                  className="mt-1"
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary25: "#DDBE86",
+                      primary: "#076163",
+                    },
+                  })}
+                />
+              </div>
+              <div>
+                {clienteEncontrado.movimiento === "SEGURO RC" ? (
+                  <label className="text-sm font-medium text-teal-600">
+                    Póliza
+                  </label>
+                ) : (
+                  <label className="text-sm font-medium text-teal-600">
+                    Fianza
+                  </label>
+                )}
                 <input
                   type="text"
                   value={formData.fianza}
@@ -644,26 +695,26 @@ function TramiteCliente() {
             </div>
           </div>
           <div className="flex items-center justify-center p-5">
-              <button
-                className="group cursor-pointer outline-none hover:rotate-90 duration-300"
-                title="Agregar movimiento"
-                onClick={toggleFormulario}
+            <button
+              className="group cursor-pointer outline-none hover:rotate-90 duration-300"
+              title="Agregar movimiento"
+              onClick={toggleFormulario}
+            >
+              <svg
+                className="stroke-teal-500 fill-none group-hover:fill-teal-800 group-active:stroke-teal-200 group-active:fill-teal-600 group-active:duration-0 duration-300"
+                viewBox="0 0 24 24"
+                height="50px"
+                width="50px"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <svg
-                  className="stroke-teal-500 fill-none group-hover:fill-teal-800 group-active:stroke-teal-200 group-active:fill-teal-600 group-active:duration-0 duration-300"
-                  viewBox="0 0 24 24"
-                  height="50px"
-                  width="50px"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeWidth="1.5"
-                    d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-                  ></path>
-                  <path strokeWidth="1.5" d="M8 12H16"></path>
-                  <path strokeWidth="1.5" d="M12 16V8"></path>
-                </svg>
-              </button>
+                <path
+                  strokeWidth="1.5"
+                  d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+                ></path>
+                <path strokeWidth="1.5" d="M8 12H16"></path>
+                <path strokeWidth="1.5" d="M12 16V8"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

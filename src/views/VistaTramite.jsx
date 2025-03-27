@@ -123,9 +123,15 @@ function VistaTramite() {
                   Fecha de Termino: {clienteEncontrado.fecha_termino}
                 </p>
               ) : null}
-              <p className="text-sm text-muted-foreground font-bold">
-                Fianza: {clienteEncontrado.fianza}
-              </p>
+              {clienteEncontrado.movimiento === "SEGURO RC" ? (
+                <p className="text-sm text-muted-foreground font-bold">
+                  Póliza: {clienteEncontrado.fianza}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground font-bold">
+                  Fianza: {clienteEncontrado.fianza}
+                </p>
+              )}
             </div>
             <div className="text-right">
               <p className="font-semibold">Folio: {clienteEncontrado.folio}</p>
@@ -141,7 +147,11 @@ function VistaTramite() {
                 <p>{clienteEncontrado.nombre}</p>
               </div>
               <div className="space-y-2">
-                <h3 className="font-semibold text-primary">Afianzadora</h3>
+                {clienteEncontrado.movimiento === "SEGURO RC" ? (
+                  <h3 className="font-semibold text-primary">Aseguradora</h3>
+                ) : (
+                  <h3 className="font-semibold text-primary">Afianzadora</h3>
+                )}
                 <p>{clienteEncontrado.afianzadora}</p>
               </div>
             </div>
