@@ -115,10 +115,9 @@ function TramiteCliente() {
               estadoTramite.find(
                 (option) => option.value === clienteEncontrado.tipo_proceso
               ) || null,
-            afianzadora:
-              afianzadoras.find(
-                (option) => option.value === clienteEncontrado.afianzadora
-              )
+            afianzadora: afianzadoras.find(
+              (option) => option.value === clienteEncontrado.afianzadora
+            ),
           }));
 
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
@@ -460,7 +459,8 @@ function TramiteCliente() {
               </div>
             </div>
 
-            {formData.estatusSeleccionado.value === "TERMINADO" ? (
+            {formData.estatusSeleccionado.value === "TERMINADO" ||
+            formData.estatusSeleccionado.value === "TERMINADO/COMPROMISO" ? (
               <div>
                 {" "}
                 <div className="grid gap-6 md:grid-cols-3">
@@ -651,21 +651,19 @@ function TramiteCliente() {
                     </p>
                   </div>
                   <div className=" px-4 py-2 rounded">
-                    {formData.estatusSeleccionado.value != "TERMINADO" ? (
-                      <button
-                        onClick={() => borrarMovimiento(dato.id_movimiento)}
+                    <button
+                      onClick={() => borrarMovimiento(dato.id_movimiento)}
+                    >
+                      <IconContext.Provider
+                        value={{
+                          color: "#E82561",
+                          className: "global-class-name",
+                          size: "1.5em",
+                        }}
                       >
-                        <IconContext.Provider
-                          value={{
-                            color: "#E82561",
-                            className: "global-class-name",
-                            size: "1.5em",
-                          }}
-                        >
-                          <FaTrash />
-                        </IconContext.Provider>
-                      </button>
-                    ) : null}
+                        <FaTrash />
+                      </IconContext.Provider>
+                    </button>
                   </div>
                 </div>
               </div>

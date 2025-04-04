@@ -124,25 +124,13 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          {datosCliente.estatusSeleccionado.value === "TERMINADO" ? (
+          {datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO" ? (
             <DialogTitle>¿Tiene Compromisos?</DialogTitle>
           ) : (
             <DialogTitle>¿Desea guardar los cambios?</DialogTitle>
           )}
         </DialogHeader>
-        {datosCliente.estatusSeleccionado.value === "TERMINADO" ? (
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="airplane-mode"
-              checked={isSwitchOn}
-              onCheckedChange={setIsSwitchOn}
-            />
-            <Label htmlFor="airplane-mode" className="text-left">
-              {isSwitchOn ? "Sí" : "No"}
-            </Label>
-          </div>
-        ) : null}
-        {isSwitchOn && (
+        {datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO" && (
           <div className="grid gap-4 py-4 items-center justify-center">
             <div className="grid w-full grid-cols-4 items-center gap-4">
               <Select onValueChange={setCategoria}>

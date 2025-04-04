@@ -14,14 +14,31 @@ import {
 } from "@/services/tramitesClientes";
 export default function TableTramites() {
   const [clientes, setClientes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [movimientoFiltro, setMovimientoFiltro] = useState("");
-  const [estatusFiltro, setEstatusFiltro] = useState("");
+  const [searchQuery, setSearchQuery] = useState(
+    localStorage.getItem("searchQuery") || ""
+  );
+  const [searchQueryFianza, setSearchQueryFianza] = useState(
+    localStorage.getItem("searchQueryFianza") || ""
+  );
+  const [movimientoFiltro, setMovimientoFiltro] = useState(
+    localStorage.getItem("movimientoFiltro") || ""
+  );
+  const [estatusFiltro, setEstatusFiltro] = useState(
+    localStorage.getItem("estatusFiltro") || ""
+  );
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [folio, setFolio] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
   // Consulta los clientes en el Backend
+  useEffect(() => {
+    localStorage.setItem("searchQuery", searchQuery);
+    localStorage.setItem("searchQueryFianza", searchQueryFianza);
+    localStorage.setItem("movimientoFiltro", movimientoFiltro);
+    localStorage.setItem("estatusFiltro", estatusFiltro);
+  }, [searchQuery, searchQueryFianza, movimientoFiltro, estatusFiltro]);
+
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -69,6 +86,11 @@ export default function TableTramites() {
     )
     .filter(
       (cliente) =>
+        cliente.fianza &&
+        cliente.fianza.toLowerCase().includes(searchQueryFianza.toLowerCase())
+    )
+    .filter(
+      (cliente) =>
         // Filtramos por "movimiento" y "estatus"
         (movimientoFiltro ? cliente.movimiento === movimientoFiltro : true) &&
         (estatusFiltro ? cliente.estatus === estatusFiltro : true)
@@ -98,29 +120,16 @@ export default function TableTramites() {
         </h1>
         <div>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mr-5">
-            <form onSubmit={(e) => buscarFolio(e, folio)} className="relative">
+            <div className="lg:col-span-1">
               <input
                 id="user"
                 type="text"
-                placeholder="Folio"
-                value={folio}
-                onChange={(e) => setFolio(e.target.value)}
-                className="w-full pl-8 h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Fianza"
+                value={searchQueryFianza}
+                onChange={(e) => setSearchQueryFianza(e.target.value)}
+                className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
               />
-              <button
-                type="submit"
-                className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500"
-              >
-                <IconContext.Provider
-                  value={{
-                    color: "#076163",
-                    className: "global-class-name",
-                  }}
-                >
-                  <FaSearch />
-                </IconContext.Provider>
-              </button>
-            </form>
+            </div>
             <div className="lg:col-span-1">
               <input
                 id="user"
@@ -184,6 +193,9 @@ export default function TableTramites() {
                   Folio
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Fianza
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Nombre
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
@@ -216,6 +228,9 @@ export default function TableTramites() {
                 >
                   <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
                     {cliente.folio}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
+                    {cliente.fianza}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{cliente.nombre}</td>
 
