@@ -201,6 +201,9 @@ export default function TableTramites() {
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Responsable
                 </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Pago
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -247,6 +250,9 @@ export default function TableTramites() {
                         cliente.tiene_compromiso === "NO"
                       ? null
                       : cliente.tipo_proceso}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {cliente.estatus_pago}
                   </td>
                 </tr>
               ))}

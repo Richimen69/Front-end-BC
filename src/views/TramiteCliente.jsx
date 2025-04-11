@@ -8,7 +8,12 @@ import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
-import { estatus, estatus_pagos, estadoTramite } from "../utils/Constans";
+import {
+  estatus,
+  estatus_pagos,
+  estadoTramite,
+  movimientos,
+} from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
 import { updateTramite } from "../services/tramitesClientes";
@@ -23,9 +28,8 @@ function TramiteCliente() {
   const location = useLocation();
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
-
   const [clientes, setClientes] = useState([]);
-  const [movimientos, setMovimientos] = useState([]);
+  const [observaciones, setMovimientos] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
@@ -36,6 +40,7 @@ function TramiteCliente() {
   const [formData, setFormData] = useState({
     id: location.state.id,
     estatusSeleccionado: null,
+    movimientoSeleccionado: null,
     estatusPago: null,
     fechaPago: null,
     fecha_termino: null,
@@ -111,6 +116,10 @@ function TramiteCliente() {
               estatus.find(
                 (option) => option.value === clienteEncontrado.estatus
               ) || null,
+            movimientoSeleccionado:
+              movimientos.find(
+                (option) => option.value === clienteEncontrado.movimiento
+              ) || null,
             estadoTramite:
               estadoTramite.find(
                 (option) => option.value === clienteEncontrado.tipo_proceso
@@ -175,6 +184,12 @@ function TramiteCliente() {
     setFormData((prevState) => ({
       ...prevState,
       estatusSeleccionado: selectedOption,
+    }));
+  };
+  const handleMovimientoChange = (selectedOption) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      movimientoSeleccionado: selectedOption,
     }));
   };
   const handleEstadoTramiteChange = (selectedOption) => {
@@ -368,11 +383,24 @@ function TramiteCliente() {
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
-                  Movimiento
+                  Movimiento:
                 </label>
-                <div className="mt-1 text-gray-900">
-                  {clienteEncontrado.movimiento}
-                </div>
+                <Select
+                  options={movimientos}
+                  defaultValue={formData.movimientoSeleccionado}
+                  value={formData.movimientoSeleccionado}
+                  onChange={handleMovimientoChange}
+                  placeholder="Seleccionar estatus..."
+                  className="mt-1"
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary25: "#DDBE86",
+                      primary: "#076163",
+                    },
+                  })}
+                />
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
@@ -633,7 +661,7 @@ function TramiteCliente() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mt-5">
-            {movimientos.map((dato, index) => (
+            {observaciones.map((dato, index) => (
               <div
                 key={index}
                 className=" z-50 flex w-full rounded-xl border border-gray-300 "

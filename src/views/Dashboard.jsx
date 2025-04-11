@@ -31,7 +31,7 @@ export default function Dashboard() {
     };
     const fetchPendientes = async () => {
       const response = await pendientes();
-      setPendientesBC(response[0].total);
+      setPendientesBC(response[1].total);
     };
     const fetchMovimientos = async () => {
       const response = await movimietos();
