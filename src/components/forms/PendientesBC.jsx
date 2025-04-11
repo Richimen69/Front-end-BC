@@ -39,7 +39,7 @@ import { useNavigate } from "react-router-dom";
 export function PendientesBC({ onClose, id, datosCliente }) {
   const navigate = useNavigate();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
-  const [date, setDate] = React.useState(null);
+  const [date, setDate] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [observaciones, setObservaciones] = useState("");
   const [tieneCompromiso, setTieneCompromiso] = useState("");
@@ -167,19 +167,15 @@ export function PendientesBC({ onClose, id, datosCliente }) {
                   <Button
                     variant={"outline"}
                     className={cn(
-                      "w-[280px] justify-start text-left font-normal",
+                      "w-[240px] justify-start text-left font-normal",
                       !date && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? (
-                      format(date, "dd/MM/yyyy", { locale: es }) // Formatea la fecha en formato español
-                    ) : (
-                      <span>Selecciona una fecha</span>
-                    )}
+                    <CalendarIcon />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={date}

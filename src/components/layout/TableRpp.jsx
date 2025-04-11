@@ -5,7 +5,7 @@ import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { AsignarAgente } from "../forms/AsignarAgente";
 import AprobarTramite from "../forms/AprobarTramite";
-import { statusStyles, estatusRPP } from "@/utils/Constans";
+import { statusStylesRPP, estatusRPP } from "@/utils/Constans";
 import { Toaster } from "sonner";
 import { MdEdit } from "react-icons/md";
 import EnviarFactura from "../forms/EnviarFactura";
@@ -13,7 +13,13 @@ import { FiChevronDown } from "react-icons/fi";
 import AjustarPrecio from "../forms/AjustarPrecio";
 import CancelarTramite from "../forms/CancelarTramite";
 import EditarTramite from "../forms/EditarTramite";
+import { PiCurrencyDollarLight } from "react-icons/pi";
+import { FcClock, FcOk, FcHighPriority } from "react-icons/fc";
+import { FiCreditCard } from "react-icons/fi";
+import { FcMoneyTransfer, FcCalendar } from "react-icons/fc";
+import Card from "./Card";
 import EliminarTramite from "../forms/EliminarTramite";
+import { datosTramites } from "@/services/rpp";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -27,10 +33,11 @@ export default function TableRpp() {
   const [searchQuery, setSearchQuery] = useState("");
   const [movimientoFiltro, setMovimientoFiltro] = useState("");
   const [idTramite, setID] = useState(false);
+  const id = localStorage.getItem("id");
   const [showTooltip, setShowTooltip] = useState(null);
+  const [datos, setDatosTramites] = useState([]);
 
   useEffect(() => {
-    // Solicitar opciones al backend
     const fetchTramites = async () => {
       try {
         const response = await obtenerTramites();
@@ -39,7 +46,6 @@ export default function TableRpp() {
         console.error("Error al obtener las opciones:", error);
       }
     };
-
     fetchTramites();
   }, []);
   const [selected, setSelected] = useState([]);
@@ -65,6 +71,7 @@ export default function TableRpp() {
     );
   return (
     <div className="flex flex-col">
+
       <div className="grid grid-cols-6 gap-5 pb-5">
         <div className="relative">
           <input
@@ -181,7 +188,7 @@ export default function TableRpp() {
                       {tramite.fecha_solicitud}
                     </td>
                     <td
-                      className="px-4 py-3 font-medium text-gray-900 text-nowrap"
+                      className="px-4 py-3 font-medium text-gray-900"
                       onClick={() => {
                         setEditarTramite(true);
                         setID(tramite.id);
@@ -216,7 +223,7 @@ export default function TableRpp() {
                     <td className="px-4 py-3 text-nowrap text-center">
                       <span
                         className={
-                          statusStyles[tramite.estatus] ||
+                          statusStylesRPP[tramite.estatus] ||
                           "bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-base font-semibold"
                         }
                       >

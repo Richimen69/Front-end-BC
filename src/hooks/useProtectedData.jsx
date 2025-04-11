@@ -26,6 +26,7 @@ const useProtectedData = () => {
 
         if (data.status === "success") {
           localStorage.setItem("user", JSON.stringify(data.user));
+
         } else {
           console.error("Error de autenticación:", data.message);
           navigate("/login");

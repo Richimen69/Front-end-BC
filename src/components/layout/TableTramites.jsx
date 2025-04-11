@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import FormularioTramite from "@/components/forms/FormularioTramite";
-import { movimientos, estatus } from "@/utils/Constans";
+import { movimientos, estatus, statusStyles } from "@/utils/Constans";
 import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { Link } from "react-router-dom";
@@ -84,33 +84,21 @@ export default function TableTramites() {
         cliente.nombre &&
         cliente.nombre.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .filter(
-      (cliente) =>
+    .filter((cliente) => {
+      if (!searchQueryFianza.trim()) return true; // Si la búsqueda está vacía, mostrar todo
+
+      return (
         cliente.fianza &&
         cliente.fianza.toLowerCase().includes(searchQueryFianza.toLowerCase())
-    )
+      );
+    })
+
     .filter(
       (cliente) =>
         // Filtramos por "movimiento" y "estatus"
         (movimientoFiltro ? cliente.movimiento === movimientoFiltro : true) &&
         (estatusFiltro ? cliente.estatus === estatusFiltro : true)
     );
-
-  const statusStyles = {
-    TERMINADO:
-      "bg-[#DFFFE2] text-[#2E7D32] px-3 py-1 rounded-full font-semibold",
-    "EN PROCESO":
-      "bg-[#FFF9C4] text-[#F57F17] px-3 py-1 rounded-full font-semibold",
-    "EN REVISIÓN DE DOCUMENTOS":
-      "bg-[#E3F2FD] text-[#2196F3] px-3 py-1 rounded-full font-semibold",
-    "EN REVISIÓN DE PREVIAS":
-      "bg-[#BBDEFB] text-[#64B5F6] px-3 py-1 rounded-full font-semibold",
-    "NO PROCEDE":
-      "bg-[#FFCDD2] text-[#C62828] px-3 py-1 rounded-full font-semibold",
-    PENDIENTE:
-      "bg-[#F5F5F5] text-[#9E9E9E] px-3 py-1 rounded-full font-semibold",
-    default: "bg-[#E0E0E0] text-[#000000] px-3 py-1 rounded-full font-semibold",
-  };
 
   return (
     <div className="w-full p-5 ">

@@ -39,6 +39,9 @@ export const obtenerTramitesId = async (data) => {
     body: JSON.stringify(),
   });
 };
+export const datosTramites = async () => {
+  return await fetchApi(`estado_tramites.php`);
+};
 
 export const borrarTramite = async (data) => {
   return await fetchApi(`tramites_id.php?id_tramite=${data}`, {
