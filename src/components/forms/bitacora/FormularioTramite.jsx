@@ -3,6 +3,8 @@ import Select from "react-select";
 import { Toaster, toast } from "sonner";
 import { agente, movimientos } from "@/utils/Constans";
 import { fetchFolios } from "@/services/tramitesClientes";
+import DatePicker from "react-datepicker";
+import { parse } from "date-fns";
 import {
   fetchClientes,
   fetchAfianzadoras,
@@ -19,6 +21,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const [beneficiarios, setBeneficiarios] = useState([]);
   const [movimientoSeleccionado, setMovimiento] = useState(null);
   const [agenteSeleccionado, setAgente] = useState(null);
+  const [fecha, setFecha] = useState(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [folios, setFolios] = useState([]);
   const [afianzadoraSeleccionada, setAfianzadoraSeleccionada] = useState(null);
@@ -111,7 +114,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     const data = {
       folio: nuevoFolio,
-      fecha: `${fechaFormateada}`,
+      fecha: fecha,
       agente: agenteSeleccionado.value,
       beneficiario: beneficiarioSeleccionado.value,
       movimiento: movimientoSeleccionado.value,
@@ -153,6 +156,22 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       >
         <h2 className="text-lg font-bold mb-4">Nuevo Trámite</h2>
         <form onSubmit={handleSubmit}>
+          <div className="flex  flex-col gap-2 ">
+            <p className="block text-gray-700">Fecha</p>
+            <DatePicker
+              showIcon
+              toggleCalendarOnIconClick
+              selected={fecha ? parse(fecha, "dd/MM/yyyy", new Date()) : null}
+              onChange={(date) => {
+                if (date) {
+                  const formattedDate = format(date, "dd/MM/yyyy");
+                  setFecha(formattedDate);
+                }
+              }}
+              dateFormat="dd/MM/yyyy"
+              className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+            />
+          </div>
           {/* Selector de Cliente */}
           <div className="mb-4">
             <label className="block text-gray-700 mb-2">Cliente:</label>

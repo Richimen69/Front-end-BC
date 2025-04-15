@@ -6,3 +6,10 @@ export const obtenerClientes = async () => {
     body: JSON.stringify(),
   });
 };
+
+export const addCliente = async (datos) => {
+  return await fetchApi(`/clientes/add.php`, {
+    method: "POST",
+    body: JSON.stringify(datos),
+  });
+};

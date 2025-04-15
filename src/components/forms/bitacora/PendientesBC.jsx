@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import DatePicker from "react-datepicker";
+import { CiCalendarDate } from "react-icons/ci";
 import {
   Select,
   SelectContent,
@@ -34,6 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { fetchTramites } from "@/services/tramitesClientes";
 import { updateTramite } from "@/services/tramitesClientes";
+import { parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 export function PendientesBC({ onClose, id, datosCliente }) {
@@ -44,6 +47,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   const [observaciones, setObservaciones] = useState("");
   const [tieneCompromiso, setTieneCompromiso] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [fecha, setFecha] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,11 +80,15 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   );
 
   const handleSubmit = async () => {
-    const tieneCompromisoValue = isSwitchOn ? "SI" : "NO";
-
-    const fechaCompromiso = date ? format(date, "MM/dd/yyyy") : null;
+    const tieneCompromisoValue =
+      datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO"
+        ? "SI"
+        : "NO";
     let estadoTramite;
-    if (datosCliente.estatusSeleccionado.value === "TERMINADO") {
+    if (
+      datosCliente.estatusSeleccionado.value === "TERMINADO" ||
+      datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO"
+    ) {
       estadoTramite = "";
     } else {
       estadoTramite = datosCliente.estadoTramite.value;
@@ -101,7 +109,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       estatus_pago: datosCliente.estatusPago,
       tiene_compromiso: tieneCompromisoValue,
       observacion_compromiso: observaciones,
-      fecha_compromiso: fechaCompromiso,
+      fecha_compromiso: fecha,
       categoria_compromiso: categoria,
       tipo_proceso: estadoTramite,
     };
@@ -161,30 +169,32 @@ export function PendientesBC({ onClose, id, datosCliente }) {
                 onChange={(e) => setObservaciones(e.target.value)}
               />
             </div>
-            <div className="grid w-full gap-1.5">
-              <Label htmlFor="message">Fecha</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[240px] justify-start text-left font-normal",
-                      !date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
+            <div className="grid w-full gap-1.5 relative">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Fecha
+                </Label>
+                {/* DatePicker input real con padding izquierdo para que no se solape con el ícono */}
+                <div className="col-span-3">
+                  <DatePicker
+                    calendarClassName="z-50"
+                    popperPlacement="bottom-start"
+                    showIcon={false}
+                    toggleCalendarOnIconClick
+                    selected={
+                      fecha ? parse(fecha, "dd/MM/yyyy", new Date()) : null
+                    }
+                    onChange={(date) => {
+                      if (date) {
+                        const formattedDate = format(date, "dd/MM/yyyy");
+                        setFecha(formattedDate);
+                      }
+                    }}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-sm text-gray-800 shadow-sm transition-all duration-150 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
                   />
-                </PopoverContent>
-              </Popover>
+                </div>
+              </div>
             </div>
           </div>
         )}

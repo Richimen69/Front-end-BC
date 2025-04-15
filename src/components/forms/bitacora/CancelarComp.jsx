@@ -11,6 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { format, set } from "date-fns";
+import DatePicker from "react-datepicker";
+import { CiCalendarDate } from "react-icons/ci";
 import { CalendarIcon } from "lucide-react";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -23,15 +25,19 @@ import {
 import { fetchTramites } from "@/services/tramitesClientes";
 import { updateTramite } from "@/services/tramitesClientes";
 import { useNavigate } from "react-router-dom";
+import { parse } from "date-fns";
 
 export default function CancelarComp({ onClose, id_tramite }) {
   const [date, setDate] = React.useState(null);
   const [user, setUser] = useState("");
+  const [fecha, setFecha] = useState(null);
+
   const navigate = useNavigate();
   const terminarCompromiso = async () => {
     const fechaCompromiso = date ? format(date, "MM/dd/yyyy") : null;
     const data = {
       id_tramite: id_tramite,
+      estatus: "TERMINADO",
       tiene_compromiso: "NO",
       compromiso_terminado: "SI",
       nombre_compromiso: user,
@@ -71,34 +77,32 @@ export default function CancelarComp({ onClose, id_tramite }) {
               className="col-span-3"
             />
           </div>
-          <div className="grid w-full gap-1.5">
-            <Label htmlFor="message">Fecha de compromiso</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="fecha"
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left h-12 font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date
-                    ? format(date, "PPP", { locale: es })
-                    : "Selecciona una fecha"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  locale={es}
+          <div className="grid w-full gap-1.5 relative">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Fecha
+              </Label>
+              {/* DatePicker input real con padding izquierdo para que no se solape con el ícono */}
+              <div className="col-span-3">
+                <DatePicker
+                  calendarClassName="z-50"
+                  popperPlacement="bottom-start"
+                  showIcon={false}
+                  toggleCalendarOnIconClick
+                  selected={
+                    fecha ? parse(fecha, "dd/MM/yyyy", new Date()) : null
+                  }
+                  onChange={(date) => {
+                    if (date) {
+                      const formattedDate = format(date, "dd/MM/yyyy");
+                      setFecha(formattedDate);
+                    }
+                  }}
+                  dateFormat="dd/MM/yyyy"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-sm text-gray-800 shadow-sm transition-all duration-150 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
                 />
-              </PopoverContent>
-            </Popover>
+              </div>
+            </div>
           </div>
         </div>
 

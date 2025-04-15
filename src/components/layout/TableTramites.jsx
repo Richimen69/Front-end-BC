@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import FormularioTramite from "@/components/forms/FormularioTramite";
+import FormularioTramite from "@/components/forms/bitacora/FormularioTramite";
 import { movimientos, estatus, statusStyles } from "@/utils/Constans";
 import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
@@ -243,7 +243,7 @@ export default function TableTramites() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
-                    {cliente.estatus === "TERMINADO" &&
+                    {cliente.estatus === "TERMINADO/COMPROMISO" &&
                     cliente.tiene_compromiso === "SI"
                       ? cliente.categoria_compromiso
                       : cliente.estatus === "TERMINADO" &&

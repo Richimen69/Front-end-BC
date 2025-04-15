@@ -7,7 +7,7 @@ import { fetchTramites } from "../services/tramitesClientes";
 import { buscarMovimiento } from "../services/movimientos";
 import { TbEdit } from "react-icons/tb";
 import { Toaster, toast } from "sonner";
-import CancelarComp from "@/components/forms/CancelarComp";
+import CancelarComp from "@/components/forms/bitacora/CancelarComp";
 function VistaTramite() {
   const location = useLocation();
   const navigate = useNavigate();

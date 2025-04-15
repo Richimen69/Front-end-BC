@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { catalagos } from "@/services/rpp";
 import { Toaster } from "sonner";
-import CatalogoTramites from "../forms/CatalogoTramites";
+import CatalogoTramites from "../forms/rpp/CatalogoTramites";
 export default function TableCalatogo() {
   const [catalago, setCatalago] = useState([]);
   const [showDialog, setShowDialog] = useState(false);

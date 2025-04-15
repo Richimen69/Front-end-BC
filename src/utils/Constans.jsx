@@ -64,6 +64,11 @@ export const estadoTramite = [
   { value: "BC", label: "BC" },
   { value: "FIADO", label: "FIADO" },
 ];
+export const estadoTramiteAseguradora = [
+  { value: "ASEGURADORA", label: "ASEGURADORA" },
+  { value: "BC", label: "BC" },
+  { value: "FIADO", label: "FIADO" },
+];
 
 export const agente = [
   { value: "RBG", label: "RBG" },

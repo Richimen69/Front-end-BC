@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TableRpp from "@/components/layout/TableRpp";
 import { IoMdPersonAdd } from "react-icons/io";
 import { IconContext } from "react-icons";
-import { FormularioUsers } from "@/components/forms/FormularioUsers";
+import { FormularioUsers } from "@/components/forms/rpp/FormularioUsers";
 import { MdAttachMoney } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { PiCurrencyDollarLight } from "react-icons/pi";

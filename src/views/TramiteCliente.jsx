@@ -13,6 +13,7 @@ import {
   estatus_pagos,
   estadoTramite,
   movimientos,
+  estadoTramiteAseguradora,
 } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
@@ -23,7 +24,7 @@ import {
   deleteMovimiento,
 } from "../services/movimientos";
 import { fetchAfianzadoras } from "@/services/datosTramites";
-import { PendientesBC } from "@/components/forms/PendientesBC";
+import { PendientesBC } from "@/components/forms/bitacora/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -123,7 +124,10 @@ function TramiteCliente() {
             estadoTramite:
               estadoTramite.find(
                 (option) => option.value === clienteEncontrado.tipo_proceso
-              ) || null,
+              ) ||
+              estadoTramiteAseguradora.find(
+                (option) => option.value === clienteEncontrado.tipo_proceso
+              ),
             afianzadora: afianzadoras.find(
               (option) => option.value === clienteEncontrado.afianzadora
             ),
@@ -354,32 +358,28 @@ function TramiteCliente() {
             </div>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                {clienteEncontrado.movimiento === "SEGURO RC" ? (
+                <div>
                   <label className="text-sm font-medium text-teal-600">
-                    Aseguradora
+                    {clienteEncontrado.movimiento === "SEGURO RC"
+                      ? "Aseguradora"
+                      : "Afianzadora"}
                   </label>
-                ) : (
-                  <div>
-                    <label className="text-sm font-medium text-teal-600">
-                      Afianzadora
-                    </label>
-                    <Select
-                      options={afianzadoras}
-                      value={formData.afianzadora}
-                      onChange={handleAfianzadora}
-                      placeholder="Seleccionar estatus..."
-                      className="mt-1"
-                      theme={(theme) => ({
-                        ...theme,
-                        colors: {
-                          ...theme.colors,
-                          primary25: "#DDBE86",
-                          primary: "#076163",
-                        },
-                      })}
-                    />
-                  </div>
-                )}
+                  <Select
+                    options={afianzadoras}
+                    value={formData.afianzadora}
+                    onChange={handleAfianzadora}
+                    placeholder="Seleccionar estatus..."
+                    className="mt-1"
+                    theme={(theme) => ({
+                      ...theme,
+                      colors: {
+                        ...theme.colors,
+                        primary25: "#DDBE86",
+                        primary: "#076163",
+                      },
+                    })}
+                  />
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
@@ -443,15 +443,12 @@ function TramiteCliente() {
                 />
               </div>
               <div>
-                {clienteEncontrado.movimiento === "SEGURO RC" ? (
-                  <label className="text-sm font-medium text-teal-600">
-                    Póliza
-                  </label>
-                ) : (
-                  <label className="text-sm font-medium text-teal-600">
-                    Fianza
-                  </label>
-                )}
+                <label className="text-sm font-medium text-teal-600">
+                  {clienteEncontrado.movimiento === "SEGURO RC"
+                    ? "Póliza"
+                    : "Fianza"}
+                </label>
+
                 <input
                   type="text"
                   value={formData.fianza}
@@ -466,10 +463,14 @@ function TramiteCliente() {
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
-                  Estatus tramite
+                  Estatus trámite
                 </label>
                 <Select
-                  options={estadoTramite}
+                  options={
+                    clienteEncontrado.movimiento === "SEGURO RC"
+                      ? estadoTramiteAseguradora
+                      : estadoTramite
+                  }
                   defaultValue={formData.estadoTramite}
                   value={formData.estadoTramite}
                   onChange={handleEstadoTramiteChange}
@@ -490,7 +491,6 @@ function TramiteCliente() {
             {formData.estatusSeleccionado.value === "TERMINADO" ||
             formData.estatusSeleccionado.value === "TERMINADO/COMPROMISO" ? (
               <div>
-                {" "}
                 <div className="grid gap-6 md:grid-cols-3">
                   <div className="flex  flex-col gap-2 ">
                     <p className="text-sm font-medium text-teal-600">
