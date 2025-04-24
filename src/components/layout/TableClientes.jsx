@@ -23,7 +23,7 @@ export default function TableClientes() {
     return dato.folio_re.toLowerCase().includes(searchQuery.toLowerCase());
   });
   return (
-    <div>
+    <div className="w-full">
       <div className="rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -33,16 +33,19 @@ export default function TableClientes() {
                   Nombre
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Contacto
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Telefono
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Correo
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  Empresa
+                  Tipo
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  DIRECCIÓN
+                  Observaciones
                 </th>
               </tr>
             </thead>
@@ -56,6 +59,9 @@ export default function TableClientes() {
                     <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
                       {cliente.nombre_cli}
                     </td>
+                    <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
+                      {cliente.contacto_cli}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">
                       {cliente.telefono_cli}
                     </td>
@@ -63,13 +69,10 @@ export default function TableClientes() {
                       {cliente.correo_cli}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {cliente.empresa_cli}
+                      {cliente.tipo_cliente}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {cliente.calle_cli}, {cliente.num_ext_cli},{" "}
-                      {cliente.num_int_cli}, {cliente.colonia_cli},{" "}
-                      {cliente.cp_cli},{cliente.municipio_cli},{" "}
-                      {cliente.estado_cli},
+                      {cliente.observaciones}
                     </td>
                   </tr>
                 ))

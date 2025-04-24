@@ -24,6 +24,9 @@ function header() {
             <img src={LogoPrincipal} alt="Logo" className="w-[195px]" />
           </Link>
         </div>
+        <div>
+          <p>SAGA</p>
+        </div>
         <nav>
           <ul className="flex space-x-6">
             <Link to="/">

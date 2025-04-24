@@ -76,7 +76,7 @@ export default function FormCliente({ onClose }) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Editar Tramite</DialogTitle>
+          <DialogTitle>Agregar registro</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 max-h-[75vh] overflow-y-auto">
@@ -127,7 +127,20 @@ export default function FormCliente({ onClose }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono</Label>
+              <Label htmlFor="telefono">Celular</Label>
+              <Input
+                id="telefono"
+                name="telefono"
+                type="tel"
+                value={formData.telefono}
+                onChange={handleChange}
+                placeholder="1234567890"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="telefono">Teléfono oficina</Label>
               <Input
                 id="telefono"
                 name="telefono"

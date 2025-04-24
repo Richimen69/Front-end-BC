@@ -23,7 +23,7 @@ import {
   createMovimiento,
   deleteMovimiento,
 } from "../services/movimientos";
-import { fetchAfianzadoras } from "@/services/datosTramites";
+import { fetchAfianzadoras, fetchBeficiarios } from "@/services/datosTramites";
 import { PendientesBC } from "@/components/forms/bitacora/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
@@ -32,6 +32,7 @@ function TramiteCliente() {
   const [clientes, setClientes] = useState([]);
   const [observaciones, setMovimientos] = useState([]);
   const [afianzadoras, setAfianzadoras] = useState([]);
+  const [beneficiario, setBeneficiario] = useState([]);
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
@@ -53,6 +54,8 @@ function TramiteCliente() {
     importe_total: "",
     estadoTramite: "",
     afianzadora: "",
+    beneficiario: "",
+    fecha: "",
   });
 
   // Obtener el id desde el estado
@@ -83,6 +86,19 @@ function TramiteCliente() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const beneficiariosData = await fetchBeficiarios();
+      setBeneficiario(
+        beneficiariosData.map((beneficiario) => ({
+          value: beneficiario.nombre_ben,
+          label: beneficiario.nombre_ben,
+        }))
+      );
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
       const afianzadorasData = await fetchAfianzadoras();
       setAfianzadoras(
         afianzadorasData.map((afianzadora) => ({
@@ -104,6 +120,13 @@ function TramiteCliente() {
           (cliente) => cliente.id_tramite === id
         );
         if (clienteEncontrado) {
+          const tipoProcesoSeleccionado =
+            estadoTramite.find(
+              (option) => option.value === clienteEncontrado.tipo_proceso
+            ) ||
+            estadoTramiteAseguradora.find(
+              (option) => option.value === clienteEncontrado.tipo_proceso
+            );
           setFormData((prevState) => ({
             ...prevState, // Mantén el resto de las propiedades
             prima_inicial: clienteEncontrado.prima_inicial || "",
@@ -111,8 +134,10 @@ function TramiteCliente() {
             prima_total: clienteEncontrado.prima_total || "",
             importe_total: clienteEncontrado.importe_total || "",
             fianza: clienteEncontrado.fianza || "",
+            fecha: clienteEncontrado.fecha || "",
             fechaPago: clienteEncontrado.fecha_pago || null,
             observaciones: clienteEncontrado.observaciones || "",
+            fecha_termino: clienteEncontrado.fecha_termino || "",
             estatusSeleccionado:
               estatus.find(
                 (option) => option.value === clienteEncontrado.estatus
@@ -121,34 +146,25 @@ function TramiteCliente() {
               movimientos.find(
                 (option) => option.value === clienteEncontrado.movimiento
               ) || null,
-            estadoTramite:
-              estadoTramite.find(
-                (option) => option.value === clienteEncontrado.tipo_proceso
-              ) ||
-              estadoTramiteAseguradora.find(
-                (option) => option.value === clienteEncontrado.tipo_proceso
-              ),
+            estadoTramite: tipoProcesoSeleccionado,
             afianzadora: afianzadoras.find(
               (option) => option.value === clienteEncontrado.afianzadora
             ),
+            beneficiario: beneficiario.find(
+              (option) => option.value === clienteEncontrado.beneficiario
+            ),
           }));
-
+          
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
           // Verificar si el valor de estatus_pago es "PAGADA"
-          if (estatusPagoPorDefecto === "PAGADA") {
-            setEstatusPago({ value: "PAGADA", label: "PAGADA" });
-          } else {
-            // Si no es "PAGADA", buscar el valor en estatus_pagos o asignar "PENDIENTE"
-            const estatusPagoSeleccionado = estatus_pagos.find(
-              (option) => option.value === estatusPagoPorDefecto
-            );
-            setEstatusPago(
-              estatusPagoSeleccionado || {
-                value: "PENDIENTE",
-                label: "PENDIENTE",
-              }
-            );
-          }
+          const estatusPagoSeleccionado =
+            estatusPagoPorDefecto === "PAGADA"
+              ? { value: "PAGADA", label: "PAGADA" }
+              : estatus_pagos.find(
+                  (option) => option.value === estatusPagoPorDefecto
+                ) || { value: "PENDIENTE", label: "PENDIENTE" };
+
+          setEstatusPago(estatusPagoSeleccionado);
 
           // Obtener movimientos
           actualizarMovimientos(id);
@@ -184,32 +200,21 @@ function TramiteCliente() {
     }
   };
 
-  const handleEstatusChange = (selectedOption) => {
+  const handleChange = (field) => (selectedOption) => {
     setFormData((prevState) => ({
       ...prevState,
-      estatusSeleccionado: selectedOption,
+      [field]: selectedOption,
     }));
   };
-  const handleMovimientoChange = (selectedOption) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      movimientoSeleccionado: selectedOption,
-    }));
-  };
-  const handleEstadoTramiteChange = (selectedOption) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      estadoTramite: selectedOption,
-    }));
-  };
+
+  const handleEstatusChange = handleChange("estatusSeleccionado");
+  const handleMovimientoChange = handleChange("movimientoSeleccionado");
+  const handleEstadoTramiteChange = handleChange("estadoTramite");
+  const handleAfianzadora = handleChange("afianzadora");
+  const handleBeneficiario = handleChange("beneficiario");
+
   const handleEstatusPagoChange = (selectedOption) => {
     setEstatusPago(selectedOption);
-  };
-  const handleAfianzadora = (selectedOption) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      afianzadora: selectedOption,
-    }));
   };
 
   // Buscar el cliente por el id
@@ -294,20 +299,15 @@ function TramiteCliente() {
     const fechaFormateada = format(new Date(), "dd/MM/yyyy");
     const estatusPago =
       formData.fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
-    const estatusTerminado =
-      formData.estatusSeleccionado.value === "TERMINADO"
-        ? `${fechaFormateada}`
-        : null;
-
+    console.log(formData.beneficiario)
     setFormData((prevState) => {
       const nuevaPrimaTotal =
         (Number(prevState.prima_inicial) || 0) +
         (Number(prevState.prima_futura) || 0);
-
+        
       return {
         ...prevState, // Mantén el resto de las propiedades
         estatusPago: estatusPago || null,
-        fecha_termino: estatusTerminado || null,
         prima_total: nuevaPrimaTotal,
       };
     });
@@ -322,9 +322,31 @@ function TramiteCliente() {
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="flex justify-between">
             <div className="space-y-1">
-              <div className="text-sm text-gray-500">
+              <div className=" flex items-center text-sm text-gray-500">
                 Fecha:
-                <span className="text-gray-900">{clienteEncontrado.fecha}</span>
+                <div className="flex  flex-col gap-2 ">
+                  <DatePicker
+                    selected={
+                      formData.fecha
+                        ? parse(
+                            formData.fecha,
+                            "dd/MM/yyyy",
+                            new Date()
+                          ) // Convierte el string de tu estado a Date.
+                        : null
+                    }
+                    onChange={(date) => {
+                      if (date) {
+                        const formattedDate = format(date, "dd/MM/yyyy");
+                        setFormData((prevState) => ({
+                          ...prevState,
+                          fecha: formattedDate,
+                        }));
+                      }
+                    }}
+                    dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
+                  />
+                </div>
               </div>
               {clienteEncontrado.fecha_termino != null ? (
                 <div className="text-sm text-gray-500">
@@ -412,11 +434,23 @@ function TramiteCliente() {
               </div>
               <div>
                 <label className="text-sm font-medium text-teal-600">
-                  Beneficiario
+                  Beneficiario:
                 </label>
-                <div className="mt-1 text-gray-900">
-                  {clienteEncontrado.beneficiario}
-                </div>
+                <Select
+                  options={beneficiario}
+                  value={formData.beneficiario}
+                  onChange={handleBeneficiario}
+                  placeholder="Seleccionar beneficiario..."
+                  className="mt-1"
+                  theme={(theme) => ({
+                    ...theme,
+                    colors: {
+                      ...theme.colors,
+                      primary25: "#DDBE86",
+                      primary: "#076163",
+                    },
+                  })}
+                />
               </div>
             </div>
 
@@ -492,6 +526,35 @@ function TramiteCliente() {
             formData.estatusSeleccionado.value === "TERMINADO/COMPROMISO" ? (
               <div>
                 <div className="grid gap-6 md:grid-cols-3">
+                  <div className="flex  flex-col gap-2 ">
+                    <p className="text-sm font-medium text-teal-600">
+                      Fecha de termino
+                    </p>
+                    <DatePicker
+                      showIcon
+                      toggleCalendarOnIconClick
+                      selected={
+                        formData.fecha_termino
+                          ? parse(
+                              formData.fecha_termino,
+                              "dd/MM/yyyy",
+                              new Date()
+                            ) // Convierte el string de tu estado a Date.
+                          : null
+                      }
+                      onChange={(date) => {
+                        if (date) {
+                          const formattedDate = format(date, "dd/MM/yyyy");
+                          setFormData((prevState) => ({
+                            ...prevState,
+                            fecha_termino: formattedDate,
+                          }));
+                        }
+                      }}
+                      dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
+                      className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    />
+                  </div>
                   <div className="flex  flex-col gap-2 ">
                     <p className="text-sm font-medium text-teal-600">
                       Fecha de pago

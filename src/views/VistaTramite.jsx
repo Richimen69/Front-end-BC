@@ -359,48 +359,34 @@ function VistaTramite() {
                 </div>
               ))}
             </div>
-            {clienteEncontrado.estatus_pago === "PAGADA" &&
-            clienteEncontrado.estatus === "TERMINADO" ? (
-              <div className="flex justify-center">
-                <button
-                  onClick={() => {
-                    navigate("/tramites");
+            <div className="flex justify-between">
+              <button
+                onClick={() =>
+                  navigate(`/tramitecliente`, {
+                    state: { id: id },
+                  })
+                }
+                className="flex gap-1 border py-2 px-3 rounded-lg hover:bg-gray-100"
+              >
+                <IconContext.Provider
+                  value={{
+                    className: "global-class-name",
+                    size: "1.3em",
                   }}
-                  className="flex gap-1 border bg-primary text-white py-2 px-3 rounded-lg hover:bg-white hover:text-black"
                 >
-                  Aceptar
-                </button>
-              </div>
-            ) : (
-              <div className="flex justify-between">
-                <button
-                  onClick={() =>
-                    navigate(`/tramitecliente`, {
-                      state: { id: id },
-                    })
-                  }
-                  className="flex gap-1 border py-2 px-3 rounded-lg hover:bg-gray-100"
-                >
-                  <IconContext.Provider
-                    value={{
-                      className: "global-class-name",
-                      size: "1.3em",
-                    }}
-                  >
-                    <TbEdit />
-                  </IconContext.Provider>
-                  Editar
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/tramites");
-                  }}
-                  className="flex gap-1 border bg-primary text-white py-2 px-3 rounded-lg hover:bg-white hover:text-black"
-                >
-                  Aceptar
-                </button>
-              </div>
-            )}
+                  <TbEdit />
+                </IconContext.Provider>
+                Editar
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/tramites");
+                }}
+                className="flex gap-1 border bg-primary text-white py-2 px-3 rounded-lg hover:bg-white hover:text-black"
+              >
+                Aceptar
+              </button>
+            </div>
           </div>
         </div>
       </div>

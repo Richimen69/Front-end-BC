@@ -50,11 +50,12 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   const [fecha, setFecha] = useState(null);
 
   useEffect(() => {
+    
     const fetchData = async () => {
+      console.log(datosCliente)
       try {
         const data = await fetchTramites();
         setClientes(data);
-
         // Encontrar el cliente directamente después de obtener los datos
         const clienteEncontrado = data.find(
           (cliente) => cliente.id_tramite === id
@@ -75,9 +76,6 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     fetchData();
   }, [id]);
 
-  const clienteEncontrado = clientes.find(
-    (cliente) => cliente.id_tramite === id
-  );
 
   const handleSubmit = async () => {
     const tieneCompromisoValue =
@@ -95,6 +93,8 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     }
     const data = {
       id_tramite: id,
+      fecha: datosCliente.fecha || "",
+      beneficiario: datosCliente.beneficiario?.value || "",
       movimiento: datosCliente.movimientoSeleccionado.value || "",
       afianzadora: datosCliente.afianzadora.value || "",
       estatus: datosCliente.estatusSeleccionado.value || "",
@@ -106,12 +106,12 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       importe_total: datosCliente.importe_total || null,
       fecha_termino: datosCliente.fecha_termino || null,
       fecha_pago: datosCliente.fechaPago || null,
-      estatus_pago: datosCliente.estatusPago,
-      tiene_compromiso: tieneCompromisoValue,
-      observacion_compromiso: observaciones,
-      fecha_compromiso: fecha,
-      categoria_compromiso: categoria,
-      tipo_proceso: estadoTramite,
+      estatus_pago: datosCliente.estatusPago || null,
+      tiene_compromiso: tieneCompromisoValue || null,
+      observacion_compromiso: observaciones || null,
+      fecha_compromiso: fecha || null,
+      categoria_compromiso: categoria || null,
+      tipo_proceso: estadoTramite || null,
     };
     try {
       const result = await updateTramite(data);
