@@ -13,14 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useNavigate } from "react-router-dom";
 import { addCliente } from "@/services/clientes";
 export default function FormCliente({ onClose }) {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     empresa: "",
     nombreContacto: "",
     puesto: "",
     correo: "",
     telefono: "",
+    celular: "",
     tipo: "",
     tipoPersona: "",
     rfc: "",
@@ -39,7 +43,6 @@ export default function FormCliente({ onClose }) {
   };
 
   const handleSubmit = async () => {
-
     // Verificar si los campos requeridos están completos
     if (!formData.nombreContacto || !formData.telefono) {
       toast.error("Rellene los campos");
@@ -52,6 +55,7 @@ export default function FormCliente({ onClose }) {
       tipo_persona_cli: formData.tipoPersona,
       rfc_cli: formData.rfc,
       contacto_cli: formData.nombreContacto,
+      telefono_c_cli: formData.celular,
       tipo_cliente: formData.tipo,
       observaciones: formData.observaciones,
       puesto_c: formData.puesto,
@@ -59,7 +63,7 @@ export default function FormCliente({ onClose }) {
 
     try {
       const result = await addCliente(data);
-      console.log(data)
+      console.log(data);
       if (result.success) {
         toast.success("Guardado exitosamente.");
       } else {
@@ -70,6 +74,7 @@ export default function FormCliente({ onClose }) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar: Informar a IT");
     }
+    navigate(0)
   };
 
   return (
@@ -127,12 +132,12 @@ export default function FormCliente({ onClose }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="telefono">Celular</Label>
+              <Label htmlFor="celular">Celular</Label>
               <Input
-                id="telefono"
-                name="telefono"
+                id="celular"
+                name="celular"
                 type="tel"
-                value={formData.telefono}
+                value={formData.celular}
                 onChange={handleChange}
                 placeholder="1234567890"
                 required

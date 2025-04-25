@@ -177,7 +177,7 @@ function TramiteCliente() {
     if (afianzadoras.length > 0) {
       fetchData();
     }
-  }, [afianzadoras, id]);
+  }, [afianzadoras, id, beneficiario]);
 
   const actualizarMovimientos = async (id) => {
     try {

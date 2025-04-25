@@ -62,7 +62,7 @@ export default function TableClientes() {
                     <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
                       {cliente.contacto_cli}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-gray-600 text-nowrap">
                       {cliente.telefono_cli}
                     </td>
                     <td className="px-4 py-3 text-gray-600">

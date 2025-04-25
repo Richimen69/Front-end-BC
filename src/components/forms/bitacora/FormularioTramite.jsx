@@ -25,6 +25,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [folios, setFolios] = useState([]);
   const [afianzadoraSeleccionada, setAfianzadoraSeleccionada] = useState(null);
+  const [btnSave, setBtnSave] = useState(false);
   const [beneficiarioSeleccionado, setBeneficiarioSeleccionado] =
     useState(null);
   const [usuario, setUsuario] = useState("");
@@ -99,7 +100,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setBtnSave(true);
     // Verificar si los campos requeridos están completos
     if (
       !clienteSeleccionado ||
@@ -109,9 +110,9 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       !movimientoSeleccionado
     ) {
       toast.error("Rellene los campos");
+      setBtnSave(false);
       return;
     }
-    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     const data = {
       folio: nuevoFolio,
       fecha: fecha,
@@ -130,9 +131,6 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       const result = await createTramite(data);
       if (result.success) {
         toast.success("Trámite guardado exitosamente.");
-        setTimeout(() => {
-          navigate(0);
-        }, 1500);
       } else {
         toast.error("Error al guardar el trámite.");
       }
@@ -141,6 +139,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
     }
+    navigate(0);
   };
 
   if (!isVisible) return null;
@@ -240,6 +239,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
             </button>
             <button
               type="submit"
+              disabled={btnSave}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
               Guardar
