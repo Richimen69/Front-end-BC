@@ -1,10 +1,12 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import FormularioTramite from "@/components/forms/bitacora/FormularioTramite";
-import { movimientos, estatus, statusStyles } from "@/utils/Constans";
-import { FaSearch } from "react-icons/fa";
-import { IconContext } from "react-icons";
-import { Link } from "react-router-dom";
+import {
+  movimientos,
+  estatus,
+  statusStyles,
+  estatusTerminados,
+} from "@/utils/Constans";
 import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { FiChevronDown } from "react-icons/fi";
@@ -207,55 +209,82 @@ export default function TableTramites() {
               </tr>
             </thead>
             <tbody>
-              {filteredClientes.map((cliente) => (
-                <tr
-                  key={cliente.id_tramite}
-                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
-                  onClick={() =>
-                    navigate(`/vistaprevia`, {
-                      state: { id: cliente.id_tramite },
-                    })
-                  }
-                >
-                  <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
-                    {cliente.folio}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
-                    {cliente.fianza}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{cliente.nombre}</td>
+              {filteredClientes.map((cliente) => {
+                // Convertir "DD/MM/YYYY" a objeto Date
+                const [day, month, year] = cliente.fecha.split("/");
+                const fechaCliente = new Date(`${year}-${month}-${day}`);
+                const hoy = new Date();
 
-                  <td className="px-4 py-3 text-gray-600">{cliente.fecha}</td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {cliente.movimiento}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {cliente.afianzadora}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 text-nowrap text-center">
-                    <span
-                      className={
-                        statusStyles[cliente.estatus] ||
-                        "bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-base font-semibold"
-                      }
-                    >
-                      {cliente.estatus}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
-                    {cliente.estatus === "TERMINADO/COMPROMISO" &&
-                    cliente.tiene_compromiso === "SI"
-                      ? cliente.categoria_compromiso
-                      : cliente.estatus === "TERMINADO" &&
-                        cliente.tiene_compromiso === "NO"
-                      ? null
-                      : cliente.tipo_proceso}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {cliente.estatus_pago}
-                  </td>
-                </tr>
-              ))}
+                // Calcular diferencia de días
+                const diferenciaDias = Math.floor(
+                  (hoy - fechaCliente) / (1000 * 60 * 60 * 24)
+                );
+
+                // Determinar clase de color
+
+                const colorFecha =
+                  cliente.estatus === "EN REVISIÓN DE PREVIAS" &&
+                  diferenciaDias > 15
+                    ? "text-red-600"
+                    : "text-gray-600";
+
+                return (
+                  <tr
+                    key={cliente.id_tramite}
+                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() =>
+                      navigate(`/vistaprevia`, {
+                        state: { id: cliente.id_tramite },
+                      })
+                    }
+                  >
+                    <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
+                      {cliente.folio}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-900 text-nowrap">
+                      {cliente.fianza}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {cliente.nombre}
+                    </td>
+
+                    {/* Aquí aplicas la clase dinámica */}
+                    <td className={`px-4 py-3 ${colorFecha}`}>
+                      {cliente.fecha}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-600">
+                      {cliente.movimiento}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {cliente.afianzadora}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 text-nowrap text-center">
+                      <span
+                        className={
+                          statusStyles[cliente.estatus] ||
+                          "bg-gray-200 text-gray-600 px-3 py-1 rounded-full text-base font-semibold"
+                        }
+                      >
+                        {cliente.estatus}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
+                      {cliente.estatus === "TERMINADO/COMPROMISO" &&
+                      cliente.tiene_compromiso === "SI"
+                        ? cliente.categoria_compromiso
+                        : cliente.estatus === "TERMINADO" ||
+                          (cliente.estatus === "TERMINADO/PENDIENTE" &&
+                            cliente.tiene_compromiso === "NO")
+                        ? null
+                        : cliente.tipo_proceso}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {cliente.estatus_pago}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

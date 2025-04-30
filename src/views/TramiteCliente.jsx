@@ -14,6 +14,7 @@ import {
   estadoTramite,
   movimientos,
   estadoTramiteAseguradora,
+  estatusTerminados
 } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
@@ -57,7 +58,6 @@ function TramiteCliente() {
     beneficiario: "",
     fecha: "",
   });
-
   // Obtener el id desde el estado
 
   const toggleFormulario = () => {
@@ -154,7 +154,7 @@ function TramiteCliente() {
               (option) => option.value === clienteEncontrado.beneficiario
             ),
           }));
-          
+
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
           // Verificar si el valor de estatus_pago es "PAGADA"
           const estatusPagoSeleccionado =
@@ -299,12 +299,12 @@ function TramiteCliente() {
     const fechaFormateada = format(new Date(), "dd/MM/yyyy");
     const estatusPago =
       formData.fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
-    console.log(formData.beneficiario)
+    console.log(formData.beneficiario);
     setFormData((prevState) => {
       const nuevaPrimaTotal =
         (Number(prevState.prima_inicial) || 0) +
         (Number(prevState.prima_futura) || 0);
-        
+
       return {
         ...prevState, // Mantén el resto de las propiedades
         estatusPago: estatusPago || null,
@@ -328,11 +328,7 @@ function TramiteCliente() {
                   <DatePicker
                     selected={
                       formData.fecha
-                        ? parse(
-                            formData.fecha,
-                            "dd/MM/yyyy",
-                            new Date()
-                          ) // Convierte el string de tu estado a Date.
+                        ? parse(formData.fecha, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
                         : null
                     }
                     onChange={(date) => {
@@ -522,8 +518,7 @@ function TramiteCliente() {
               </div>
             </div>
 
-            {formData.estatusSeleccionado.value === "TERMINADO" ||
-            formData.estatusSeleccionado.value === "TERMINADO/COMPROMISO" ? (
+            {estatusTerminados.includes(formData.estatusSeleccionado.value) ? (
               <div>
                 <div className="grid gap-6 md:grid-cols-3">
                   <div className="flex  flex-col gap-2 ">

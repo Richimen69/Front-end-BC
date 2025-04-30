@@ -4,13 +4,11 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import DatePicker from "react-datepicker";
-import { CiCalendarDate } from "react-icons/ci";
 import {
   Select,
   SelectContent,
@@ -21,24 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { format, set } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { es } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { fetchTramites } from "@/services/tramitesClientes";
 import { updateTramite } from "@/services/tramitesClientes";
 import { parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
-
 export function PendientesBC({ onClose, id, datosCliente }) {
   const navigate = useNavigate();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
@@ -50,9 +36,8 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   const [fecha, setFecha] = useState(null);
 
   useEffect(() => {
-    
     const fetchData = async () => {
-      console.log(datosCliente)
+      console.log(datosCliente);
       try {
         const data = await fetchTramites();
         setClientes(data);
@@ -76,17 +61,18 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     fetchData();
   }, [id]);
 
-
   const handleSubmit = async () => {
     const tieneCompromisoValue =
       datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO"
         ? "SI"
         : "NO";
-    let estadoTramite;
-    if (
-      datosCliente.estatusSeleccionado.value === "TERMINADO" ||
-      datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO"
-    ) {
+    let estadoTramite = "";
+    const estatusTerminados = [
+      "TERMINADO",
+      "TERMINADO/COMPROMISO",
+      "TERMINADO/PENDIENTE",
+    ];
+    if (estatusTerminados.includes(datosCliente.estatusSeleccionado.value)) {
       estadoTramite = "";
     } else {
       estadoTramite = datosCliente.estadoTramite.value;
@@ -111,7 +97,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       observacion_compromiso: observaciones || null,
       fecha_compromiso: fecha || null,
       categoria_compromiso: categoria || null,
-      tipo_proceso: estadoTramite || null,
+      tipo_proceso: estadoTramite || "",
     };
     try {
       const result = await updateTramite(data);

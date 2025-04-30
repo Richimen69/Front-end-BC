@@ -8,6 +8,7 @@ import { buscarMovimiento } from "../services/movimientos";
 import { TbEdit } from "react-icons/tb";
 import { Toaster, toast } from "sonner";
 import CancelarComp from "@/components/forms/bitacora/CancelarComp";
+import { estatusTerminados } from "@/utils/Constans";
 function VistaTramite() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -18,7 +19,6 @@ function VistaTramite() {
   const [showDialog, setShowDialog] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const { id } = location.state || {}; // Obtener el id desde el estado
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -118,7 +118,7 @@ function VistaTramite() {
               <p className="text-sm text-muted-foreground font-semibold">
                 Fecha de inicio: {clienteEncontrado.fecha}
               </p>
-              {clienteEncontrado.estatus === "TERMINADO" ? (
+              {estatusTerminados.includes(clienteEncontrado.estatus) ? (
                 <p className="text-sm text-muted-foreground">
                   Fecha de Termino: {clienteEncontrado.fecha_termino}
                 </p>
@@ -177,7 +177,7 @@ function VistaTramite() {
                 <h3 className="font-semibold text-primary">Estado</h3>
                 <p
                   className={`inline-block px-2 py-1 rounded ${
-                    clienteEncontrado.estatus === "TERMINADO"
+                    estatusTerminados.includes(clienteEncontrado.estatus)
                       ? "bg-[#2E7D32] text-white"
                       : clienteEncontrado.estatus === "EN PROCESO"
                       ? "bg-[#F57F17] text-white"
@@ -263,7 +263,7 @@ function VistaTramite() {
             ) : null}
             <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
             <div>
-              {clienteEncontrado.estatus === "TERMINADO" ? (
+              {estatusTerminados.includes(clienteEncontrado.estatus) ? (
                 <div>
                   <div className="grid gap-6 md:grid-cols-3">
                     <div className="space-y-2">

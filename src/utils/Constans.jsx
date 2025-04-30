@@ -35,6 +35,7 @@ export const movimientos = [
     label: "EXPEDICIÓN FIANZA-FIDELIDAD",
   },
   { value: "PRÓRROGA", label: "PRÓRROGA" },
+  { value: "RECLAMACIÓN", label: "RECLAMACIÓN" },
   { value: "SEGUIMIENTO", label: "SEGUIMIENTO" },
   { value: "SEGURO MAQUINARIA", label: "SEGURO MAQUINARIA" },
   { value: "SEGURO RC", label: "SEGURO RC" },
@@ -48,16 +49,16 @@ export const estatus = [
   { value: "EN PROCESO/ACT EF", label: "EN PROCESO/ACT EF" },
   { value: "EN PROCESO/ACT CLG", label: "EN PROCESO/ACT CLG" },
   { value: "EN PROCESO/OTROS", label: "EN PROCESO/OTROS" },
-  { value: "TERMINADO", label: "TERMINADO" },
-  { value: "TERMINADO/COMPROMISO", label: "TERMINADO/COMPROMISO" },
   { value: "NO PROCEDE", label: "NO PROCEDE" },
   { value: "PENDIENTE/C.N.S.", label: "PENDIENTE/C.N.S." },
   { value: "PENDIENTE/C.T.T.", label: "PENDIENTE/C.T.T." },
   { value: "PENDIENTE/ACT EF", label: "PENDIENTE/ACT EF" },
   { value: "PENDIENTE/ACT CLG", label: "PENDIENTE/ACT CLG" },
-  { value: "PENDIENTE/OTROS", label: "PENDIENTE/OTROS" }
+  { value: "PENDIENTE/OTROS", label: "PENDIENTE/OTROS" },
+  { value: "TERMINADO", label: "TERMINADO" },
+  { value: "TERMINADO/COMPROMISO", label: "TERMINADO/COMPROMISO" },
+  { value: "TERMINADO/PENDIENTE", label: "TERMINADO/PENDIENTE" },
 ];
-
 
 export const estadoTramite = [
   { value: "AFIANZADORA", label: "AFIANZADORA" },
@@ -86,36 +87,72 @@ export const estatus_pagos = [
 ];
 
 export const statusStyles = {
-  "EN REVISIÓN DE DOCUMENTOS": "bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
-  "EN REVISIÓN DE PREVIAS": "bg-orange-200 text-orange-700 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO/C.N.S.": "bg-yellow-300 text-yellow-600 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO/C.T.T.": "bg-yellow-300 text-yellow-700 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO/ACT EF": "bg-yellow-300 text-yellow-800 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO/ACT CLG": "bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO/OTROS": "bg-yellow-300 text-yellow-900 px-3 py-1 rounded-full text-base font-semibold",
-  "TERMINADO": "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
-  "TERMINADO/COMPROMISO": "bg-green-200 text-green-700 px-3 py-1 rounded-full text-base font-semibold",
-  "NO PROCEDE": "bg-red-100 text-red-600 px-3 py-1 rounded-full text-base font-semibold",
-  "PENDIENTE/C.N.S.": "bg-purple-300 text-purple-600 px-3 py-1 rounded-full text-base font-semibold",
-  "PENDIENTE/C.T.T.": "bg-purple-300 text-purple-700 px-3 py-1 rounded-full text-base font-semibold",
-  "PENDIENTE/ACT EF": "bg-purple-300 text-purple-800 px-3 py-1 rounded-full text-base font-semibold",
-  "PENDIENTE/ACT CLG": "bg-purple-300 text-purple-900 px-3 py-1 rounded-full text-base font-semibold",
-  "PENDIENTE/OTROS": "bg-purple-300 text-purple-900 px-3 py-1 rounded-full text-base font-semibold",
+  // REVISIÓN
+  "EN REVISIÓN DE DOCUMENTOS":
+    "bg-orange-200 text-orange-900 px-3 py-1 rounded-full text-base font-semibold",
+  "EN REVISIÓN DE PREVIAS":
+    "bg-yellow-200 text-yellow-900 px-3 py-1 rounded-full text-base font-semibold",
+
+  // PROCESO
+  "EN PROCESO/C.N.S.":
+    "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-base font-semibold",
+  "EN PROCESO/C.T.T.":
+    "bg-blue-200 text-blue-900 px-3 py-1 rounded-full text-base font-semibold",
+  "EN PROCESO/ACT EF":
+    "bg-sky-200 text-sky-800 px-3 py-1 rounded-full text-base font-semibold",
+  "EN PROCESO/ACT CLG":
+    "bg-sky-300 text-sky-900 px-3 py-1 rounded-full text-base font-semibold",
+  "EN PROCESO/OTROS":
+    "bg-sky-300 text-sky-900 px-3 py-1 rounded-full text-base font-semibold",
+
+  // TERMINADO
+  TERMINADO:
+    "bg-emerald-400 text-emerald-800 px-3 py-1 rounded-full text-base font-semibold",
+  "TERMINADO/COMPROMISO":
+    "bg-emerald-200 text-emerald-800 px-3 py-1 rounded-full text-base font-semibold",
+  "TERMINADO/PENDIENTE":
+    "bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-base font-semibold",
+
+  // NO PROCEDE
+  "NO PROCEDE":
+    "bg-rose-200 text-rose-700 px-3 py-1 rounded-full text-base font-semibold",
+
+  // PENDIENTE
+  "PENDIENTE/C.N.S.":
+    "bg-violet-200 text-violet-800 px-3 py-1 rounded-full text-base font-semibold",
+  "PENDIENTE/C.T.T.":
+    "bg-violet-300 text-violet-900 px-3 py-1 rounded-full text-base font-semibold",
+  "PENDIENTE/ACT EF":
+    "bg-indigo-200 text-indigo-800 px-3 py-1 rounded-full text-base font-semibold",
+  "PENDIENTE/ACT CLG":
+    "bg-indigo-300 text-indigo-900 px-3 py-1 rounded-full text-base font-semibold",
+  "PENDIENTE/OTROS":
+    "bg-indigo-300 text-indigo-900 px-3 py-1 rounded-full text-base font-semibold",
 };
 
 export const statusStylesRPP = {
-  "NUEVO": "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold",
-  "EN PROCESO": "bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-base font-semibold",
-  "EN REVISION": "bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
-  "CORRECCION INTERNA": "bg-red-100 text-red-600 px-3 py-1 rounded-full text-base font-semibold",
-  "EN ESPERA DE APROBACION": "bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-base font-semibold",
-  "CORRECCION": "bg-red-200 text-red-700 px-3 py-1 rounded-full text-base font-semibold",
-  "ESPERANDO PAGO":"bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
-  "APROBADO": "bg-lime-100 text-lime-600 px-3 py-1 rounded-full text-base font-semibold",
-  "FACTURA ENVIADA": "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
-  "FINALIZADO": "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
-  "CANCELADO": "bg-red-600 text-red-100 px-3 py-1 rounded-full text-base font-semibold",
-
+  NUEVO:
+    "bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-base font-semibold",
+  "EN PROCESO":
+    "bg-yellow-100 text-yellow-600 px-3 py-1 rounded-full text-base font-semibold",
+  "EN REVISION":
+    "bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
+  "CORRECCION INTERNA":
+    "bg-red-100 text-red-600 px-3 py-1 rounded-full text-base font-semibold",
+  "EN ESPERA DE APROBACION":
+    "bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-base font-semibold",
+  CORRECCION:
+    "bg-red-200 text-red-700 px-3 py-1 rounded-full text-base font-semibold",
+  "ESPERANDO PAGO":
+    "bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-base font-semibold",
+  APROBADO:
+    "bg-lime-100 text-lime-600 px-3 py-1 rounded-full text-base font-semibold",
+  "FACTURA ENVIADA":
+    "bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-base font-semibold",
+  FINALIZADO:
+    "bg-green-100 text-green-600 px-3 py-1 rounded-full text-base font-semibold",
+  CANCELADO:
+    "bg-red-600 text-red-100 px-3 py-1 rounded-full text-base font-semibold",
 };
 
 export const estatusRPP = [
@@ -128,4 +165,9 @@ export const estatusRPP = [
   { value: "CORRECCION" },
   { value: "ESPERANDO PAGO" },
   { value: "CANCELADO" },
+];
+export const estatusTerminados = [
+  "TERMINADO",
+  "TERMINADO/COMPROMISO",
+  "TERMINADO/PENDIENTE",
 ];
