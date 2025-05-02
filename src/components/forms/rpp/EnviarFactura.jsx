@@ -11,27 +11,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MdOutlineWifiProtectedSetup } from "react-icons/md";
-import { IconContext } from "react-icons";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import DatePicker from "react-datepicker";
 import { toast } from "sonner";
 import { uploadArchivo } from "@/services/rpp";
 import { useNavigate } from "react-router-dom";
 import { updateTramites } from "@/services/rpp";
+import { format, parse } from "date-fns";
+
 export default function EnviarFactura({ onClose, id_tramite, costo }) {
   const navigate = useNavigate();
   const [total, setTotal] = useState(0);
   const [calculos, setCalculos] = useState(null);
   const [file, setFile] = useState(null);
   const [fileXML, setFileXML] = useState(null);
+  const [fecha, setFecha] = useState(null);
+
   useEffect(() => {
     let sum = 0;
     for (let i = 0; i < costo.length; i++) {
@@ -60,7 +54,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
       return;
     }
     const response = await handleUpload();
-    console.log(response) // Espera la subida del archivo
+    console.log(response); // Espera la subida del archivo
     if (!response || !response.message) {
       toast.error("Error al subir el archivo.");
       return;
@@ -70,7 +64,8 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         id: id_tramite[i],
         estatus: "ESPERANDO PAGO",
         url_factura: response.path,
-        url_xml: fileXML.name
+        url_xml: fileXML.name,
+        fecha_factura: fecha,
       };
       try {
         const result = await updateTramites(data);
@@ -83,7 +78,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
         toast.error("Hubo un problema al guardar el trámite.");
       }
     }
-    navigate(0)
+    navigate(0);
   };
 
   const handleFileChange = (e) => {
@@ -152,7 +147,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
               IVA
             </Label>
             <Label htmlFor="name" className="text-right">
-            ${calculos?.iva?.toFixed(2)} MXN
+              ${calculos?.iva?.toFixed(2)} MXN
             </Label>
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
@@ -160,7 +155,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
               Subtotal
             </Label>
             <Label htmlFor="name" className="text-right">
-            ${calculos?.subtotal?.toFixed(2)} MXN
+              ${calculos?.subtotal?.toFixed(2)} MXN
             </Label>
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
@@ -168,7 +163,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
               IVA Ret
             </Label>
             <Label htmlFor="name" className="text-right">
-            ${calculos?.ivaRet?.toFixed(2)} MXN
+              ${calculos?.ivaRet?.toFixed(2)} MXN
             </Label>
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
@@ -176,7 +171,7 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
               ISR Ret
             </Label>
             <Label htmlFor="name" className="text-right">
-            ${calculos?.isrRet?.toFixed(2)} MXN
+              ${calculos?.isrRet?.toFixed(2)} MXN
             </Label>
           </div>
           <div className="grid grid-cols-3 items-center gap-4">
@@ -186,6 +181,27 @@ export default function EnviarFactura({ onClose, id_tramite, costo }) {
             <Label htmlFor="name" className="text-right">
               ${calculos?.total?.toFixed(2)} MXN
             </Label>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="name" className="text-right">
+              Fecha
+            </Label>
+            {/* DatePicker input real con padding izquierdo para que no se solape con el ícono */}
+            <div className="col-span-3">
+              <DatePicker
+                popperPlacement="bottom-start"
+                toggleCalendarOnIconClick
+                selected={fecha ? parse(fecha, "dd/MM/yyyy", new Date()) : null}
+                onChange={(date) => {
+                  if (date) {
+                    const formattedDate = format(date, "dd/MM/yyyy");
+                    setFecha(formattedDate);
+                  }
+                }}
+                dateFormat="dd/MM/yyyy"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 shadow-sm transition-all duration-150 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+              />
+            </div>
           </div>
           <div className="grid items-center gap-1.5">
             <Label htmlFor="picture">Factura</Label>

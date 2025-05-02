@@ -14,11 +14,11 @@ import AjustarPrecio from "../forms/rpp/AjustarPrecio";
 import CancelarTramite from "../forms/rpp/CancelarTramite";
 import EditarTramite from "../forms/rpp/EditarTramite";
 import { PiCurrencyDollarLight } from "react-icons/pi";
-import { FcClock, FcOk, FcHighPriority } from "react-icons/fc";
 import { FiCreditCard } from "react-icons/fi";
-import { FcMoneyTransfer, FcCalendar } from "react-icons/fc";
-import Card from "./Card";
 import EliminarTramite from "../forms/rpp/EliminarTramite";
+import { FcClock, FcOk, FcHighPriority } from "react-icons/fc";
+import { FcMoneyTransfer, FcCalendar, FcPlus } from "react-icons/fc";
+import Card from "@/components/layout/Card";
 import { datosTramites } from "@/services/rpp";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
@@ -35,8 +35,20 @@ export default function TableRpp() {
   const [idTramite, setID] = useState(false);
   const id = localStorage.getItem("id");
   const [showTooltip, setShowTooltip] = useState(null);
+  const [filtro, setFiltro] = useState("");
   const [datos, setDatosTramites] = useState([]);
-
+  useEffect(() => {
+    // Solicitar opciones al backend
+    const fetchDatosTramites = async () => {
+      try {
+        const response = await datosTramites();
+        setDatosTramites(response);
+      } catch (error) {
+        console.error("Error al obtener las opciones:", error);
+      }
+    };
+    fetchDatosTramites();
+  }, []);
   useEffect(() => {
     const fetchTramites = async () => {
       try {
@@ -67,11 +79,152 @@ export default function TableRpp() {
     })
     .filter((cliente) =>
       // Filtramos por "movimiento" y "estatus"
-      movimientoFiltro ? cliente.estatus === movimientoFiltro : true
+      filtro ? cliente.estatus === filtro : true
     );
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col ">
+      <div className="my-5 overflow-hidden w-full">
+        <div className="grid 2xl:grid-cols-12 md:grid-cols-6 grid-cols-1 gap-2 justify-between">
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("NUEVO");
+            }}
+          >
+            <Card icono={<FcPlus />} text={datos.nuevo} estado={"NUEVO"} />
+          </div>
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("CORRECCION");
+            }}
+          >
+            <Card
+              icono={<FcHighPriority />}
+              text={datos.correccion}
+              estado={"CORRECCION"}
+            />
+          </div>
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("EN PROCESO");
+            }}
+          >
+            <Card
+              icono={<FcClock />}
+              text={datos.en_proceso_count}
+              estado={"EN PROCESO"}
+            />
+          </div>
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("EN ESPERA DE APROBACION");
+            }}
+          >
+            <Card
+              icono={<FcCalendar />}
+              text={datos.error_count}
+              estado={"EN ESPERA DE APROBACION"}
+            />
+          </div>
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("ESPERANDO PAGO");
+            }}
+          >
+            <Card
+              icono={<FcMoneyTransfer />}
+              text={datos.esperando_pago}
+              estado={"ESPERANDO PAGO"}
+            />
+          </div>
+          <div
+            className="grid lg:col-span-1 cursor-pointer"
+            onClick={() => {
+              setFiltro("FINALIZADO");
+            }}
+          >
+            <Card
+              icono={<FcOk />}
+              text={datos.terminado_count}
+              estado={"FINALIZADO"}
+            />
+          </div>
+          <div className="grid md:col-span-6 col-span-1">
+            <div className="grid md:grid-cols-2 gap-2">
+              <div className="grid col-span-1">
+                <div className="flex flex-col justify-center gap-2 p-4 bg-gray-50 rounded-2xl">
+                  <div className="flex justify-between items-center text-red-600">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-red-100 rounded-lg p-2">
+                        <IconContext.Provider
+                          value={{
+                            className: "global-class-name",
+                            size: "2em",
+                          }}
+                        >
+                          <FiCreditCard />
+                        </IconContext.Provider>
+                      </div>
+                      <p className="text-gray-600 font-medium">
+                        Trámites por pagar
+                      </p>
+                    </div>
+                    <div className="bg-red-100 p-2 rounded-lg">
+                      <p className="">Pendiente</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-5">
+                    <p className="text-orange-600 text-base">
+                      Monto pendiente:
+                    </p>
+                    <p className="text-orange-600 text-xl font-semibold">
+                      ${datos.no_pagado_sum}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-5 text-red-600">
+                    <p className="text-base">Monto por pagar:</p>
+                    <p className="text-3xl font-semibold">
+                      ${datos.costo_total}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid col-span-1">
+                <div className="flex flex-col justify-center gap-2 p-4 bg-gray-50 rounded-2xl">
+                  <div className="flex justify-between items-center text-green-600">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-green-100 rounded-lg p-2">
+                        <IconContext.Provider
+                          value={{
+                            className: "global-class-name",
+                            size: "2em",
+                          }}
+                        >
+                          <PiCurrencyDollarLight />
+                        </IconContext.Provider>
+                      </div>
+                      <p className="text-gray-600 font-medium">
+                        Trámites pagados
+                      </p>
+                    </div>
+                    <div className="bg-green-100 p-2 rounded-lg">
+                      <p className="">Completado</p>
+                    </div>
+                  </div>
 
+                  <p className="text-green-600 text-3xl font-semibold">
+                    $ {datos.pagado_sum}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="grid grid-cols-6 gap-5 pb-5">
         <div className="relative">
           <input
@@ -92,21 +245,6 @@ export default function TableRpp() {
               <FaSearch />
             </IconContext.Provider>
           </div>
-        </div>
-        <div className=" relative">
-          <select
-            value={movimientoFiltro}
-            onChange={(e) => setMovimientoFiltro(e.target.value)}
-            className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
-          >
-            <option value="">Estatus</option>
-            {estatusRPP.map((movimiento) => (
-              <option key={movimiento.value} value={movimiento.value}>
-                {movimiento.value}
-              </option>
-            ))}
-          </select>
-          <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
         </div>
       </div>
       <div className="rounded-lg border border-gray-200 overflow-hidden">
@@ -135,9 +273,6 @@ export default function TableRpp() {
                   PROPIETARIO/EMPRESA
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  DIRECCIÓN
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">
                   ESTATUS
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
@@ -148,6 +283,9 @@ export default function TableRpp() {
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   OBSERVACIONES
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  FACTURA
                 </th>
                 <th
                   className="px-4 py-3 text-left font-medium text-gray-600"
@@ -211,15 +349,6 @@ export default function TableRpp() {
                     >
                       {tramite.nombre_propietario_empresa}
                     </td>
-                    <td
-                      className="px-4 py-3 text-gray-600"
-                      onClick={() => {
-                        setEditarTramite(true);
-                        setID(tramite.id);
-                      }}
-                    >
-                      {tramite.direccion_bi}, {tramite.distrito_ciudad}
-                    </td>
                     <td className="px-4 py-3 text-nowrap text-center">
                       <span
                         className={
@@ -238,6 +367,9 @@ export default function TableRpp() {
                     </td>
                     <td className="px-4 py-3 text-gray-600">
                       {tramite.observaciones}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {tramite.fecha_factura}
                     </td>
                     <td className="text-center relative">
                       <button

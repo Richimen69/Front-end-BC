@@ -14,6 +14,13 @@ import { updateTramites } from "@/services/rpp";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { obtenerTramitesId } from "@/services/rpp";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function EditarTramite({ onClose, id_tramite }) {
   const navigate = useNavigate();
@@ -23,6 +30,7 @@ export default function EditarTramite({ onClose, id_tramite }) {
   const [direccion, setDireccion] = useState("");
   const [distrito, setDistrito] = useState("");
   const [costo, setCosto] = useState("");
+  const [estatus, setEstatus] = useState("");
   useEffect(() => {
     const fetchTramites = async () => {
       try {
@@ -33,6 +41,7 @@ export default function EditarTramite({ onClose, id_tramite }) {
         setDireccion(response?.direccion_bi || "");
         setDistrito(response?.distrito_ciudad || "");
         setCosto(response?.pagado_a_gestor_rpp || "");
+        setEstatus(response?.estatus || "");
       } catch (error) {
         console.error("Error al obtener las opciones:", error);
       }
@@ -46,6 +55,7 @@ export default function EditarTramite({ onClose, id_tramite }) {
       direccion_bi: direccion,
       folio_re: folio,
       distrito_ciudad: distrito,
+      estatus: estatus,
       pagado_a_gestor_rpp: costo,
       observaciones: observacion,
     };
@@ -63,6 +73,7 @@ export default function EditarTramite({ onClose, id_tramite }) {
     }
     navigate(0);
   };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
@@ -70,6 +81,24 @@ export default function EditarTramite({ onClose, id_tramite }) {
           <DialogTitle>Editar Tramite</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 gap-4 items-center">
+            <Label htmlFor="name" className="">
+              Estatus:
+            </Label>
+            <Select value={estatus} onValueChange={setEstatus}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Estatus..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EN PROCESO">EN PROCESO</SelectItem>
+                <SelectItem value="EN ESPERA DE APROBACION">
+                  EN ESPERA DE APROBACION
+                </SelectItem>
+                <SelectItem value="EN REVISION">EN REVISION</SelectItem>
+                <SelectItem value="ESPERANDO PAGO">ESPERANDO PAGO</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid grid-cols-4 gap-4 items-center">
             <Label htmlFor="name" className="">
               Folio:

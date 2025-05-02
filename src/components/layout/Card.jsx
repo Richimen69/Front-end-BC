@@ -2,7 +2,7 @@ import React from "react";
 import { IconContext } from "react-icons";
 function Card({ icono, estado, text }) {
   return (
-    <div className="flex flex-col gap-5 bg-white p-5 rounded-2xl items-center">
+    <div className="flex flex-col gap-5 bg-gray-50 p-5 rounded-2xl items-center">
       <div className="grid grid-cols-1 gap-5">
         <IconContext.Provider
           value={{
