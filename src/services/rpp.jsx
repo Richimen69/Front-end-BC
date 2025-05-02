@@ -70,6 +70,13 @@ export const catalagosID = async (id) => {
   });
 };
 
+export const getFacturas = async () => {
+  return await fetchApi(`dasboard_montos.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
 export const updateCatalago = async (data) => {
   return await fetchApi(`tramites-catalogo.php`, {
     method: "PUT",

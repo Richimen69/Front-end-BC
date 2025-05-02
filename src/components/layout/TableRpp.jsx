@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { obtenerTramites } from "@/services/rpp";
-import { FaFileDownload } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { IconContext } from "react-icons";
 import { AsignarAgente } from "../forms/rpp/AsignarAgente";
 import AprobarTramite from "../forms/bitacora/AprobarTramite";
-import { statusStylesRPP, estatusRPP } from "@/utils/Constans";
+import { statusStylesRPP } from "@/utils/Constans";
 import { Toaster } from "sonner";
-import { MdEdit } from "react-icons/md";
 import EnviarFactura from "../forms/rpp/EnviarFactura";
-import { FiChevronDown } from "react-icons/fi";
 import AjustarPrecio from "../forms/rpp/AjustarPrecio";
 import CancelarTramite from "../forms/rpp/CancelarTramite";
 import EditarTramite from "../forms/rpp/EditarTramite";
 import { PiCurrencyDollarLight } from "react-icons/pi";
 import { FiCreditCard } from "react-icons/fi";
 import EliminarTramite from "../forms/rpp/EliminarTramite";
-import { FcClock, FcOk, FcHighPriority } from "react-icons/fc";
-import { FcMoneyTransfer, FcCalendar, FcPlus } from "react-icons/fc";
+import {
+  FcClock,
+  FcOk,
+  FcHighPriority,
+  FcMoneyTransfer,
+  FcCalendar,
+  FcPlus,
+} from "react-icons/fc";
 import Card from "@/components/layout/Card";
 import { datosTramites } from "@/services/rpp";
+import { getFacturas } from "@/services/rpp";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -29,14 +33,40 @@ export default function TableRpp() {
   const [showDialogCan, setShowDialogCan] = useState(false);
   const [enableInput, setEnableInput] = useState(false);
   const [editarTramite, setEditarTramite] = useState(false);
-  const [precio, setPrecio] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [movimientoFiltro, setMovimientoFiltro] = useState("");
   const [idTramite, setID] = useState(false);
   const id = localStorage.getItem("id");
   const [showTooltip, setShowTooltip] = useState(null);
   const [filtro, setFiltro] = useState("");
   const [datos, setDatosTramites] = useState([]);
+  const [afianzadora, setAfianzadora] = useState('');
+  const [fechaSel, setFechaSel] = useState([]);
+  const [facturasAgrupadas, setFacturasAgrupadas] = useState([]);
+
+  useEffect(() => {
+    const fetchFechas = async () => {
+      try {
+        const response = await getFacturas();
+        console.log(response);
+
+        // Agrupar las facturas por 'afianzadora'
+        const agrupadas = response.reduce((acc, item) => {
+          if (!acc[item.afianzadora]) {
+            acc[item.afianzadora] = [];
+          }
+          acc[item.afianzadora].push(item);
+          return acc;
+        }, {});
+
+        setFacturasAgrupadas(agrupadas);
+        setFacturasFecha(response); // Si necesitas mantener las facturas completas sin agrupar
+      } catch (error) {
+        console.error("Error al obtener las opciones:", error);
+      }
+    };
+
+    fetchFechas();
+  }, []);
   useEffect(() => {
     // Solicitar opciones al backend
     const fetchDatosTramites = async () => {
@@ -80,7 +110,24 @@ export default function TableRpp() {
     .filter((cliente) =>
       // Filtramos por "movimiento" y "estatus"
       filtro ? cliente.estatus === filtro : true
-    );
+    )
+    .filter((cliente) =>
+      // Filtramos por "movimiento" y "estatus"
+      afianzadora ? cliente.afianzadora === afianzadora : true
+    )
+    .filter((dato) => {
+      const fecha = String(fechaSel).trim();
+
+      // Si no hay filtro de fecha, mostrar todos
+      if (!fecha) return true;
+
+      // Si hay filtro, mostrar solo los que coincidan
+      return dato.fecha_factura === fecha;
+    });
+  const totalGeneral = Object.values(facturasAgrupadas)
+    .flat()
+    .reduce((sum, item) => sum + parseFloat(item.total), 0);
+
   return (
     <div className="flex flex-col ">
       <div className="my-5 overflow-hidden w-full">
@@ -88,7 +135,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("NUEVO");
+              {
+                setFiltro("NUEVO"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card icono={<FcPlus />} text={datos.nuevo} estado={"NUEVO"} />
@@ -96,7 +145,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("CORRECCION");
+              {
+                setFiltro("CORRECCION"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card
@@ -108,7 +159,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("EN PROCESO");
+              {
+                setFiltro("EN PROCESO"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card
@@ -120,7 +173,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("EN ESPERA DE APROBACION");
+              {
+                setFiltro("EN ESPERA DE APROBACION"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card
@@ -132,7 +187,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("ESPERANDO PAGO");
+              {
+                setFiltro("ESPERANDO PAGO"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card
@@ -144,7 +201,9 @@ export default function TableRpp() {
           <div
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
-              setFiltro("FINALIZADO");
+              {
+                setFiltro("FINALIZADO"), setFechaSel(""), setAfianzadora("")
+              }
             }}
           >
             <Card
@@ -156,40 +215,61 @@ export default function TableRpp() {
           <div className="grid md:col-span-6 col-span-1">
             <div className="grid md:grid-cols-2 gap-2">
               <div className="grid col-span-1">
-                <div className="flex flex-col justify-center gap-2 p-4 bg-gray-50 rounded-2xl">
-                  <div className="flex justify-between items-center text-red-600">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-red-100 rounded-lg p-2">
+                <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+                  <div className="flex items-center justify-between p-4 border-b">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
                         <IconContext.Provider
                           value={{
                             className: "global-class-name",
                             size: "2em",
                           }}
                         >
-                          <FiCreditCard />
+                          <PiCurrencyDollarLight />
                         </IconContext.Provider>
                       </div>
-                      <p className="text-gray-600 font-medium">
+                      <h3 className="text-lg font-medium text-gray-800">
                         Trámites por pagar
-                      </p>
+                      </h3>
                     </div>
-                    <div className="bg-red-100 p-2 rounded-lg">
-                      <p className="">Pendiente</p>
+                    <div className="px-3 py-1 text-sm font-medium bg-red-100 text-red-500 rounded-full">
+                      Pendiente
                     </div>
                   </div>
-                  <div className="flex items-center gap-5">
-                    <p className="text-orange-600 text-base">
-                      Monto pendiente:
-                    </p>
-                    <p className="text-orange-600 text-xl font-semibold">
-                      ${datos.no_pagado_sum}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-5 text-red-600">
-                    <p className="text-base">Monto por pagar:</p>
-                    <p className="text-3xl font-semibold">
-                      ${datos.costo_total}
-                    </p>
+
+                  <div className="p-4 space-y-3">
+                    {Object.keys(facturasAgrupadas).map((afianzadora) => (
+                      <div key={afianzadora}>
+                        <h3 className="text-xl font-bold">{afianzadora}</h3>
+                        {facturasAgrupadas[afianzadora].map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex justify-between items-center cursor-pointer"
+                            onClick={() => {
+                              setFechaSel(item.fecha_factura);
+                              setFiltro("");
+                              setAfianzadora(item.afianzadora);
+                            }}
+                          >
+                            <span className="text-gray-700 hover:bg-slate-200 rounded-md p-1">
+                              Factura de {item.fecha_factura}:
+                            </span>
+                            <span className="text-lg font-semibold">
+                              ${parseFloat(item.total).toLocaleString("es-MX")}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+
+                    <div className="flex justify-between items-center pt-3 mt-2 border-t">
+                      <span className="text-red-600 font-medium">
+                        Monto Total:
+                      </span>
+                      <span className="text-2xl font-bold text-red-600">
+                        ${totalGeneral.toLocaleString("es-MX")}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
