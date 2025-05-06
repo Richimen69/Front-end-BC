@@ -76,6 +76,12 @@ export const getFacturas = async () => {
     body: JSON.stringify(),
   });
 };
+export const getPagados= async () => {
+  return await fetchApi(`dashboard_pagados.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
 
 export const updateCatalago = async (data) => {
   return await fetchApi(`tramites-catalogo.php`, {

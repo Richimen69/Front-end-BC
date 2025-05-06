@@ -23,7 +23,7 @@ import {
 } from "react-icons/fc";
 import Card from "@/components/layout/Card";
 import { datosTramites } from "@/services/rpp";
-import { getFacturas } from "@/services/rpp";
+import { getFacturas, getPagados } from "@/services/rpp";
 export default function TableRpp() {
   const [tramites, setTramites] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
@@ -39,15 +39,15 @@ export default function TableRpp() {
   const [showTooltip, setShowTooltip] = useState(null);
   const [filtro, setFiltro] = useState("");
   const [datos, setDatosTramites] = useState([]);
-  const [afianzadora, setAfianzadora] = useState('');
+  const [afianzadora, setAfianzadora] = useState("");
   const [fechaSel, setFechaSel] = useState([]);
   const [facturasAgrupadas, setFacturasAgrupadas] = useState([]);
-
+  const [facturasPagadas, setFacturasPagadas] = useState([]);
+  const [tramiteSeleccionado, setTramiteSeleccionado] = useState(null);
   useEffect(() => {
     const fetchFechas = async () => {
       try {
         const response = await getFacturas();
-        console.log(response);
 
         // Agrupar las facturas por 'afianzadora'
         const agrupadas = response.reduce((acc, item) => {
@@ -59,7 +59,18 @@ export default function TableRpp() {
         }, {});
 
         setFacturasAgrupadas(agrupadas);
-        setFacturasFecha(response); // Si necesitas mantener las facturas completas sin agrupar
+      } catch (error) {
+        console.error("Error al obtener las opciones:", error);
+      }
+    };
+
+    fetchFechas();
+  }, []);
+  useEffect(() => {
+    const fetchFechas = async () => {
+      try {
+        const response = await getPagados();
+        setFacturasPagadas(response);
       } catch (error) {
         console.error("Error al obtener las opciones:", error);
       }
@@ -124,10 +135,19 @@ export default function TableRpp() {
       // Si hay filtro, mostrar solo los que coincidan
       return dato.fecha_factura === fecha;
     });
+  const handleChange = (e) => {
+    const fechaSeleccionada = e.target.value;
+    const tramite = facturasPagadas.find(
+      (t) => t.fecha_factura === fechaSeleccionada
+    );
+    setTramiteSeleccionado(tramite);
+  };
   const totalGeneral = Object.values(facturasAgrupadas)
     .flat()
     .reduce((sum, item) => sum + parseFloat(item.total), 0);
-
+  const totalPagadas = Object.values(facturasPagadas)
+    .flat()
+    .reduce((sum, item) => sum + parseFloat(item.total), 0);
   return (
     <div className="flex flex-col ">
       <div className="my-5 overflow-hidden w-full">
@@ -136,7 +156,7 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("NUEVO"), setFechaSel(""), setAfianzadora("")
+                setFiltro("NUEVO"), setFechaSel(""), setAfianzadora("");
               }
             }}
           >
@@ -146,7 +166,7 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("CORRECCION"), setFechaSel(""), setAfianzadora("")
+                setFiltro("CORRECCION"), setFechaSel(""), setAfianzadora("");
               }
             }}
           >
@@ -160,7 +180,7 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("EN PROCESO"), setFechaSel(""), setAfianzadora("")
+                setFiltro("EN PROCESO"), setFechaSel(""), setAfianzadora("");
               }
             }}
           >
@@ -174,7 +194,9 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("EN ESPERA DE APROBACION"), setFechaSel(""), setAfianzadora("")
+                setFiltro("EN ESPERA DE APROBACION"),
+                  setFechaSel(""),
+                  setAfianzadora("");
               }
             }}
           >
@@ -188,7 +210,9 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("ESPERANDO PAGO"), setFechaSel(""), setAfianzadora("")
+                setFiltro("ESPERANDO PAGO"),
+                  setFechaSel(""),
+                  setAfianzadora("");
               }
             }}
           >
@@ -202,7 +226,7 @@ export default function TableRpp() {
             className="grid lg:col-span-1 cursor-pointer"
             onClick={() => {
               {
-                setFiltro("FINALIZADO"), setFechaSel(""), setAfianzadora("")
+                setFiltro("FINALIZADO"), setFechaSel(""), setAfianzadora("");
               }
             }}
           >
@@ -273,32 +297,109 @@ export default function TableRpp() {
                   </div>
                 </div>
               </div>
-              <div className="grid col-span-1">
-                <div className="flex flex-col justify-center gap-2 p-4 bg-gray-50 rounded-2xl">
-                  <div className="flex justify-between items-center text-green-600">
-                    <div className="flex items-center gap-2">
-                      <div className="bg-green-100 rounded-lg p-2">
-                        <IconContext.Provider
-                          value={{
-                            className: "global-class-name",
-                            size: "2em",
-                          }}
-                        >
-                          <PiCurrencyDollarLight />
-                        </IconContext.Provider>
-                      </div>
-                      <p className="text-gray-600 font-medium">
-                        Trámites pagados
-                      </p>
+              <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between p-4 border-b">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5 text-green-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
                     </div>
-                    <div className="bg-green-100 p-2 rounded-lg">
-                      <p className="">Completado</p>
+                    <h3 className="text-lg font-medium text-gray-800">
+                      Trámites pagados
+                    </h3>
+                  </div>
+                  <div className="px-3 py-1 text-sm font-medium bg-green-100 text-green-500 rounded-full">
+                    Completado
+                  </div>
+                </div>
+
+                <div className="p-4 space-y-4">
+                  {/* Select para elegir trámite */}
+                  <div className="w-full">
+                    <label
+                      htmlFor="tramite-select"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Seleccionar trámite:
+                    </label>
+                    <select
+                      id="tramite-select"
+                      value={tramiteSeleccionado?.fecha_factura || ""}
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      onChange={(e) => {
+                        const fecha = e.target.value;
+                        const tramite = facturasPagadas.find(
+                          (t) => t.fecha_factura === fecha
+                        );
+
+                        setTramiteSeleccionado(tramite);
+                        setFechaSel(tramite?.fecha_factura || ""); // ← para el filtro de fecha
+                        setFiltro(tramite?.estatus || ""); // ← si lo usas como filtro
+                        setAfianzadora(tramite?.afianzadora || ""); // ← para el filtro de afianzadora
+                      }}
+                    >
+                      <option value="">Selecciona una opción</option>
+                      {facturasPagadas.map((tramite) => (
+                        <option
+                          key={tramite.fecha_factura}
+                          value={tramite.fecha_factura}
+                        >
+                          {tramite.afianzadora} {tramite.fecha_factura}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Detalles del trámite seleccionado */}
+                  <div className="bg-green-50 p-4 rounded-lg space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Cliente:</span>
+                      <span className="font-medium">
+                        {tramiteSeleccionado?.afianzadora || "--"}{" "}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Fecha de pago:</span>
+                      <span
+                        className="font-medium cursor-pointer"
+                        onClick={() => {
+                          setFechaSel(tramiteSeleccionado?.fecha_factura);
+                          setFiltro("");
+                          setAfianzadora(tramiteSeleccionado?.afianzadora);
+                        }}
+                      >
+                        {tramiteSeleccionado?.fecha_factura || "--"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700">Monto:</span>
+                      <span className="text-lg font-semibold text-green-600">
+                        ${tramiteSeleccionado?.total || "0.00"}
+                      </span>
                     </div>
                   </div>
 
-                  <p className="text-green-600 text-3xl font-semibold">
-                    $ {datos.pagado_sum}
-                  </p>
+                  {/* Total pagado */}
+                  <div className="flex justify-between items-center pt-3 mt-2 border-t">
+                    <span className="text-green-600 font-medium">
+                      Total pagado:
+                    </span>
+                    <span className="text-2xl font-bold text-green-500">
+                      ${totalPagadas.toLocaleString("es-MX")}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
