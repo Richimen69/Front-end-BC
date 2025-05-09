@@ -32,10 +32,9 @@ export const obtenerEstados = async () => {
     body: JSON.stringify(),
   });
 };
-export const obtenerTotalAfianzadoras = async () => {
-  return await fetchApi(`afianzadoras.php`, {
-    method: "GET",
-    body: JSON.stringify(),
+export const obtenerTotalAfianzadoras = async (fecha) => {
+  return await fetchApi(`afianzadoras.php?mes=${fecha}`, {
+    method: "GET", // No es necesario enviar un cuerpo en GET
   });
 };
 

@@ -82,7 +82,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       fecha: datosCliente.fecha || "",
       beneficiario: datosCliente.beneficiario?.value || "",
       movimiento: datosCliente.movimientoSeleccionado.value || "",
-      afianzadora: datosCliente.afianzadora.value || "",
+      afianzadora: datosCliente.afianzadora?.value || "",
       estatus: datosCliente.estatusSeleccionado.value || "",
       observaciones: datosCliente.observaciones || "",
       fianza: datosCliente.fianza || "",
