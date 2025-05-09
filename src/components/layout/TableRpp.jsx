@@ -135,13 +135,7 @@ export default function TableRpp() {
       // Si hay filtro, mostrar solo los que coincidan
       return dato.fecha_factura === fecha;
     });
-  const handleChange = (e) => {
-    const fechaSeleccionada = e.target.value;
-    const tramite = facturasPagadas.find(
-      (t) => t.fecha_factura === fechaSeleccionada
-    );
-    setTramiteSeleccionado(tramite);
-  };
+
   const totalGeneral = Object.values(facturasAgrupadas)
     .flat()
     .reduce((sum, item) => sum + parseFloat(item.total), 0);

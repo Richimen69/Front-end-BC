@@ -259,7 +259,7 @@ export default function TableTramites() {
                     <td className="px-4 py-3 text-gray-600">
                       {cliente.afianzadora}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-nowrap text-center">
+                    <td className="relative px-4 py-3 text-gray-600 text-nowrap text-center group">
                       <span
                         className={
                           statusStyles[cliente.estatus] ||
@@ -268,7 +268,13 @@ export default function TableTramites() {
                       >
                         {cliente.estatus}
                       </span>
+
+                      {/* Tooltip */}
+                      <div className="absolute z-10 hidden group-hover:block bg-primary text-white text-xs rounded py-1 px-2 bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-normal w-96 text-center">
+                        {cliente.ultimo_movimiento}
+                      </div>
                     </td>
+
                     <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
                       {cliente.estatus === "TERMINADO/COMPROMISO" &&
                       cliente.tiene_compromiso === "SI"
