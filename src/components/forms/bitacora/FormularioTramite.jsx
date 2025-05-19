@@ -26,6 +26,8 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const [folios, setFolios] = useState([]);
   const [afianzadoraSeleccionada, setAfianzadoraSeleccionada] = useState(null);
   const [btnSave, setBtnSave] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [beneficiarioSeleccionado, setBeneficiarioSeleccionado] =
     useState(null);
   const [usuario, setUsuario] = useState("");
@@ -99,6 +101,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const nuevoFolio = generarFolio(folios, usuario);
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     setBtnSave(true);
     // Verificar si los campos requeridos están completos
@@ -138,11 +141,27 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
+    } finally {
+      setLoading(false);
+      navigate(0);
     }
-    navigate(0);
   };
 
   if (!isVisible) return null;
+
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50  backdrop-blur-sm">
+        <lottie-player
+          autoplay
+          loop
+          mode="normal"
+          src="/loader.json"
+          style={{ width: "200px", height: "200px" }}
+        ></lottie-player>
+      </div>
+    );
+  }
 
   return (
     <div

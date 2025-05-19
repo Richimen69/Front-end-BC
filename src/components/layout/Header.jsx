@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import LogoPrincipal from "@/assets/logos/LogoPrincipal.svg";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { MdOutlineLogout } from "react-icons/md";
 function header() {
+  const [menuOpen, setMenuOpen] = useState(false);
   // Para actualizar el estado del contexto
   const navigate = useNavigate();
 
@@ -18,17 +19,42 @@ function header() {
   };
   return (
     <header className="bg-white text-primary border-b border-secondary text-[24px] font-light w-full">
-      <div className="flex justify-between items-center px-6">
-        <div className="text-xl font-bold">
+      <div className="flex justify-between items-center px-4 md:px-6 py-3">
+        {/* Logo */}
+        <div className="flex items-center">
           <Link to="/">
-            <img src={LogoPrincipal} alt="Logo" className="w-[195px]" />
+            <img src={LogoPrincipal} alt="Logo" className="w-40 md:w-[195px]" />
           </Link>
         </div>
-        <div>
-          <p>SAGA</p>
+
+        {/* Texto descriptivo (oculto en móviles) */}
+        <div className="hidden md:block text-base">
+          Sistema de Administración y Gestión de Afianzamiento
         </div>
-        <nav>
-          <ul className="flex space-x-6">
+        <div className="text-base md:hidden">SAGA</div>
+        {/* Botón menú hamburguesa en móvil */}
+        <button
+          className="md:hidden text-primary"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d={menuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+            />
+          </svg>
+        </button>
+
+        {/* Navegación (escritorio) */}
+        <nav className="hidden md:block">
+          <ul className="flex space-x-6 items-center text-xl">
             <Link to="/">
               <li className="hover:text-secondary">Dashboard</li>
             </Link>
@@ -37,14 +63,14 @@ function header() {
             </Link>
             <Link to="/clientes">
               <li className="hover:text-secondary">Clientes</li>
-            </Link>            
+            </Link>
             <Link to="/rpp">
               <li className="hover:text-secondary">RPP</li>
             </Link>
             <li>
               <button
-                className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-lg active:translate-x-1 active:translate-y-1"
-                onClick={handleLogout}
+                className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-3xl active:translate-x-1 active:translate-y-1"
+                onClick={() => alert("Cerrar sesión")} // reemplaza con tu lógica
               >
                 <div className="flex items-center justify-center w-full transition-all duration-300 group-hover:justify-start group-hover:px-3">
                   <svg className="w-4 h-4" viewBox="0 0 512 512" fill="white">
@@ -52,14 +78,41 @@ function header() {
                   </svg>
                 </div>
                 <div className="absolute right-5 transform translate-x-full opacity-0 text-white text-lg font-semibold transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-                  Logout
+                  Salir
                 </div>
               </button>
             </li>
-            <li></li>
           </ul>
         </nav>
       </div>
+
+      {/* Menú móvil desplegable */}
+      {menuOpen && (
+        <div className="md:hidden px-4 pb-4">
+          <ul className="space-y-2 text-base">
+            <Link to="/">
+              <li className="hover:text-secondary">Dashboard</li>
+            </Link>
+            <Link to="/tramites">
+              <li className="hover:text-secondary">Trámites</li>
+            </Link>
+            <Link to="/clientes">
+              <li className="hover:text-secondary">Clientes</li>
+            </Link>
+            <Link to="/rpp">
+              <li className="hover:text-secondary">RPP</li>
+            </Link>
+            <li>
+              <button
+                className="bg-red-600 text-white w-full py-2 rounded"
+                onClick={() => alert("Cerrar sesión")}
+              >
+                Logout
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
   );
 }

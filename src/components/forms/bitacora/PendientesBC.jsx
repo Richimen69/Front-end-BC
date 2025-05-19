@@ -25,7 +25,14 @@ import { fetchTramites } from "@/services/tramitesClientes";
 import { updateTramite } from "@/services/tramitesClientes";
 import { parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
-export function PendientesBC({ onClose, id, datosCliente }) {
+import { guardarTareaCompletada, obtenerTareas } from "@/services/tareas";
+export function PendientesBC({
+  onClose,
+  id,
+  datosCliente,
+  tareas,
+  idMovimiento,
+}) {
   const navigate = useNavigate();
   const [isSwitchOn, setIsSwitchOn] = useState(false);
   const [date, setDate] = useState(null);
@@ -34,10 +41,9 @@ export function PendientesBC({ onClose, id, datosCliente }) {
   const [tieneCompromiso, setTieneCompromiso] = useState("");
   const [categoria, setCategoria] = useState("");
   const [fecha, setFecha] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      console.log(datosCliente);
       try {
         const data = await fetchTramites();
         setClientes(data);
@@ -60,8 +66,38 @@ export function PendientesBC({ onClose, id, datosCliente }) {
 
     fetchData();
   }, [id]);
+  const obtenerFechaActual = () => {
+    const hoy = new Date();
+    const dia = String(hoy.getDate()).padStart(2, "0");
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const anio = hoy.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+  };
+  const guardarTarea = async () => {
+    const fecha = obtenerFechaActual();
+
+    for (let i = 0; i < idMovimiento.length; i++) {
+      const tareaId = idMovimiento[i];
+      const completado = tareas.includes(tareaId) ? 1 : 0;
+
+      const datos = {
+        tramite_id: id,
+        tarea_id: tareaId,
+        completado: completado,
+        fecha_completado: fecha,
+      };
+
+      try {
+        await guardarTareaCompletada(datos);
+      } catch (error) {
+        toast.error("Hubo un problema al guardar el trámite.");
+      }
+    }
+  };
 
   const handleSubmit = async () => {
+    setLoading(true);
+    await guardarTarea();
     const tieneCompromisoValue =
       datosCliente.estatusSeleccionado.value === "TERMINADO/COMPROMISO"
         ? "SI"
@@ -72,11 +108,23 @@ export function PendientesBC({ onClose, id, datosCliente }) {
       "TERMINADO/COMPROMISO",
       "TERMINADO/PENDIENTE",
     ];
-    if (estatusTerminados.includes(datosCliente.estatusSeleccionado.value)) {
+    if (
+      !datosCliente?.estadoTramite?.value &&
+      !datosCliente?.estadoTramite?.estatus === estatusTerminados
+    ) {
+      toast.error("Selecciona estatus de trámite");
+      return; // Detiene la ejecución si falta el estatus de trámite
+    }
+
+    if (
+      datosCliente?.estatusSeleccionado?.value &&
+      estatusTerminados.includes(datosCliente.estatusSeleccionado.value)
+    ) {
       estadoTramite = "";
     } else {
       estadoTramite = datosCliente.estadoTramite.value;
     }
+
     const data = {
       id_tramite: id,
       fecha: datosCliente.fecha || "",
@@ -102,19 +150,32 @@ export function PendientesBC({ onClose, id, datosCliente }) {
     try {
       const result = await updateTramite(data);
       if (result.success) {
-        toast.success("Guardado exitosamente.");
-        setTimeout(() => {
-          navigate("/tramites");
-        }, 1500);
+        navigate("/tramites");
       } else {
         toast.error("Error al guardar.");
       }
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
+    } finally {
+      toast.success("Guardado exitosamente.");
+      setLoading(false); // Oculta loader
     }
   };
 
+  if (loading) {
+    return (
+      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50  backdrop-blur-sm">
+        <lottie-player
+          autoplay
+          loop
+          mode="normal"
+          src="/loader.json"
+          style={{ width: "200px", height: "200px" }}
+        ></lottie-player>
+      </div>
+    );
+  }
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -185,12 +246,7 @@ export function PendientesBC({ onClose, id, datosCliente }) {
           </div>
         )}
         <DialogFooter>
-          <Button
-            type="submit"
-            onClick={() => {
-              handleSubmit(); // Cierra el diálogo al guardar cambios
-            }}
-          >
+          <Button type="submit" onClick={handleSubmit}>
             Guardar Tramite
           </Button>
         </DialogFooter>

@@ -14,6 +14,7 @@ import {
   buscarTramitePorFolio,
   fetchTramites,
 } from "@/services/tramitesClientes";
+
 export default function TableTramites() {
   const [clientes, setClientes] = useState([]);
   const [searchQuery, setSearchQuery] = useState(
@@ -29,7 +30,6 @@ export default function TableTramites() {
     localStorage.getItem("estatusFiltro") || ""
   );
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [folio, setFolio] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -61,24 +61,6 @@ export default function TableTramites() {
     return () => clearInterval(interval);
   }, []); // Solo se ejecuta una vez al montar el componente
 
-  const buscarFolio = async (e, folio) => {
-    e.preventDefault();
-    try {
-      const data = await buscarTramitePorFolio(folio);
-      if (data.success !== false) {
-        console.log("Trámite encontrado:", data);
-        navigate("/vistaprevia", { state: { id: data.id_tramite } });
-      } else {
-        console.log("Trámite no encontrado.");
-        setError("No se encontró un trámite con ese folio.");
-        toast.error(error);
-      }
-    } catch (error) {
-      console.error("Error al hacer la solicitud:", error);
-      setError(error.message); // Muestra el mensaje del error capturado
-    }
-  };
-
   // Filtramos la búsqueda del input
   const filteredClientes = clientes
     .filter(
@@ -108,72 +90,75 @@ export default function TableTramites() {
         <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
           Trámites
         </h1>
-        <div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mr-5">
-            <div className="lg:col-span-1">
-              <input
-                id="user"
-                type="text"
-                placeholder="Fianza"
-                value={searchQueryFianza}
-                onChange={(e) => setSearchQueryFianza(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="lg:col-span-1">
-              <input
-                id="user"
-                type="text"
-                placeholder="Nombre del fiado"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="relative">
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Filtro por Fianza */}
+          <div>
+            <input
+              type="text"
+              placeholder="Fianza"
+              value={searchQueryFianza}
+              onChange={(e) => setSearchQueryFianza(e.target.value)}
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {/* Filtro por nombre del fiado */}
+          <div>
+            <input
+              type="text"
+              placeholder="Nombre del fiado"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {/* Select movimiento */}
+          <div className="relative">
+            <select
+              value={movimientoFiltro}
+              onChange={(e) => setMovimientoFiltro(e.target.value)}
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+            >
+              <option value="">Todos los movimientos</option>
+              {movimientos.map((movimiento) => (
+                <option key={movimiento.value} value={movimiento.value}>
+                  {movimiento.label}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
+          </div>
+
+          {/* Estatus + botón nuevo trámite */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative w-full sm:w-auto flex-1">
               <select
-                value={movimientoFiltro}
-                onChange={(e) => setMovimientoFiltro(e.target.value)}
+                value={estatusFiltro}
+                onChange={(e) => setEstatusFiltro(e.target.value)}
                 className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
               >
-                <option value="">Todos los movimientos</option>
-                {movimientos.map((movimiento) => (
-                  <option key={movimiento.value} value={movimiento.value}>
-                    {movimiento.label}
+                <option value="">Todos los estatus</option>
+                {estatus.map((estatusOption) => (
+                  <option key={estatusOption.value} value={estatusOption.value}>
+                    {estatusOption.label}
                   </option>
                 ))}
               </select>
               <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <select
-                  value={estatusFiltro}
-                  onChange={(e) => setEstatusFiltro(e.target.value)}
-                  className="flex-1 h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
-                >
-                  <option value="">Todos los estatus</option>
-                  {estatus.map((estatusOption) => (
-                    <option
-                      key={estatusOption.value}
-                      value={estatusOption.value}
-                    >
-                      {estatusOption.label}
-                    </option>
-                  ))}
-                </select>
-                <FiChevronDown className="absolute top-1/2 right-4 transform -translate-y-1/2 pointer-events-none text-gray-500" />
-              </div>
-              <button
-                className="h-10 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-nowrap"
-                onClick={() => setIsFormVisible(true)}
-              >
-                Nuevo tramite
-              </button>
-            </div>
+
+            <button
+              className="h-10 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 whitespace-nowrap"
+              onClick={() => setIsFormVisible(true)}
+            >
+              Nuevo trámite
+            </button>
           </div>
         </div>
       </div>
+
       <div className="rounded-lg border border-gray-200 overflow-hidden mt-5">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -225,7 +210,7 @@ export default function TableTramites() {
                 const colorFecha =
                   cliente.estatus === "EN REVISIÓN DE PREVIAS" &&
                   diferenciaDias > 15
-                    ? "text-red-600"
+                    ? "text-red-600 bg-red-100 rounded-lg"
                     : "text-gray-600";
 
                 return (
@@ -249,8 +234,8 @@ export default function TableTramites() {
                     </td>
 
                     {/* Aquí aplicas la clase dinámica */}
-                    <td className={`px-4 py-3 ${colorFecha}`}>
-                      {cliente.fecha}
+                    <td className={`px-4 py-3`}>
+                      <p className={`p-1 ${colorFecha}`}> {cliente.fecha}</p>
                     </td>
 
                     <td className="px-4 py-3 text-gray-600">
@@ -270,9 +255,11 @@ export default function TableTramites() {
                       </span>
 
                       {/* Tooltip */}
-                      <div className="absolute z-10 hidden group-hover:block bg-primary text-white text-xs rounded py-1 px-2 bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-normal w-96 text-center">
-                        {cliente.ultimo_movimiento}
-                      </div>
+                      {cliente.estatus != "TERMINADO" && (
+                        <div className="absolute z-10 hidden group-hover:block bg-primary text-white text-xs rounded py-1 px-2 bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-normal w-96 text-center">
+                          {cliente.ultimo_movimiento}
+                        </div>
+                      )}
                     </td>
 
                     <td className="px-4 py-3 text-gray-600 text-center text-nowrap">

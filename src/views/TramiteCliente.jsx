@@ -12,13 +12,16 @@ import {
   estatus,
   estatus_pagos,
   estadoTramite,
-  movimientos,
   estadoTramiteAseguradora,
-  estatusTerminados
+  estatusTerminados,
 } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
-import { updateTramite } from "../services/tramitesClientes";
+import {
+  obtenerMovimientos,
+  obtenerTareas,
+  obtenerTareasCompletas,
+} from "@/services/tareas";
 import {
   buscarMovimiento,
   createMovimiento,
@@ -38,7 +41,10 @@ function TramiteCliente() {
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [movimiento, setMovimiento] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [movimientosTar, setMovimientoTar] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [tareas, setTareas] = useState([]);
+  const [tareasCompletas, setTareasCompletas] = useState([]);
   const { id } = location.state || {};
   const [formData, setFormData] = useState({
     id: location.state.id,
@@ -68,46 +74,36 @@ function TramiteCliente() {
   }
 
   useEffect(() => {
-    if (storedUser) {
+    const fetchAllData = async () => {
       try {
-        const user = JSON.parse(storedUser);
-        const formattedUser =
-          user.usuario_usu.charAt(0).toUpperCase() +
-          user.usuario_usu.slice(1).toLowerCase();
-        setUsuario(formattedUser);
-      } catch (error) {
-        console.error(
-          "Error al analizar el usuario desde localStorage:",
-          error
+        const [beneficiariosData, movimientosData, afianzadorasData] =
+          await Promise.all([
+            fetchBeficiarios(),
+            obtenerMovimientos(),
+            fetchAfianzadoras(),
+          ]);
+
+        setBeneficiario(
+          beneficiariosData.map((b) => ({
+            value: b.nombre_ben,
+            label: b.nombre_ben,
+          }))
         );
+
+        setMovimientoTar(movimientosData);
+
+        setAfianzadoras(
+          afianzadorasData.map((a) => ({
+            value: a.nombre_afi,
+            label: a.nombre_afi,
+          }))
+        );
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
       }
-    }
-  }, [storedUser]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const beneficiariosData = await fetchBeficiarios();
-      setBeneficiario(
-        beneficiariosData.map((beneficiario) => ({
-          value: beneficiario.nombre_ben,
-          label: beneficiario.nombre_ben,
-        }))
-      );
     };
-    fetchData();
-  }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const afianzadorasData = await fetchAfianzadoras();
-      setAfianzadoras(
-        afianzadorasData.map((afianzadora) => ({
-          value: afianzadora.nombre_afi,
-          label: afianzadora.nombre_afi,
-        }))
-      );
-    };
-    fetchData();
+    fetchAllData();
   }, []);
 
   useEffect(() => {
@@ -115,11 +111,17 @@ function TramiteCliente() {
       try {
         const data = await fetchTramites();
         setClientes(data);
-        // Encontrar cliente específico
+
         const clienteEncontrado = data.find(
           (cliente) => cliente.id_tramite === id
         );
-        if (clienteEncontrado) {
+
+        if (
+          clienteEncontrado &&
+          movimientosTar.length > 0 &&
+          afianzadoras.length > 0 &&
+          beneficiario.length > 0
+        ) {
           const tipoProcesoSeleccionado =
             estadoTramite.find(
               (option) => option.value === clienteEncontrado.tipo_proceso
@@ -127,8 +129,9 @@ function TramiteCliente() {
             estadoTramiteAseguradora.find(
               (option) => option.value === clienteEncontrado.tipo_proceso
             );
+
           setFormData((prevState) => ({
-            ...prevState, // Mantén el resto de las propiedades
+            ...prevState,
             prima_inicial: clienteEncontrado.prima_inicial || "",
             prima_futura: clienteEncontrado.prima_futura || "",
             prima_total: clienteEncontrado.prima_total || "",
@@ -142,10 +145,16 @@ function TramiteCliente() {
               estatus.find(
                 (option) => option.value === clienteEncontrado.estatus
               ) || null,
-            movimientoSeleccionado:
-              movimientos.find(
-                (option) => option.value === clienteEncontrado.movimiento
-              ) || null,
+            movimientoSeleccionado: movimientosTar.find(
+              (option) =>
+                option.nombre.toLowerCase().trim() ===
+                clienteEncontrado.movimiento.toLowerCase().trim()
+            )
+              ? {
+                  value: clienteEncontrado.movimiento,
+                  label: clienteEncontrado.movimiento,
+                }
+              : null,
             estadoTramite: tipoProcesoSeleccionado,
             afianzadora: afianzadoras.find(
               (option) => option.value === clienteEncontrado.afianzadora
@@ -154,9 +163,7 @@ function TramiteCliente() {
               (option) => option.value === clienteEncontrado.beneficiario
             ),
           }));
-
           const estatusPagoPorDefecto = clienteEncontrado.estatus_pago;
-          // Verificar si el valor de estatus_pago es "PAGADA"
           const estatusPagoSeleccionado =
             estatusPagoPorDefecto === "PAGADA"
               ? { value: "PAGADA", label: "PAGADA" }
@@ -166,18 +173,21 @@ function TramiteCliente() {
 
           setEstatusPago(estatusPagoSeleccionado);
 
-          // Obtener movimientos
           actualizarMovimientos(id);
         }
       } catch (error) {
         console.error("Error al obtener los datos:", error);
       }
     };
-    fetchData();
-    if (afianzadoras.length > 0) {
+
+    if (
+      movimientosTar.length > 0 &&
+      afianzadoras.length > 0 &&
+      beneficiario.length > 0
+    ) {
       fetchData();
     }
-  }, [afianzadoras, id, beneficiario]);
+  }, [movimientosTar, afianzadoras, beneficiario, id]);
 
   const actualizarMovimientos = async (id) => {
     try {
@@ -251,7 +261,6 @@ function TramiteCliente() {
       } else {
         toast.error("Error al guardar Observaciones.");
       }
-      console.log(result);
       setMovimiento("");
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
@@ -260,7 +269,6 @@ function TramiteCliente() {
   };
 
   const borrarMovimiento = async (id_movimiento) => {
-    console.log(movimientos);
     try {
       const result = await deleteMovimiento(id_movimiento); // Parsear la respuesta a JSON
 
@@ -272,8 +280,6 @@ function TramiteCliente() {
       } else {
         toast.error("Error al borrar las Observaciones."); // Mostrar mensaje de error si algo sale mal
       }
-
-      console.log(result); // Loguear el resultado para debugging
       setMovimiento(""); // Limpiar el estado relacionado si es necesario
     } catch (error) {
       console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
@@ -282,24 +288,12 @@ function TramiteCliente() {
   };
 
   // Verificar si el cliente ha sido encontrado antes de intentar acceder a sus propiedades
-  if (!clienteEncontrado) {
-    return (
-      <div className="flex items-center justify-center p-20">
-        <div className="flex flex-row gap-2">
-          <div className="w-4 h-4 rounded-full bg-primary animate-bounce"></div>
-          <div className="w-4 h-4 rounded-full bg-primary animate-bounce [animation-delay:-.3s]"></div>
-          <div className="w-4 h-4 rounded-full bg-primary animate-bounce [animation-delay:-.5s]"></div>
-        </div>
-      </div>
-    );
-  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const fechaFormateada = format(new Date(), "dd/MM/yyyy");
     const estatusPago =
       formData.fechaPago === null ? estatusPagoSeleccionado.value : "PAGADA";
-    console.log(formData.beneficiario);
     setFormData((prevState) => {
       const nuevaPrimaTotal =
         (Number(prevState.prima_inicial) || 0) +
@@ -316,10 +310,61 @@ function TramiteCliente() {
     setShowDialog(true);
   };
 
+  const movimientosOptions = movimientosTar.map((mov) => ({
+    value: mov.nombre,
+    label: mov.nombre,
+  }));
+
+  const movimientoEncontrado = movimientosTar.find(
+    (option) =>
+      option.nombre.toLowerCase().trim() ===
+      clienteEncontrado?.movimiento.toLowerCase().trim()
+  );
+  const idMovimientoSeleccionado = movimientoEncontrado
+    ? movimientoEncontrado.id
+    : null;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await obtenerTareas(idMovimientoSeleccionado);
+      setTareas(data);
+    };
+    fetchData();
+  }, [idMovimientoSeleccionado]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await obtenerTareasCompletas(id);
+      setSeleccionadas(data);
+    };
+    fetchData();
+  }, [id]);
+
+  const [seleccionadas, setSeleccionadas] = useState([]);
+
+  const toggleCheckbox = (id) => {
+    setSeleccionadas((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  if (!clienteEncontrado) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <lottie-player
+          autoplay
+          loop
+          mode="normal"
+          src="/loader.json"
+          style={{ width: "200px", height: "200px" }}
+        ></lottie-player>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center p-5">
       <div className="mx-auto max-w-5xl space-y-6">
-        <div className="rounded-lg bg-white p-6 shadow-sm">
+        <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
           <div className="flex justify-between">
             <div className="space-y-1">
               <div className=" flex items-center text-sm text-gray-500">
@@ -365,7 +410,7 @@ function TramiteCliente() {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="rounded-lg bg-white p-6 shadow-sm"
+          className="rounded-lg bg-white p-6 shadow-sm "
         >
           <div className="space-y-6">
             <div>
@@ -404,11 +449,10 @@ function TramiteCliente() {
                   Movimiento:
                 </label>
                 <Select
-                  options={movimientos}
-                  defaultValue={formData.movimientoSeleccionado}
+                  options={movimientosOptions}
                   value={formData.movimientoSeleccionado}
                   onChange={handleMovimientoChange}
-                  placeholder="Seleccionar estatus..."
+                  placeholder="Seleccionar movimiento..."
                   className="mt-1"
                   theme={(theme) => ({
                     ...theme,
@@ -709,10 +753,88 @@ function TramiteCliente() {
                 onClose={() => setShowDialog(false)}
                 id={id}
                 datosCliente={formData}
+                tareas={seleccionadas.length > 0 ? seleccionadas : ""}
+                idMovimiento={tareas.map((t) => t.id)}
               />
             )}
           </div>
         </form>
+        <div>
+          <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
+            <div className="space-y-4">
+              <div className="pb-3 border-b border-gray-100">
+                <p className="block text-xl font-medium text-teal-600">
+                  Lista de tareas
+                </p>
+              </div>
+              <div>
+                <span className="text-sm text-gray-500">
+                  {seleccionadas.length} de {tareas.length} completadas
+                </span>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                {tareas.map((tarea) => {
+                  const completada = seleccionadas.includes(tarea.id);
+
+                  return (
+                    <div
+                      key={tarea.id}
+                      className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                        completada ? "bg-gray-50" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => toggleCheckbox(tarea.id)}
+                        className="mt-0.5 flex-shrink-0 focus:outline-none"
+                        aria-label={
+                          completada
+                            ? "Marcar como incompleta"
+                            : "Marcar como completada"
+                        }
+                      >
+                        <div
+                          className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                            completada
+                              ? "border-teal-500 bg-teal-500"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {completada && (
+                            <svg
+                              className="w-3 h-3 text-white"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M5 12L10 17L19 8"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+
+                      <span
+                        className={`text-sm ${
+                          completada
+                            ? "line-through text-gray-400"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {tarea.nombre}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <p className="block text-xl font-medium text-teal-600">
             Observaciones
@@ -754,6 +876,7 @@ function TramiteCliente() {
                 </div>
               </div>
             ))}
+
             <div className="w-full flex justify-center items-center">
               {mostrarFormulario && (
                 <div className="w-full">
