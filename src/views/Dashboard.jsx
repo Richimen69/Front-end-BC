@@ -5,6 +5,8 @@ import PastelPendientes from "@/components/dashboard/PastelPendientes";
 import PastelCompromisos from "@/components/dashboard/PastelCompromisos";
 import { obtenerEstados, pendientes, movimietos } from "@/services/kpi";
 import { useEffect, useState } from "react";
+import { Settings2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CardDatos from "@/components/dashboard/CardDatos";
 import {
   IoMdCheckmarkCircleOutline,
@@ -18,6 +20,7 @@ import { TbCancel } from "react-icons/tb";
 import TableTramites from "@/components/dashboard/TableTramites";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [Estados, setEstados] = useState([]);
   const [pendientesBC, setPendientesBC] = useState("");
   const [tipoTabla, setTipoTabla] = useState("");
@@ -46,6 +49,9 @@ export default function Dashboard() {
     <div className="p-6 space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <button className="rounded-full p-2 hover:bg-slate-50" onClick={ () => navigate("/config")}>
+          <Settings2 color="#076163" />
+        </button>
       </div>
       <div className="flex flex-col items-center w-full space-y-5">
         <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">

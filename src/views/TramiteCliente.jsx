@@ -4,10 +4,12 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Toaster, toast } from "sonner";
-import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
+import { CiTrash } from "react-icons/ci";
+import { MdEdit, MdCancel } from "react-icons/md";
+import { FaSave } from "react-icons/fa";
 import {
   estatus,
   estatus_pagos,
@@ -26,11 +28,14 @@ import {
   buscarMovimiento,
   createMovimiento,
   deleteMovimiento,
+  updateMovimiento,
 } from "../services/movimientos";
 import { fetchAfianzadoras, fetchBeficiarios } from "@/services/datosTramites";
 import { PendientesBC } from "@/components/forms/bitacora/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
+  const [isEditing, setIsEditing] = useState(false);
+  const [movimientoEdit, setMovimientoEdit] = useState("");
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
   const [clientes, setClientes] = useState([]);
@@ -39,12 +44,19 @@ function TramiteCliente() {
   const [beneficiario, setBeneficiario] = useState([]);
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
+  const [estadoTareas, setEstadoTareas] = useState(null);
   const [movimiento, setMovimiento] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [movimientosTar, setMovimientoTar] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
+  const [fechaEdit, setFechaEdit] = useState("");
   const [tareas, setTareas] = useState([]);
+  const opcionesTareas = [
+    { value: 1, label: "Bloqueado" },
+    { value: 0, label: "Desbloqueado" },
+  ];
   const [tareasCompletas, setTareasCompletas] = useState([]);
+  const parseDecimal = (valor) => Number((valor || "").replace(",", "."));
   const { id } = location.state || {};
   const [formData, setFormData] = useState({
     id: location.state.id,
@@ -72,6 +84,22 @@ function TramiteCliente() {
   if (!id) {
     return <div>Error: No se encontró el ID del cliente.</div>;
   }
+  useEffect(() => {
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        const formattedUser =
+          user.usuario_usu.charAt(0).toUpperCase() +
+          user.usuario_usu.slice(1).toLowerCase();
+        setUsuario(formattedUser);
+      } catch (error) {
+        console.error(
+          "Error al analizar el usuario desde localStorage:",
+          error
+        );
+      }
+    }
+  }, [storedUser]);
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -226,6 +254,9 @@ function TramiteCliente() {
   const handleEstatusPagoChange = (selectedOption) => {
     setEstatusPago(selectedOption);
   };
+  const handleTareas = (selectedOption) => {
+    setEstadoTareas(selectedOption);
+  };
 
   // Buscar el cliente por el id
   const clienteEncontrado = clientes.find(
@@ -285,6 +316,28 @@ function TramiteCliente() {
       console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
       toast.error("Hubo un problema al borrar las Observaciones."); // Mostrar mensaje de error genérico
     }
+  };
+  const handleSave = async () => {
+    try {
+      const data = {
+        movimiento: movimientoEdit,
+      };
+      const result = await updateMovimiento(data); // Parsear la respuesta a JSON
+
+      if (result.success) {
+        toast.success("Observacion actualizada exitosamente.");
+        setMovimientos((prevMovimientos) =>
+          prevMovimientos.filter((mov) => mov.id_movimiento !== id_movimiento)
+        );
+      } else {
+        toast.error("Error al actualizar"); // Mostrar mensaje de error si algo sale mal
+      }
+      setMovimiento(""); // Limpiar el estado relacionado si es necesario
+    } catch (error) {
+      console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
+      toast.error("Hubo un problema al borrar las Observaciones."); // Mostrar mensaje de error genérico
+    }
+    setIsEditing(false);
   };
 
   // Verificar si el cliente ha sido encontrado antes de intentar acceder a sus propiedades
@@ -774,60 +827,134 @@ function TramiteCliente() {
               </div>
 
               <div className="space-y-3 pt-2">
+                {clienteEncontrado.movimiento === "EXPEDICIÓN" ? (
+                  <div>
+                    <Select
+                      options={opcionesTareas}
+                      value={estadoTareas}
+                      onChange={handleTareas}
+                      placeholder="Seleccionar estatus..."
+                      theme={(theme) => ({
+                        ...theme,
+                        colors: {
+                          ...theme.colors,
+                          primary25: "#DDBE86",
+                          primary: "#076163",
+                        },
+                      })}
+                    />
+                  </div>
+                ) : null}
                 {tareas.map((tarea) => {
                   const completada = seleccionadas.includes(tarea.id);
 
                   return (
-                    <div
-                      key={tarea.id}
-                      className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
-                        completada ? "bg-gray-50" : ""
-                      }`}
-                    >
-                      <button
-                        onClick={() => toggleCheckbox(tarea.id)}
-                        className="mt-0.5 flex-shrink-0 focus:outline-none"
-                        aria-label={
-                          completada
-                            ? "Marcar como incompleta"
-                            : "Marcar como completada"
-                        }
-                      >
+                    <div>
+                      {tarea.movimiento_id === 21 ? (
                         <div
-                          className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                            completada
-                              ? "border-teal-500 bg-teal-500"
-                              : "border-gray-300"
+                          key={tarea.tarea_id}
+                          className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                            completada ? "bg-gray-50" : ""
                           }`}
                         >
-                          {completada && (
-                            <svg
-                              className="w-3 h-3 text-white"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
+                          <button
+                            onClick={() => toggleCheckbox(tarea.id)}
+                            className="mt-0.5 flex-shrink-0 focus:outline-none"
+                            aria-label={
+                              completada
+                                ? "Marcar como incompleta"
+                                : "Marcar como completada"
+                            }
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                                completada
+                                  ? "border-teal-500 bg-teal-500"
+                                  : "border-gray-300"
+                              }`}
                             >
-                              <path
-                                d="M5 12L10 17L19 8"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          )}
-                        </div>
-                      </button>
+                              {completada && (
+                                <svg
+                                  className="w-3 h-3 text-white"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M5 12L10 17L19 8"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
 
-                      <span
-                        className={`text-sm ${
-                          completada
-                            ? "line-through text-gray-400"
-                            : "text-gray-700"
-                        }`}
-                      >
-                        {tarea.nombre}
-                      </span>
+                          <span
+                            className={`text-sm ${
+                              completada
+                                ? "line-through text-gray-400"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {tarea.nombre}
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={tarea.tarea_id}
+                          className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                            completada ? "bg-gray-50" : ""
+                          }`}
+                        >
+                          <button
+                            onClick={() => toggleCheckbox(tarea.id)}
+                            className="mt-0.5 flex-shrink-0 focus:outline-none"
+                            aria-label={
+                              completada
+                                ? "Marcar como incompleta"
+                                : "Marcar como completada"
+                            }
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                                completada
+                                  ? "border-teal-500 bg-teal-500"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {completada && (
+                                <svg
+                                  className="w-3 h-3 text-white"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <path
+                                    d="M5 12L10 17L19 8"
+                                    stroke="currentColor"
+                                    strokeWidth="3"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
+
+                          <span
+                            className={`text-sm ${
+                              completada
+                                ? "line-through text-gray-400"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {tarea.nombre}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -843,35 +970,86 @@ function TramiteCliente() {
           <div className="flex flex-wrap justify-center gap-4 mt-5">
             {observaciones.map((dato, index) => (
               <div
-                key={index}
-                className=" z-50 flex w-full rounded-xl border border-gray-300 "
+                key={dato.id}
+                className="z-50 flex w-full rounded-xl border border-gray-300 hover:border-gray-400 hover:shadow-md transition-all duration-200"
               >
-                <div className="flex w-full items-center py-1 ">
-                  <div className="mx-2.5 flex-grow px-4">
-                    <p className=" text-xl font-bold text-[peru] leading-8 mr-3 text-ellipsis ">
-                      {dato.fecha}
-                    </p>
-                    <p className="leading-5 break-words text-primary">
-                      {dato.movimiento}
-                    </p>
-                    <p className="mt-3 text-sm text-black/80 font-bold">
-                      {dato.nombre}
-                    </p>
+                <div className="p-4 flex items-start justify-between w-full">
+                  <div className="space-y-2 flex-1">
+                    {isEditing ? (
+                      <>
+                        <textarea
+                          type="text"
+                          placeholder={dato.movimiento}
+                          value={movimientoEdit}
+                          onChange={(e) => setMovimientoEdit(e.target.value)}
+                          className="w-full border rounded px-2 py-1 text-gray-700 text-base"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-amber-600 font-medium text-lg">
+                          {dato.fecha}
+                        </p>
+                        <p className="text-gray-700 text-base">
+                          {dato.movimiento}
+                        </p>
+                        <p className="mt-3 text-sm text-black/80 font-bold">
+                          {dato.nombre}
+                        </p>
+                      </>
+                    )}
                   </div>
-                  <div className=" px-4 py-2 rounded">
-                    <button
-                      onClick={() => borrarMovimiento(dato.id_movimiento)}
-                    >
-                      <IconContext.Provider
-                        value={{
-                          color: "#E82561",
-                          className: "global-class-name",
-                          size: "1.5em",
-                        }}
-                      >
-                        <FaTrash />
-                      </IconContext.Provider>
-                    </button>
+                  <div className="flex space-x-2 ml-4">
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSave}
+                          className=" h-8 w-8 flex items-center justify-center rounded-md border border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                        >
+                          <IconContext.Provider
+                            value={{ color: "#15803D", size: "1.5em" }}
+                          >
+                            <FaSave />
+                          </IconContext.Provider>
+                        </button>
+                        <button
+                          onClick={() => setIsEditing(false)}
+                          className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                          aria-label="Eliminar observación"
+                        >
+                          <IconContext.Provider
+                            value={{ color: "#E82561", size: "1.5em" }}
+                          >
+                            <MdCancel />
+                          </IconContext.Provider>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setIsEditing(true)}
+                          className="h-8 w-8 flex items-center justify-center rounded-md border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                          aria-label="Editar observación"
+                        >
+                          <IconContext.Provider
+                            value={{ color: "#2563EB", size: "1.5em" }}
+                          >
+                            <MdEdit />
+                          </IconContext.Provider>
+                        </button>
+                        <button
+                          onClick={() => borrarMovimiento(dato.id_movimiento)}
+                          className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                          aria-label="Eliminar observación"
+                        >
+                          <IconContext.Provider
+                            value={{ color: "#E82561", size: "1.5em" }}
+                          >
+                            <CiTrash />
+                          </IconContext.Provider>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

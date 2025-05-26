@@ -19,6 +19,13 @@ export const obtenerTareasCompletas = async (id) => {
   });
 };
 
+export const obtenerTareasTramite = async (id) => {
+  return await fetchApi(`tareas.php?id_tramite=${id}&detalles=1`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
 export const guardarTareaCompletada = async (data) => {
   return await fetchApi(`tareas.php`, {
     method: "POST",

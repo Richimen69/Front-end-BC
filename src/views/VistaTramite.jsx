@@ -9,16 +9,26 @@ import { TbEdit } from "react-icons/tb";
 import { Toaster, toast } from "sonner";
 import CancelarComp from "@/components/forms/bitacora/CancelarComp";
 import { estatusTerminados } from "@/utils/Constans";
+import { obtenerTareasTramite } from "@/services/tareas";
 function VistaTramite() {
   const location = useLocation();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
+  const [tareas, setTareas] = useState([]);
   const [dias, setDias] = useState("");
   const [showDialog, setShowDialog] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const { id } = location.state || {}; // Obtener el id desde el estado
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await obtenerTareasTramite(id);
+      setTareas(data);
+      console.log(data);
+    };
+    fetchData();
+  }, [id]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -392,6 +402,45 @@ function VistaTramite() {
           </div>
         </div>
       </div>
+      {tareas.length > 0 ? (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mt-10 w-full">
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-primary">
+              Tareas del Trámite
+            </h2>
+          </div>
+          <div>
+            {tareas.map((dato, index) => (
+              <div key={index} className="divide-y divide-gray-200 ">
+                <div className="">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between p-6">
+                    <div className="flex-grow">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        {dato.nombre}
+                      </h3>
+                      <div className="mt-1 text-sm text-gray-600">
+                        {dato.completado === 1
+                          ? `Fecha: ${dato.fecha_completado}`
+                          : null}
+                      </div>
+                    </div>
+                    <div className="mt-2 md:mt-0 md:ml-4">
+                      <span
+                        className={`text-white text-base font-medium px-3 py-1 rounded ${
+                          dato.completado === 1 ? "bg-green-600" : "bg-gray-400"
+                        }`}
+                      >
+                        {dato.completado === 1 ? "COMPLETADO" : "PENDIENTE"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-200 w-full"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
       {showDialog && (
         <CancelarComp
           onClose={() => setShowDialog(false)}

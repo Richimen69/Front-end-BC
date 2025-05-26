@@ -70,7 +70,7 @@ function header() {
             <li>
               <button
                 className="group flex items-center justify-start w-11 h-11 bg-red-600 rounded-full cursor-pointer relative overflow-hidden transition-all duration-200 shadow-lg hover:w-32 hover:rounded-3xl active:translate-x-1 active:translate-y-1"
-                onClick={() => alert("Cerrar sesión")} // reemplaza con tu lógica
+                onClick={() => handleLogout()} // reemplaza con tu lógica
               >
                 <div className="flex items-center justify-center w-full transition-all duration-300 group-hover:justify-start group-hover:px-3">
                   <svg className="w-4 h-4" viewBox="0 0 512 512" fill="white">
@@ -105,7 +105,7 @@ function header() {
             <li>
               <button
                 className="bg-red-600 text-white w-full py-2 rounded"
-                onClick={() => alert("Cerrar sesión")}
+                onClick={() => handleLogout()}
               >
                 Logout
               </button>

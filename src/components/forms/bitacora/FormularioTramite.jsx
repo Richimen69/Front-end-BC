@@ -63,7 +63,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
         const afianzadorasData = await fetchAfianzadoras();
         setAfianzadoras(
           afianzadorasData.map((afianzadora) => ({
-            value: afianzadora.nombre_afi,
+            value: afianzadora.id_afi,
             label: afianzadora.nombre_afi,
           }))
         );
@@ -101,10 +101,11 @@ const FormularioTramite = ({ isVisible, onClose }) => {
   const nuevoFolio = generarFolio(folios, usuario);
 
   const handleSubmit = async (e) => {
-    setLoading(true);
     e.preventDefault();
     setBtnSave(true);
-    // Verificar si los campos requeridos están completos
+    setLoading(true);
+
+    // Verifica campos requeridos
     if (
       !clienteSeleccionado ||
       !afianzadoraSeleccionada ||
@@ -114,36 +115,55 @@ const FormularioTramite = ({ isVisible, onClose }) => {
     ) {
       toast.error("Rellene los campos");
       setBtnSave(false);
+      setLoading(false);
       return;
     }
+    let pago = "";
+
+    if (
+      movimientoSeleccionado.value === "SEGURO RC" ||
+      movimientoSeleccionado.value === "AUMENTO" ||
+      movimientoSeleccionado.value === "PRÓRROGA" ||
+      movimientoSeleccionado.value === "MOVIMIENTO ESPECIAL P-A" ||
+      movimientoSeleccionado.value === "SEGURO MAQUINARIA"
+    ) {
+      pago = "NO APLICA";
+    }
+
     const data = {
       folio: nuevoFolio,
       fecha: fecha,
       agente: agenteSeleccionado.value,
       beneficiario: beneficiarioSeleccionado.value,
       movimiento: movimientoSeleccionado.value,
-      afianzadora: afianzadoraSeleccionada.value,
+      afianzadora: afianzadoraSeleccionada.label,
       estatus: "EN REVISIÓN DE DOCUMENTOS",
       observaciones: "",
       id_cliente: clienteSeleccionado.value,
       prima_total: 0,
+      estatus_pago: pago,
       tipo_proceso: "BC",
+      afianzadora_id: afianzadoraSeleccionada.value
+
     };
 
     try {
       const result = await createTramite(data);
+
       if (result.success) {
         toast.success("Trámite guardado exitosamente.");
+        navigate(0); // Recarga solo si fue exitoso
       } else {
         toast.error("Error al guardar el trámite.");
       }
+
       console.log(result);
     } catch (error) {
       console.error("Error al enviar la solicitud:", error);
       toast.error("Hubo un problema al guardar el trámite.");
     } finally {
       setLoading(false);
-      navigate(0);
+      setBtnSave(false);
     }
   };
 

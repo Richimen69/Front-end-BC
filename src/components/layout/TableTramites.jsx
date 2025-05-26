@@ -32,6 +32,8 @@ export default function TableTramites() {
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [estatusDisponibles, setEstatusDisponibles] = useState([]);
+  const [movimientosDisponibles, setMovimientosDisponibles] = useState([]);
 
   // Consulta los clientes en el Backend
   useEffect(() => {
@@ -46,21 +48,39 @@ export default function TableTramites() {
       try {
         const data = await fetchTramites();
         setClientes(data);
+
+        // Extraer estatus únicos desde los datos recibidos
+        const estatusUnicos = [...new Set(data.map((item) => item.estatus))];
+
+        // Filtrar los estatus disponibles con base en los presentes en los datos
+        const estatusFiltrados = estatus.filter((op) =>
+          estatusUnicos.includes(op.value)
+        );
+        setEstatusDisponibles(estatusFiltrados);
+        // Extraer movimientos únicos desde los datos recibidos
+        const movimientosUnicos = [
+          ...new Set(data.map((item) => item.movimiento)),
+        ];
+
+        // Filtrar los movimientos disponibles con base en los presentes en los datos
+        const movimientosFiltrados = movimientos.filter((op) =>
+          movimientosUnicos.includes(op.value)
+        );
+
+        setMovimientosDisponibles(movimientosFiltrados);
       } catch (error) {
         console.error("Error al obtener los clientes:", error);
       }
     };
+
     fetchClientes();
 
-    // Configurar el polling para actualizar cada 5 segundos
     const interval = setInterval(() => {
       fetchClientes();
-    }, 5000); // 5000 ms = 5 segundos
+    }, 5000);
 
-    // Limpiar el intervalo cuando el componente se desmonte
     return () => clearInterval(interval);
-  }, []); // Solo se ejecuta una vez al montar el componente
-
+  }, []);
   // Filtramos la búsqueda del input
   const filteredClientes = clientes
     .filter(
@@ -122,7 +142,7 @@ export default function TableTramites() {
               className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
             >
               <option value="">Todos los movimientos</option>
-              {movimientos.map((movimiento) => (
+              {movimientosDisponibles.map((movimiento) => (
                 <option key={movimiento.value} value={movimiento.value}>
                   {movimiento.label}
                 </option>
@@ -140,7 +160,7 @@ export default function TableTramites() {
                 className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
               >
                 <option value="">Todos los estatus</option>
-                {estatus.map((estatusOption) => (
+                {estatusDisponibles.map((estatusOption) => (
                   <option key={estatusOption.value} value={estatusOption.value}>
                     {estatusOption.label}
                   </option>
@@ -235,7 +255,10 @@ export default function TableTramites() {
 
                     {/* Aquí aplicas la clase dinámica */}
                     <td className={`px-4 py-3`}>
-                      <p className={`p-1 ${colorFecha}`}> {cliente.fecha}</p>
+                      <p className={`p-1 ${colorFecha} text-center`}>
+                        {" "}
+                        {cliente.fecha}
+                      </p>
                     </td>
 
                     <td className="px-4 py-3 text-gray-600">

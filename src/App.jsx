@@ -5,6 +5,7 @@ import Dashboard from "./views/Dashboard";
 import ProtectedRoute from "./components/utils/ProtectedRoute";
 import NotFound from "./views/NotFound";
 import Tramites from "./views/Tramites";
+import Configuraciones from "./views/Configuraciones";
 import TramiteCliente from "./views/TramiteCliente";
 import VistaTramite from "./views/VistaTramite";
 import Rpp from "./views/Rpp";
@@ -29,6 +30,15 @@ function App() {
             <ProtectedRoute>
               <Header />
               <Rpp />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/config"
+          element={
+            <ProtectedRoute>
+              <Header />
+              <Configuraciones />
             </ProtectedRoute>
           }
         />

@@ -76,23 +76,28 @@ export function PendientesBC({
   const guardarTarea = async () => {
     const fecha = obtenerFechaActual();
 
-    for (let i = 0; i < idMovimiento.length; i++) {
-      const tareaId = idMovimiento[i];
+    const promesas = idMovimiento.map((tareaId) => {
       const completado = tareas.includes(tareaId) ? 1 : 0;
 
       const datos = {
         tramite_id: id,
         tarea_id: tareaId,
-        completado: completado,
+        completado,
         fecha_completado: fecha,
       };
 
-      try {
-        await guardarTareaCompletada(datos);
-      } catch (error) {
-        toast.error("Hubo un problema al guardar el trámite.");
+      return guardarTareaCompletada(datos);
+    });
+
+    const resultados = await Promise.allSettled(promesas);
+
+    resultados.forEach((resultado, index) => {
+      if (resultado.status === "rejected") {
+        toast.error(
+          `Hubo un problema al guardar la tarea ID ${idMovimiento[index]}`
+        );
       }
-    }
+    });
   };
 
   const handleSubmit = async () => {
