@@ -1,237 +1,457 @@
-import { Bar, BarChart, ResponsiveContainer, Tooltip, Cell } from "recharts";
+import React, { PureComponent } from "react";
+
+import { Progress } from "@/components/ui/progress";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { obtenerTotalAfianzadoras, primaTotal } from "@/services/kpi";
+import {
+  obtenerTotalAfianzadoras,
+  primaTotal,
+  metaAnual,
+  metaPorFiltro,
+} from "@/services/kpi";
+import { DollarSign, TrendingUp } from "lucide-react";
+import { addDays, format } from "date-fns";
+import { CalendarIcon, Trash2 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 export default function Barra() {
-  const [afianzadoras, setAfianzadoras] = useState([]);
-  const [primas, setPrimas] = useState([]);
   const [primaTotales, setPrimaTotal] = useState("");
-  const [mesSeleccionado, setMesSeleccionado] = useState(""); // YYYY-MM
-  const [totalGeneral, setTotalGeneral] = useState(0);
-  const handleMesChange = (e) => {
-    const fecha = e.target.value; // "2025-02" o ""
+  const [afianzadoraMeta, setAfianzadoraMeta] = useState([]);
+  const [afianzadoraFiltro, setAfianzadoraFiltro] = useState([]);
+  const [date, setDate] = useState();
+  const [prima, setPrima] = useState();
 
-    if (!fecha) {
-      setMesSeleccionado(""); // Si se borra el valor, limpiar el estado
-      return;
-    }
+  useEffect(() => {
+    const obtener = async () => {
+      if (date?.from && date?.to) {
+        const fechaInicio = format(date.from, "yyyy/MM/dd");
+        const fechaFin = format(date.to, "yyyy/MM/dd");
+        const response = await metaPorFiltro(fechaInicio, fechaFin);
+        setAfianzadoraFiltro(response);
+        const total = response.reduce(
+          (sum, item) => sum + parseFloat(item.venta_anual || 0),
+          0
+        );
+        setPrima(total);
+      } else {
+        const response = await metaAnual();
+        setAfianzadoraMeta(response);
+        const total = response.reduce(
+          (sum, item) => sum + parseFloat(item.venta_anual || 0),
+          0
+        );
+        setPrima(total);
+      }
+    };
 
-    const [anio, mes] = fecha.split("-");
-    const mesFormateado = `${mes}-${anio}`; // Convertir a "MM-YYYY"
-    setMesSeleccionado(mesFormateado); // Actualizar el mes seleccionado
+    obtener();
+  }, [date]);
+
+  const TRADUCCION_MESES = {
+    January: "Enero",
+    February: "Febrero",
+    March: "Marzo",
+    April: "Abril",
+    May: "Mayo",
+    June: "Junio",
+    July: "Julio",
+    August: "Agosto",
+    September: "Septiembre",
+    October: "Octubre",
+    November: "Noviembre",
+    December: "Diciembre",
   };
 
+  const handleSelect = (range) => {
+    if (range?.from && range?.to) {
+      setDate(range); // Rango completo
+    } else if (range?.from) {
+      setDate({ from: range.from, to: undefined }); // Solo fecha de inicio, reiniciar fin
+    } else {
+      setDate(undefined); // Sin selección
+    }
+  };
+
+  function transformarDatos(dataDelBackend) {
+    // Obtener todos los nombres únicos de afianzadoras
+    const afianzadoras = [
+      ...new Set(dataDelBackend.map((item) => item.nombre_afi)),
+    ];
+
+    const resultado = [];
+
+    for (const mesIngles in TRADUCCION_MESES) {
+      const mesEsp = TRADUCCION_MESES[mesIngles];
+      const fila = { name: mesEsp };
+
+      afianzadoras.forEach((afi) => {
+        // Buscar si hay un dato para este mes y afianzadora
+        const registro = dataDelBackend.find(
+          (item) => item.mes === mesIngles && item.nombre_afi === afi
+        );
+
+        fila[afi] = registro ? parseFloat(registro.venta_mensual) : 0;
+        fila["meta_" + afi] = registro ? parseFloat(registro.meta_mensual) : 0; // opcional
+      });
+
+      resultado.push(fila);
+    }
+
+    return resultado;
+  }
+
   useEffect(() => {
-    const obtenerAfianzadoras = async () => {
-      const response = await obtenerTotalAfianzadoras(mesSeleccionado);
-      setAfianzadoras(response);
-    };
     const obtenerPrima = async () => {
-      const response = await primaTotal();
-      setPrimaTotal(response);
+      const response = await primaTotal(); // llamada al backend
+      const transformado = transformarDatos(response);
+      setPrimaTotal(transformado);
     };
-    obtenerAfianzadoras();
     obtenerPrima();
-  }, [mesSeleccionado]);
+  }, []);
 
-  useEffect(() => {
-    // Filtra los registros sin fecha
-    const sinFecha = afianzadoras.filter((a) => !a.fecha);
-
-    // Agrupa y suma por afianzadora
-    const agrupadas = sinFecha.reduce((acc, curr) => {
-      const nombre = curr.afianzadora;
-      const total = parseFloat(curr.total_prima);
-
-      if (!acc[nombre]) {
-        acc[nombre] = total;
-      } else {
-        acc[nombre] += total;
-      }
-
-      return acc;
-    }, {});
-
-    // Suma total de primas
-    const totalPrima = Object.values(agrupadas).reduce(
-      (acc, val) => acc + val,
-      0
-    );
-
-    // Construye el arreglo de objetos con estructura para el gráfico
-    const nuevasPrimas = Object.entries(agrupadas).map(
-      ([afianzadora, amount]) => {
-        let meta;
-        const porcentaje = ((amount / totalPrima) * 100).toFixed(2);
-        if (mesSeleccionado) {
-          meta = 500000;
-        } else {
-          meta = 6000000;
-        }
-
-        return {
-          name: afianzadora,
-          value: porcentaje,
-          color: "hsl(var(--info))",
-          amount,
-          porcentajeMeta: ((amount / meta) * 100).toFixed(1),
-          restante: meta - amount,
-          meta,
-        };
-      }
-    );
-    const totalGeneral = afianzadoras.reduce(
-      (acc, a) => acc + parseFloat(a.total_prima),
-      0
-    );
-    setTotalGeneral(totalGeneral);
-    setPrimas(nuevasPrimas);
-    console.log(nuevasPrimas)
-  }, [afianzadoras]);
+  const nombresAfianzadoras =
+    primaTotales.length > 0
+      ? [
+          ...new Set(
+            primaTotales.flatMap((item) =>
+              Object.keys(item).filter(
+                (k) => k !== "name" && !k.startsWith("meta_")
+              )
+            )
+          ),
+        ]
+      : [];
 
   return (
-    <Card className="w-full border-0 shadow-lg overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50 pb-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <CardTitle className="text-xl font-semibold text-gray-800 md:text-2xl">
-              Prima total por afianzadora
-            </CardTitle>
-          </div>
-          <div className="mt-4 flex items-center md:mt-0 space-x-4">
-            <input
-              type="month"
-              value={mesSeleccionado.split("-").reverse().join("-")}
-              onChange={handleMesChange}
-              className="border text-sm rounded-md p-2 text-gray-600"
-            />
-            <span className="text-sm font-medium text-gray-500">
-              Actualizado: {new Date().toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
-          <div>
-            <p className="text-sm font-medium text-blue-700">Prima Total</p>
-            <div className="text-4xl font-bold text-gray-900">
-              ${totalGeneral.toLocaleString("en-US")}
+    <div className="w-full border-0">
+      <CardContent className="p-1">
+        <div className="flex flex-col gap-7">
+          <div className="bg-white rounded-lg p-5 flex justify-between shadow-lg">
+            <div className="flex flex-col gap-y-6">
+              <p className="flex items-center gap-2 text-black text-3xl">
+                <DollarSign strokeWidth={2} size={28} />
+                {date?.from && date?.to
+                  ? `Prima Total del ${format(
+                      date.from,
+                      "dd/MM/yyyy"
+                    )} al ${format(date.to, "dd/MM/yyyy")}`
+                  : "Prima Total"}
+              </p>
+              <p className="text-6xl text-black font-bold">
+                $ {Number(prima).toLocaleString("en-US")}
+              </p>
+            </div>
+            <div>
+              <div className="flex gap-3 items-center">
+                <div className="mt-1">
+                  {date?.from && (
+                    <button
+                      className="text-red-500"
+                      onClick={() => setDate(undefined)}
+                    >
+                      <Trash2 />
+                    </button>
+                  )}
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      className={cn(
+                        "w-[300px] justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, "yyyy/MM/dd")} -{" "}
+                            {format(date.to, "yyyy/MM/dd")}
+                          </>
+                        ) : (
+                          format(date.from, "yyyy/MM/dd")
+                        )
+                      ) : (
+                        <span>Selecciona un rango</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={handleSelect}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </div>
-
-          <div className="w-full md:w-1/6 h-40 mt-4 md:mt-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={primas}>
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {primas.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.color}
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                    />
-                  ))}
-                </Bar>
-                <Tooltip
-                  formatter={(value) => `${value}%`}
-                  contentStyle={{
-                    background: "rgba(255, 255, 255, 0.95)",
-                    borderRadius: "8px",
-                    border: "none",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                    padding: "8px 12px",
-                  }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          {primas.map((item, index) => {
-            return (
-              <div
-                key={`${item.name}-${index}`}
-                className="p-4 rounded-lg border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md"
-              >
-                <div className="flex flex-col md:flex-row justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span className="font-medium text-gray-800">
-                      {item.name}
-                    </span>
+          <div>
+            <div className="grid grid-cols-3 gap-7">
+              <div className="w-full col-span-2">
+                <div className="bg-white p-5 rounded-lg shadow-lg">
+                  <div>
+                    <p className="flex items-center gap-2 text-3xl">
+                      <TrendingUp strokeWidth={2} size={28} /> Distribución por
+                      Afianzadora
+                    </p>
                   </div>
-                  <div className="flex flex-col items-start md:items-end mt-2 md:mt-0">
-                    <div className="flex items-center">
-                      <span className="text-lg font-bold text-gray-900">
-                        ${item.amount.toLocaleString("en-US")}
-                      </span>
-                      {item.amount > 0 && (
-                        <div className="ml-2 flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          {item.porcentajeMeta}%
-                        </div>
-                      )}
-                    </div>
-                    {item.amount < item.meta && (
-                      <span className="text-xs text-red-500">
-                        Faltan: ${item.restante.toLocaleString("en-US")}
-                      </span>
-                    )}
-                    {item.amount >= item.meta && (
-                      <span className="text-xs text-emerald-600 font-semibold flex items-center">
-                        <svg
-                          className="w-3 h-3 mr-1"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clipRule="evenodd"
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <LineChart
+                        data={primaTotales}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          className="stroke-muted"
+                        />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 12 }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 12 }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip />
+                        {nombresAfianzadoras.map((nombre, i) => (
+                          <Line
+                            key={nombre}
+                            type="monotone"
+                            dataKey={nombre}
+                            stroke={
+                              [
+                                "#8884d8",
+                                "#82ca9d",
+                                "#ffc658",
+                                "#ff7300",
+                                "#076163",
+                                "#9B3A4D",
+                              ][i % nombresAfianzadoras.length]
+                            }
+                            strokeWidth={6}
+                            dot={{
+                              fill: [
+                                "#8884d8",
+                                "#82ca9d",
+                                "#ffc658",
+                                "#ff7300",
+                                "#076163",
+                                "#9B3A4D",
+                              ][i % nombresAfianzadoras.length],
+                              strokeWidth: 5,
+                              r: 4,
+                            }}
+                            activeDot={{ r: 6, strokeWidth: 2 }}
                           />
-                        </svg>
-                        ¡Meta alcanzada!
-                      </span>
-                    )}
-                  </div>
-                </div>
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
 
-                {/* Barra de progreso */}
-                <div className="mt-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-xs text-gray-500">Avance</span>
-                    <span className="text-xs font-medium text-gray-700">
-                      {item.porcentajeMeta}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                    <div
-                      className={`h-2.5 rounded-full transition-all duration-500 ${
-                        item.amount >= item.meta
-                          ? "bg-emerald-500"
-                          : item.porcentajeMeta > 50
-                          ? "bg-blue-500"
-                          : item.porcentajeMeta > 10
-                          ? "bg-blue-400"
-                          : "bg-blue-300"
-                      }`}
-                      style={{
-                        width: `${Math.min(
-                          (item.amount / item.meta) * 100,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
+                    {/* Leyenda */}
+                    <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                      {nombresAfianzadoras.map((nombre, i) => (
+                        <div
+                          key={nombre}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{
+                              backgroundColor: [
+                                "#8884d8",
+                                "#82ca9d",
+                                "#ffc658",
+                                "#ff7300",
+                                "#076163",
+                                "#9B3A4D",
+                              ][i % nombresAfianzadoras.length],
+                            }}
+                          />
+                          <span className="font-medium">{nombre}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Estadísticas */}
+                    <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+                      {nombresAfianzadoras.map((nombre, i) => {
+                        const values = primaTotales.map((d) => d[nombre] || 0);
+                        const max = Math.max(...values);
+                        return (
+                          <div key={nombre} className="rounded-lg border p-3">
+                            <div className="flex items-center gap-2 mb-2"></div>
+                            <div className="space-y-1">
+                              <div className="flex gap-2">
+                                <div
+                                  className="h-2 w-2 rounded-full"
+                                  style={{
+                                    backgroundColor: [
+                                      "#8884d8",
+                                      "#82ca9d",
+                                      "#ffc658",
+                                      "#ff7300",
+                                      "#076163",
+                                      "#9B3A4D",
+                                    ][i % nombresAfianzadoras.length],
+                                  }}
+                                />
+                                <div className="text-xs text-muted-foreground">
+                                  Máximo
+                                </div>
+                              </div>
+
+                              <div className="text-sm font-semibold">
+                                ${max.toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
                 </div>
               </div>
-            );
-          })}
+              <div className="w-full col-span-1 rounded-lg bg-white p-5 shadow-lg">
+                <p className="text-lg font-semibold mb-4">
+                  Resumen por Afianzadora
+                </p>
+                <div className="space-y-4">
+                  {date ? (
+                    <div>
+                      {afianzadoraFiltro.map((data, index) => {
+                        const venta = Number(data.venta_anual);
+                        const meta = Number(data.meta_anual) / 12;
+                        const porcentaje = meta > 0 ? (venta / meta) * 100 : 0;
+                        const ventaFaltante = meta - venta;
+
+                        // Color de barra según porcentaje
+                        const fillColor =
+                          porcentaje >= 80
+                            ? "bg-green-500"
+                            : porcentaje >= 50
+                            ? "bg-yellow-400"
+                            : "bg-red-500";
+
+                        return (
+                          <div key={data.id_afi} className="space-y-2 mt-3">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-sm">
+                                {data.nombre_afi}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                #{index + 1}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-lg font-bold">
+                                ${venta.toLocaleString("en-US")}
+                              </span>
+                              <span className="text-sm font-medium text-blue-600">
+                                {porcentaje.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-2 ${fillColor} transition-all duration-300`}
+                                style={{ width: `${porcentaje}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-red-500">
+                              Faltan: $
+                              {ventaFaltante > 0
+                                ? ventaFaltante.toLocaleString("en-US")
+                                : "0"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div>
+                      {afianzadoraMeta.map((data, index) => {
+                        const venta = Number(data.venta_anual);
+                        const meta = Number(data.meta_anual);
+                        const porcentaje = meta > 0 ? (venta / meta) * 100 : 0;
+                        const ventaFaltante = meta - venta;
+
+                        // Color de barra según porcentaje
+                        const fillColor =
+                          porcentaje >= 80
+                            ? "bg-green-500"
+                            : porcentaje >= 50
+                            ? "bg-yellow-500"
+                            : "bg-red-500";
+
+                        return (
+                          <div key={data.id_afi} className="space-y-2 mt-3">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium text-sm">
+                                {data.nombre_afi}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                #{index + 1}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-lg font-bold">
+                                ${venta.toLocaleString("en-US")}
+                              </span>
+                              <span className="text-sm font-medium text-blue-600">
+                                {porcentaje.toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-2 ${fillColor} transition-all duration-300`}
+                                style={{ width: `${porcentaje}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-red-500">
+                              Faltan: $
+                              {ventaFaltante > 0
+                                ? ventaFaltante.toLocaleString("en-US")
+                                : "0"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 }

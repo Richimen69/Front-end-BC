@@ -400,6 +400,11 @@ function TramiteCliente() {
     );
   };
 
+  function parseNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/,/g, ""));
+  }
+
   if (!clienteEncontrado) {
     return (
       <div className="flex items-center justify-center p-20">
@@ -731,10 +736,10 @@ function TramiteCliente() {
                     </p>
                     <InputPrima
                       value={formData.prima_inicial}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setFormData((prevState) => ({
                           ...prevState,
-                          prima_inicial: e.target.value,
+                          prima_inicial: value, // No convertir a 0, mantener el valor original
                         }))
                       }
                     />
@@ -745,10 +750,10 @@ function TramiteCliente() {
                     </p>
                     <InputPrima
                       value={formData.prima_futura}
-                      onChange={(e) =>
+                      onChange={(value) =>
                         setFormData((prevState) => ({
                           ...prevState,
-                          prima_futura: e.target.value,
+                          prima_futura: value, // No convertir a 0, mantener el valor original
                         }))
                       }
                     />
@@ -758,10 +763,13 @@ function TramiteCliente() {
                       Prima total
                     </p>
                     <InputPrima
-                      value={
-                        (Number(formData.prima_inicial) || 0) +
-                        (Number(formData.prima_futura) || 0)
-                      }
+                      value={(() => {
+                        // Función para calcular la suma correctamente
+                        const inicial = parseFloat(formData.prima_inicial) || 0;
+                        const futura = parseFloat(formData.prima_futura) || 0;
+                        const total = inicial + futura;
+                        return total === 0 ? "" : total;
+                      })()}
                       disabled
                     />
                   </div>

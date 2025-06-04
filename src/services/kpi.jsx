@@ -44,6 +44,20 @@ export const primaTotal = async () => {
     body: JSON.stringify(),
   });
 };
+export const metaAnual = async () => {
+  return await fetchApi(`venta_anual.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
+export const metaPorFiltro = async (inicio, fin) => {
+  return await fetchApi(`venta_anual.php?fecha_inicio=${inicio}&fecha_fin=${fin}`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
+
 export const pendientes = async () => {
   return await fetchApi(`pendientes/pendientes_categoria.php`, {
     method: "GET",

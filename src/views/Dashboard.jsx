@@ -53,6 +53,7 @@ export default function Dashboard() {
           <Settings2 color="#076163" />
         </button>
       </div>
+      <Barra />
       <div className="flex flex-col items-center w-full space-y-5">
         <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
           <Pastel />
@@ -121,7 +122,7 @@ export default function Dashboard() {
             <TableTramites tipo={tipoTabla} />
           </div>
         ) : null}
-        <Barra />
+        
       </div>
     </div>
   );
