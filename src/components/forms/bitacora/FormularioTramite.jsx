@@ -126,6 +126,8 @@ const FormularioTramite = ({ isVisible, onClose }) => {
       movimientoSeleccionado.value === "PRÓRROGA" ||
       movimientoSeleccionado.value === "MOVIMIENTO ESPECIAL P-A" ||
       movimientoSeleccionado.value === "SEGURO MAQUINARIA"
+      ||
+      movimientoSeleccionado.value === "CANCELACIÓN"
     ) {
       pago = "NO APLICA";
     }

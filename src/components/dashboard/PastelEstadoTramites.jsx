@@ -1,117 +1,71 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { obtenerEstados } from "@/services/kpi";
 import { useEffect, useState } from "react";
+import { cobranzaData } from "@/services/kpi";
+import { AlertTriangle } from "lucide-react";
 
-export default function Pastel() {
-  const [Estados, setEstados] = useState("");
+export default function CobranzaAreaChart() {
+  const [cobranza, setCobranza] = useState({
+    total_registros: 0,
+    suma_prima_total: 0,
+    suma_importe_total: 0,
+  });
 
   useEffect(() => {
-    const fetchEstados = async () => {
-      const response = await obtenerEstados();
-      setEstados(response);
+    const fetchCobranza = async () => {
+      const response = await cobranzaData();
+      setCobranza(response);
     };
-    fetchEstados();
+    fetchCobranza();
   }, []);
 
-  function calcularPorcentaje(cantidad, total) {
-    return parseFloat(((cantidad / total) * 100).toFixed(0));
-  }
-  const estados = [
-    {
-      name: "En proceso",
-      value: calcularPorcentaje(
-        Estados.en_proceso_revision_count,
-        Estados.total_tramites
-      ),
-      color: "#FDE68A",
-    }, // Amarillo pastel
-    {
-      name: "Pendiente",
-      value: calcularPorcentaje(
-        Estados.pendiente_count,
-        Estados.total_tramites
-      ),
-      color: "#BFDBFE",
-    }, // Azul pastel
-    {
-      name: "No procede",
-      value: calcularPorcentaje(
-        Estados.no_procede_count,
-        Estados.total_tramites
-      ),
-      color: "#FCA5A5",
-    }, // Rojo pastel
-    {
-      name: "Terminado",
-      value: calcularPorcentaje(
-        Estados.terminado_count,
-        Estados.total_tramites
-      ),
-      color: "#A7F3D0",
-    }, // Verde pastel
-    {
-      name: "En revisión de documentos",
-      value: calcularPorcentaje(
-        Estados.revision_documentos_count,
-        Estados.total_tramites
-      ),
-      color: "#DDD6FE",
-    }, // Púrpura pastel
-  ];
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+    }).format(amount);
+  };
+
+
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full hover:bg-slate-100">
       <CardHeader>
-        <CardTitle>Tramites</CardTitle>
+        <CardTitle>Cobranza Pendiente</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-6xl font-bold">{Estados.total_tramites}</div>
-          <div className="w-40 h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={estados}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={70}
-                  fill="#8884d8"
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {estados.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color}  className=" cursor-pointer"/>
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) => `${value}%`}
-                  contentStyle={{
-                    background: "rgba(255, 255, 255, 0.8)",
-                    borderRadius: "6px",
-                    border: "none",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-        <div className="space-y-3">
-          {estados.map((item) => (
-            <div key={item.name} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-sm text-muted-foreground">
-                  {item.name}
-                </span>
-              </div>
-              <span className="font-semibold">{item.value}%</span>
+        <div className="space-y-4">
+          {/* Registros */}
+          <div className="flex items-center justify-between py-2 px-3 bg-red-50 rounded-lg border-l-4 border-red-500">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">Registros Pendientes</span>
             </div>
-          ))}
+            <span className="text-2xl font-bold text-red-600">
+              {cobranza.total_registros}
+            </span>
+          </div>
+          
+          {/* Prima Total */}
+          <div className="flex items-center justify-between py-2 px-3 bg-orange-50 rounded-lg border-l-4 border-orange-500">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">Prima Total</span>
+            </div>
+            <span className="text-xl font-bold text-orange-600">
+              {formatCurrency(cobranza.suma_prima_total)}
+            </span>
+          </div>
+          
+          {/* Importe Total */}
+          <div className="flex items-center justify-between py-2 px-3 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">Importe Total</span>
+            </div>
+            <span className="text-xl font-bold text-indigo-600">
+              {formatCurrency(cobranza.suma_importe_total)}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -49,80 +49,64 @@ export default function Dashboard() {
     <div className="p-6 space-y-6 min-h-screen">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <button className="rounded-full p-2 hover:bg-slate-50" onClick={ () => navigate("/config")}>
+        <button
+          className="rounded-full p-2 hover:bg-slate-50"
+          onClick={() => navigate("/config")}
+        >
           <Settings2 color="#076163" />
         </button>
       </div>
       <Barra />
+      <CardDatos
+        icon={<IoMdCheckmarkCircleOutline />}
+        tittle={"Tramites"}
+        data={Estados.total_tramites} //Poner cuantos son en total
+      />
       <div className="flex flex-col items-center w-full space-y-5">
         <div className="grid md:grid-cols-4 grid-cols-1 gap-3 justify-items-center w-full">
-          <Pastel />
-          <PastelPendientes />
-          <PastelCompromisos />
-          <PastelMovimientos />
-        </div>
-        <div className="grid md:grid-cols-6 grid-cols-1 gap-3 justify-items-center w-full">
-          <CardDatos
-            icon={<IoMdCheckmarkCircleOutline />}
-            tittle={"Tramites terminados"}
-            data={Estados.terminado_count} //Poner cuantos son en total
-          />
           <div
-            className="w-full"
+            className="w-full h-full cursor-pointer"
+            onClick={() => {
+              setMostrarTabla((prevState) => !prevState);
+              setTipoTabla("COBRANZA");
+            }}
+          >
+            <Pastel />
+          </div>
+          <div
+            className="w-full h-full cursor-pointer"
             onClick={() => {
               setMostrarTabla((prevState) => !prevState);
               setTipoTabla("PROCESO");
             }}
           >
-            <CardDatos
-              icon={<TbProgressCheck />}
-              tittle={"Tramites en curso"}
-              data={Estados.en_proceso_revision_count}
-            />
+            <PastelPendientes />
           </div>
           <div
-            className="w-full"
+            className="w-full h-full cursor-pointer"
             onClick={() => {
               setMostrarTabla((prevState) => !prevState);
-              setTipoTabla("PENDIENTE");
+              setTipoTabla("COMPROMISO");
             }}
           >
-            <CardDatos
-              icon={<BsHourglassTop />}
-              tittle={"Tramites pendientes"}
-              data={Estados.pendiente_count}
-            />
+            <PastelCompromisos />
           </div>
           <div
-            className="w-full"
+            className="w-full h-full cursor-pointer"
             onClick={() => {
               setMostrarTabla((prevState) => !prevState);
-              setTipoTabla("BC");
+              setTipoTabla("MOVGEN");
             }}
           >
-            <CardDatos
-              icon={<FaRegPauseCircle />}
-              tittle={"Pendientes por BC"}
-              data={pendientesBC}
-            />
+            <PastelMovimientos />
           </div>
-          <CardDatos
-            icon={<IoIosAddCircleOutline />}
-            tittle={"Expediciones"}
-            data={movimientosData.expedicion_count}
-          />
-          <CardDatos
-            icon={<TbCancel />}
-            tittle={"Cancelaciones"}
-            data={movimientosData.cancelacion_count}
-          />
         </div>
+        <div className="grid md:grid-cols-6 grid-cols-1 gap-3 justify-items-center w-full"></div>
         {mostrarTabla ? (
           <div className="w-full">
             <TableTramites tipo={tipoTabla} />
           </div>
         ) : null}
-        
       </div>
     </div>
   );

@@ -70,6 +70,12 @@ export const totalPendientes = async () => {
     body: JSON.stringify(),
   });
 };
+export const cobranzaData = async () => {
+  return await fetchApi(`cobranza.php`, {
+    method: "GET",
+    body: JSON.stringify(),
+  });
+};
 export const totalCompromisos = async () => {
   return await fetchApi(`compromisos/total.php`, {
     method: "GET",

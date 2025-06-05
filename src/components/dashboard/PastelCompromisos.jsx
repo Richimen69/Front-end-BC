@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { compromisos, totalCompromisos } from "@/services/kpi";
+import { compromisos, totalCompromisos, obtenerEstados } from "@/services/kpi";
 import { useEffect, useState } from "react";
 
 function assignColor(categoria_compromiso) {
@@ -13,11 +13,20 @@ function assignColor(categoria_compromiso) {
       return "#98FB98"; // Verde Pálido
     default:
       return "#ccc"; // Color por defecto
-}
+  }
 }
 export default function PastelCompromisos() {
   const [Estados, setEstados] = useState([]);
   const [Total, setTotal] = useState("");
+  const [totalTramites, setTotalTramites] = useState("");
+
+  useEffect(() => {
+    const fetchEstados = async () => {
+      const response = await obtenerEstados();
+      setTotalTramites(response);
+    };
+    fetchEstados();
+  }, []);
 
   useEffect(() => {
     const fetchEstados = async () => {
@@ -39,15 +48,16 @@ export default function PastelCompromisos() {
     name: item.categoria_compromiso,
     value: calcularPorcentaje(item.total),
     color: assignColor(item.categoria_compromiso),
+    cantidad: item.total
   }));
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full hover:bg-slate-100">
       <CardHeader>
         <CardTitle>Compromisos post expedicion</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-6xl font-bold">{Total}</div>
+          <div ><span className="text-6xl font-bold">{Total}/</span><span className="text-xl">{((Number(Total) * 100) / Number(totalTramites.total_tramites)).toFixed(2)}%</span></div>
           <div className="w-40 h-40">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -93,7 +103,7 @@ export default function PastelCompromisos() {
                   {item.name}
                 </span>
               </div>
-              <span className="font-semibold">{item.value}%</span>
+              <span className="font-semibold">{item.value}% / {item.cantidad}</span>
             </div>
           ))}
         </div>

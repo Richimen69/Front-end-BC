@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { statusStyles } from "@/utils/Constans";
 import { useNavigate } from "react-router-dom";
 export default function TableTramites({ tipo }) {
-  let filteredClientes = [];
   const [clientes, setClientes] = useState([]);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -19,27 +18,40 @@ export default function TableTramites({ tipo }) {
     };
     fetchClientes();
   }, []);
-  switch (tipo) {
-    case "PENDIENTE":
-      filteredClientes = clientes.filter((cliente) =>
-        "PENDIENTE" ? cliente.estatus === "PENDIENTE" : true
-      );
-      break;
-    case "PROCESO":
-      filteredClientes = clientes.filter(
-        (cliente) =>
-          cliente.estatus === "EN REVISIÓN DE DOCUMENTOS" || cliente.estatus === "EN PROCESO" || cliente.estatus === "EN REVISIÓN DE PREVIAS"
-      );
-      break;
-    case "BC":
-      filteredClientes = clientes.filter((cliente) =>
-        "BC" ? cliente.tipo_proceso === "BC" : true
-      );
-      break;
-    default:
-      filteredClientes = [];
-  }
+  // Definir los filtros como un objeto para mejor mantenimiento
+  const filtros = {
+    PENDIENTE: (cliente) => cliente.estatus === "PENDIENTE",
 
+    PROCESO: (cliente) => {
+      const estatusExcluidos = [
+        "TERMINADO/PENDIENTE",
+        "TERMINADO",
+        "TERMINADO/COMPROMISO",
+        "NO PROCEDE",
+      ];
+      return !estatusExcluidos.includes(cliente.estatus);
+    },
+
+    BC: (cliente) => cliente.tipo_proceso === "BC",
+
+    COMPROMISO: (cliente) => cliente.estatus === "TERMINADO/COMPROMISO",
+
+    MOVGEN: (cliente) => {
+      const movimientosValidos = [
+        "AUMENTO",
+        "CANCELACIÓN",
+        "PRÓRROGA",
+        "EXPEDICIÓN",
+      ];
+      return movimientosValidos.includes(cliente.movimiento);
+    },
+
+    COBRANZA: (cliente) =>
+      cliente.estatus_pago === "PENDIENTE" && cliente.estatus === "TERMINADO",
+  };
+
+  // Aplicar el filtro
+  const filteredClientes = filtros[tipo] ? clientes.filter(filtros[tipo]) : [];
   return (
     <div>
       <div className="rounded-lg border border-gray-200 overflow-hidden bg-white">
@@ -59,15 +71,17 @@ export default function TableTramites({ tipo }) {
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Movimiento
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  Afianzadora
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                <th className="px-4 py-3 text-center font-medium text-gray-600">
                   Estatus
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  Responsable
-                </th>
+                {tipo != "COBRANZA" && (
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Responsable
+                  </th>
+                )}
+                {tipo === "COBRANZA" && (
+                  <th className="px-4 py-3 font-medium text-gray-600">Total</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -90,9 +104,6 @@ export default function TableTramites({ tipo }) {
                   <td className="px-4 py-3 text-gray-600">
                     {cliente.movimiento}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {cliente.afianzadora}
-                  </td>
                   <td className="px-4 py-3 text-gray-600 text-nowrap text-center">
                     <span
                       className={
@@ -103,15 +114,22 @@ export default function TableTramites({ tipo }) {
                       {cliente.estatus}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
-                    {cliente.estatus === "TERMINADO" &&
-                    cliente.tiene_compromiso === "SI"
-                      ? cliente.categoria_compromiso
-                      : cliente.estatus === "TERMINADO" &&
-                        cliente.tiene_compromiso === "NO"
-                      ? null
-                      : cliente.tipo_proceso}
-                  </td>
+                  {tipo != "COBRANZA" && (
+                    <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
+                      {cliente.estatus === "TERMINADO" &&
+                      cliente.tiene_compromiso === "SI"
+                        ? cliente.categoria_compromiso
+                        : cliente.estatus === "TERMINADO" &&
+                          cliente.tiene_compromiso === "NO"
+                        ? null
+                        : cliente.tipo_proceso}
+                    </td>
+                  )}
+                  {tipo === "COBRANZA" && (
+                    <td className="text-gray-600 font-bold">
+                      ${cliente.prima_total}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

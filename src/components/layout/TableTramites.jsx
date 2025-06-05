@@ -256,7 +256,6 @@ export default function TableTramites() {
                     {/* Aquí aplicas la clase dinámica */}
                     <td className={`px-4 py-3`}>
                       <p className={`p-1 ${colorFecha} text-center`}>
-                        {" "}
                         {cliente.fecha}
                       </p>
                     </td>
@@ -278,11 +277,13 @@ export default function TableTramites() {
                       </span>
 
                       {/* Tooltip */}
-                      {cliente.estatus != "TERMINADO" && (
-                        <div className="absolute z-10 hidden group-hover:block bg-primary text-white text-xs rounded py-1 px-2 bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-normal w-96 text-center">
-                          {cliente.ultimo_movimiento}
-                        </div>
-                      )}
+                      {cliente.estatus !== "TERMINADO" &&
+                        cliente.ultimo_movimiento !== null &&
+                        cliente.ultimo_movimiento !== "" && (
+                          <div className="absolute z-10 hidden group-hover:block bg-primary text-white text-xs rounded py-1 px-2 bottom-full mb-1 left-1/2 -translate-x-1/2 whitespace-normal w-96 text-center">
+                            {cliente.ultimo_movimiento}
+                          </div>
+                        )}
                     </td>
 
                     <td className="px-4 py-3 text-gray-600 text-center text-nowrap">

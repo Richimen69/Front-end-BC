@@ -1,10 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { movimietos } from "@/services/kpi";
+import { movimietos, obtenerEstados } from "@/services/kpi";
 import { useEffect, useState } from "react";
 
 export default function PastelMovimientos() {
   const [movimientosData, setMovimientosData] = useState([]);
+  const [totalTramites, setTotalTramites] = useState("");
+  useEffect(() => {
+    const fetchEstados = async () => {
+      const response = await obtenerEstados();
+      setTotalTramites(response);
+    };
+    fetchEstados();
+  }, []);
   useEffect(() => {
     const fetchMovimientos = async () => {
       const response = await movimietos();
@@ -24,6 +32,7 @@ export default function PastelMovimientos() {
         movimientosData.total_movimientos
       ),
       color: "#FDE68A",
+      cantidad: movimientosData.aumento_count
     }, // Amarillo pastel
     {
       name: "Cancelacion",
@@ -32,6 +41,7 @@ export default function PastelMovimientos() {
         movimientosData.total_movimientos
       ),
       color: "#BFDBFE",
+      cantidad: movimientosData.cancelacion_count
     }, // Azul pastel
     {
       name: "Prorroga",
@@ -40,6 +50,7 @@ export default function PastelMovimientos() {
         movimientosData.total_movimientos
       ),
       color: "#FCA5A5",
+      cantidad: movimientosData.prorroga_count
     }, // Rojo pastel
     {
       name: "Expedicion",
@@ -48,17 +59,27 @@ export default function PastelMovimientos() {
         movimientosData.total_movimientos
       ),
       color: "#A7F3D0",
+      cantidad: movimientosData.expedicion_count
     }, // Verde pastel
   ];
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full hover:bg-slate-100">
       <CardHeader>
         <CardTitle>Movimientos generadores</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-6xl font-bold">{movimientosData.total_movimientos}</div>
+          <div>
+            <span className="text-6xl font-bold">{movimientosData.total_movimientos}/</span>
+            <span className="text-xl">
+              {(
+                (Number(movimientosData.total_movimientos) * 100) /
+                Number(totalTramites.total_tramites)
+              ).toFixed(2)}
+              %
+            </span>
+          </div>
           <div className="w-40 h-40">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -104,7 +125,7 @@ export default function PastelMovimientos() {
                   {item.name}
                 </span>
               </div>
-              <span className="font-semibold">{item.value}%</span>
+              <span className="font-semibold">{item.value}% / {item.cantidad}</span>
             </div>
           ))}
         </div>

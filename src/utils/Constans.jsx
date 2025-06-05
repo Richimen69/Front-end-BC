@@ -45,12 +45,14 @@ export const estatus = [
   { value: "EN REVISIÓN DE DOCUMENTOS", label: "EN REVISIÓN DE DOCUMENTOS" },
   { value: "EN REVISIÓN DE PREVIAS", label: "EN REVISIÓN DE PREVIAS" },
   { value: "EN PROCESO/C.N.S.", label: "EN PROCESO/C.N.S." },
+  { value: "EN PROCESO/CANCELACIÓN", label: "EN PROCESO/CANCELACIÓN" },
   { value: "EN PROCESO/C.T.T.", label: "EN PROCESO/C.T.T." },
   { value: "EN PROCESO/ACT EF", label: "EN PROCESO/ACT EF" },
   { value: "EN PROCESO/ACT CLG", label: "EN PROCESO/ACT CLG" },
   { value: "EN PROCESO/OTROS", label: "EN PROCESO/OTROS" },
   { value: "NO PROCEDE", label: "NO PROCEDE" },
   { value: "PENDIENTE/C.N.S.", label: "PENDIENTE/C.N.S." },
+  { value: "PENDIENTE/CANCELACIÓN", label: "PENDIENTE/CANCELACIÓN" },
   { value: "PENDIENTE/C.T.T.", label: "PENDIENTE/C.T.T." },
   { value: "PENDIENTE/ACT EF", label: "PENDIENTE/ACT EF" },
   { value: "PENDIENTE/ACT CLG", label: "PENDIENTE/ACT CLG" },
@@ -94,6 +96,8 @@ export const statusStyles = {
     "bg-yellow-200 text-yellow-900 px-3 py-1 rounded-full text-base font-semibold",
 
   // PROCESO
+  "EN PROCESO/CANCELACIÓN":
+    "bg-sky-200 text-sky-800 px-3 py-1 rounded-full text-base font-semibold",
   "EN PROCESO/C.N.S.":
     "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-base font-semibold",
   "EN PROCESO/C.T.T.":
@@ -119,6 +123,8 @@ export const statusStyles = {
 
   // PENDIENTE
   "PENDIENTE/C.N.S.":
+    "bg-violet-200 text-violet-800 px-3 py-1 rounded-full text-base font-semibold",
+  "PENDIENTE/CANCELACIÓN":
     "bg-violet-200 text-violet-800 px-3 py-1 rounded-full text-base font-semibold",
   "PENDIENTE/C.T.T.":
     "bg-violet-300 text-violet-900 px-3 py-1 rounded-full text-base font-semibold",
@@ -171,3 +177,15 @@ export const estatusTerminados = [
   "TERMINADO/COMPROMISO",
   "TERMINADO/PENDIENTE",
 ];
+
+export const movimientosPermitidos = [
+  "AUMENTO",
+  "PRÓRROGA",
+  "MOVIMIENTO ESPECIAL P-A",
+  "SEGURO MAQUINARIA",
+  "SEGURO RC",
+  "EXPEDICIÓN",
+  "EXPEDICIÓN FIANZA-FIDELIDAD",
+  "EXPEDICIÓN CON DEP. PRENDARIO"
+];
+

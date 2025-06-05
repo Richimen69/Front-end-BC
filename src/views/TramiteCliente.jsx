@@ -16,6 +16,7 @@ import {
   estadoTramite,
   estadoTramiteAseguradora,
   estatusTerminados,
+  movimientosPermitidos,
 } from "../utils/Constans";
 import { fetchTramites } from "../services/tramitesClientes";
 import { format, parse } from "date-fns";
@@ -620,10 +621,10 @@ function TramiteCliente() {
               </div>
             </div>
 
-            {estatusTerminados.includes(formData.estatusSeleccionado.value) ? (
-              <div>
+            {estatusTerminados.includes(formData.estatusSeleccionado.value) && (
+              <div className="flex flex-col gap-y-5">
                 <div className="grid gap-6 md:grid-cols-3">
-                  <div className="flex  flex-col gap-2 ">
+                  <div className="flex flex-col gap-2 ">
                     <p className="text-sm font-medium text-teal-600">
                       Fecha de termino
                     </p>
@@ -652,144 +653,157 @@ function TramiteCliente() {
                       className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
                   </div>
-                  <div className="flex  flex-col gap-2 ">
-                    <p className="text-sm font-medium text-teal-600">
-                      Fecha de pago
-                    </p>
-                    <DatePicker
-                      showIcon
-                      toggleCalendarOnIconClick
-                      selected={
-                        formData.fechaPago
-                          ? parse(formData.fechaPago, "dd/MM/yyyy", new Date()) // Convierte el string de tu estado a Date.
-                          : null
-                      }
-                      onChange={(date) => {
-                        if (date) {
-                          const formattedDate = format(date, "dd/MM/yyyy");
-                          setFormData((prevState) => ({
-                            ...prevState,
-                            fechaPago: formattedDate,
-                          }));
-                        }
-                      }}
-                      dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
-                      className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-teal-600">
-                      Estado de pago:
-                    </label>
-
-                    {estatusPagoSeleccionado.value === "PAGADA" ? (
-                      <div>
-                        <p className="mt-1">PAGADA</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <Select
-                          options={estatus_pagos}
-                          defaultValue={estatusPagoSeleccionado}
-                          value={estatusPagoSeleccionado}
-                          onChange={handleEstatusPagoChange}
-                          placeholder="Seleccionar estatus..."
-                          theme={(theme) => ({
-                            ...theme,
-                            colors: {
-                              ...theme.colors,
-                              primary25: "#DDBE86",
-                              primary: "#076163",
-                            },
-                          })}
+                </div>
+                {movimientosPermitidos.includes(
+                  formData.movimientoSeleccionado.value
+                ) && (
+                  <div className="flex flex-col gap-y-5">
+                    <div className="grid grid-cols-3 gap-6">
+                      <div className="flex  flex-col gap-2 ">
+                        <p className="text-sm font-medium text-teal-600">
+                          Fecha de pago
+                        </p>
+                        <DatePicker
+                          showIcon
+                          toggleCalendarOnIconClick
+                          selected={
+                            formData.fechaPago
+                              ? parse(
+                                  formData.fechaPago,
+                                  "dd/MM/yyyy",
+                                  new Date()
+                                ) // Convierte el string de tu estado a Date.
+                              : null
+                          }
+                          onChange={(date) => {
+                            if (date) {
+                              const formattedDate = format(date, "dd/MM/yyyy");
+                              setFormData((prevState) => ({
+                                ...prevState,
+                                fechaPago: formattedDate,
+                              }));
+                            }
+                          }}
+                          dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
+                          className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
                         />
                       </div>
-                    )}
-                  </div>
-                </div>
-                {estatusPagoSeleccionado.value === "NO PAGADA" ? (
-                  <div className=" flex items-center justify-center">
-                    <div className="w-3/6">
-                      <p className="text-sm font-medium text-teal-600">
-                        Observaciones de pago
-                      </p>
-                      <textarea
-                        type="text"
-                        value={formData.observaciones}
-                        onChange={(e) =>
-                          setFormData((prevState) => ({
-                            ...prevState,
-                            observaciones: e.target.value,
-                          }))
-                        }
-                        className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
-                        placeholder=""
-                      ></textarea>
+                      <div>
+                        <label className="text-sm font-medium text-teal-600">
+                          Estado de pago:
+                        </label>
+
+                        {estatusPagoSeleccionado.value === "PAGADA" ? (
+                          <div>
+                            <p className="mt-1">PAGADA</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <Select
+                              options={estatus_pagos}
+                              defaultValue={estatusPagoSeleccionado}
+                              value={estatusPagoSeleccionado}
+                              onChange={handleEstatusPagoChange}
+                              placeholder="Seleccionar estatus..."
+                              theme={(theme) => ({
+                                ...theme,
+                                colors: {
+                                  ...theme.colors,
+                                  primary25: "#DDBE86",
+                                  primary: "#076163",
+                                },
+                              })}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {estatusPagoSeleccionado.value === "NO PAGADA" ? (
+                      <div className=" flex items-center justify-center">
+                        <div className="w-3/6">
+                          <p className="text-sm font-medium text-teal-600">
+                            Observaciones de pago
+                          </p>
+                          <textarea
+                            type="text"
+                            value={formData.observaciones}
+                            onChange={(e) =>
+                              setFormData((prevState) => ({
+                                ...prevState,
+                                observaciones: e.target.value,
+                              }))
+                            }
+                            className="w-full px-3 py-2 focus:outline-primary border-2 rounded"
+                            placeholder=""
+                          ></textarea>
+                        </div>
+                      </div>
+                    ) : null}
+                    <div className="grid gap-6 md:grid-cols-4 w-full">
+                      <div>
+                        <p className="text-sm font-medium text-teal-600">
+                          Prima inicial
+                        </p>
+                        <InputPrima
+                          value={formData.prima_inicial}
+                          onChange={(value) =>
+                            setFormData((prevState) => ({
+                              ...prevState,
+                              prima_inicial: value, // No convertir a 0, mantener el valor original
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-teal-600">
+                          Prima futura
+                        </p>
+                        <InputPrima
+                          value={formData.prima_futura}
+                          onChange={(value) =>
+                            setFormData((prevState) => ({
+                              ...prevState,
+                              prima_futura: value, // No convertir a 0, mantener el valor original
+                            }))
+                          }
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-teal-600">
+                          Prima total
+                        </p>
+                        <InputPrima
+                          value={(() => {
+                            // Función para calcular la suma correctamente
+                            const inicial =
+                              parseFloat(formData.prima_inicial) || 0;
+                            const futura =
+                              parseFloat(formData.prima_futura) || 0;
+                            const total = inicial + futura;
+                            return total === 0 ? "" : total;
+                          })()}
+                          disabled
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-teal-600">
+                          Importe total
+                        </p>
+                        <InputPrima
+                          value={formData.importe_total}
+                          onChange={(e) =>
+                            setFormData((prevState) => ({
+                              ...prevState,
+                              importe_total: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
-                ) : null}
-                <div className="grid gap-6 md:grid-cols-4">
-                  <div>
-                    <p className="text-sm font-medium text-teal-600">
-                      Prima inicial
-                    </p>
-                    <InputPrima
-                      value={formData.prima_inicial}
-                      onChange={(value) =>
-                        setFormData((prevState) => ({
-                          ...prevState,
-                          prima_inicial: value, // No convertir a 0, mantener el valor original
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-teal-600">
-                      Prima futura
-                    </p>
-                    <InputPrima
-                      value={formData.prima_futura}
-                      onChange={(value) =>
-                        setFormData((prevState) => ({
-                          ...prevState,
-                          prima_futura: value, // No convertir a 0, mantener el valor original
-                        }))
-                      }
-                    />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-teal-600">
-                      Prima total
-                    </p>
-                    <InputPrima
-                      value={(() => {
-                        // Función para calcular la suma correctamente
-                        const inicial = parseFloat(formData.prima_inicial) || 0;
-                        const futura = parseFloat(formData.prima_futura) || 0;
-                        const total = inicial + futura;
-                        return total === 0 ? "" : total;
-                      })()}
-                      disabled
-                    />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-teal-600">
-                      Importe total
-                    </p>
-                    <InputPrima
-                      value={formData.importe_total}
-                      onChange={(e) =>
-                        setFormData((prevState) => ({
-                          ...prevState,
-                          importe_total: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
+                )}
               </div>
-            ) : null}
+            )}
           </div>
 
           <div className="flex items-center justify-center p-5 gap-5">
