@@ -80,7 +80,14 @@ export default function TableTramites({ tipo }) {
                   </th>
                 )}
                 {tipo === "COBRANZA" && (
-                  <th className="px-4 py-3 font-medium text-gray-600">Total</th>
+                  <>
+                    <th className="px-4 py-3 font-medium text-gray-600 text-left">
+                      Prima Total
+                    </th>
+                    <th className="px-4 py-3 font-medium text-gray-600 text-left">
+                      Importe Total
+                    </th>
+                  </>
                 )}
               </tr>
             </thead>
@@ -116,19 +123,25 @@ export default function TableTramites({ tipo }) {
                   </td>
                   {tipo != "COBRANZA" && (
                     <td className="px-4 py-3 text-gray-600 text-center text-nowrap">
-                      {cliente.estatus === "TERMINADO" &&
+                      {cliente.estatus === "TERMINADO/COMPROMISO" &&
                       cliente.tiene_compromiso === "SI"
                         ? cliente.categoria_compromiso
-                        : cliente.estatus === "TERMINADO" &&
-                          cliente.tiene_compromiso === "NO"
+                        : cliente.estatus === "TERMINADO" ||
+                          (cliente.estatus === "TERMINADO/PENDIENTE" &&
+                            cliente.tiene_compromiso === "NO")
                         ? null
                         : cliente.tipo_proceso}
                     </td>
                   )}
                   {tipo === "COBRANZA" && (
-                    <td className="text-gray-600 font-bold">
-                      ${cliente.prima_total}
-                    </td>
+                    <>
+                      <td className="px-4 py-3 text-gray-600 font-bold text-left">
+                        ${cliente.prima_total}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600 font-bold text-left">
+                        ${cliente.prima_total}
+                      </td>
+                    </>
                   )}
                 </tr>
               ))}

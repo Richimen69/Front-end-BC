@@ -12,6 +12,13 @@ export const updateTramite = async (tramiteData) => {
     body: JSON.stringify(tramiteData),
   });
 };
+
+export const deleteTramite = async (tramiteData) => {
+  return await fetchApi(`tramites.php`, {
+    method: "DELETE",
+    body: JSON.stringify(tramiteData),
+  });
+};
 export const buscarTramitePorFolio = async (folio) => {
   return await fetchApi(`tramites.php?folio=${folio}`);
 };

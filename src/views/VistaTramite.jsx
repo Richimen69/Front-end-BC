@@ -10,7 +10,13 @@ import { Toaster, toast } from "sonner";
 import CancelarComp from "@/components/forms/bitacora/CancelarComp";
 import { estatusTerminados } from "@/utils/Constans";
 import { obtenerTareasTramite } from "@/services/tareas";
+import { Trash2, AlertTriangle, X } from "lucide-react";
+import { DeleteModal } from "@/components/modal/ConfirmacionElim";
+import { deleteTramite } from "../services/tramitesClientes";
 function VistaTramite() {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedTramite, setSelectedTramite] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -25,7 +31,6 @@ function VistaTramite() {
     const fetchData = async () => {
       const data = await obtenerTareasTramite(id);
       setTareas(data);
-      console.log(data);
     };
     fetchData();
   }, [id]);
@@ -107,6 +112,31 @@ function VistaTramite() {
   const clienteEncontrado = clientes.find(
     (cliente) => cliente.id_tramite === id
   );
+
+  const handleDeleteClick = (tramite) => {
+    setSelectedTramite(tramite);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    const data = {
+      id_tramite: selectedTramite
+    }
+    try {
+      const result = await deleteTramite(data); // Tu función existente
+      console.log(result)
+      toast.success("Trámite eliminado exitosamente");
+      setShowDeleteModal(false);
+      navigate("/tramites")
+      // Actualizar lista...
+    } catch (error) {
+      toast.error("Error al eliminar el trámite");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!clienteEncontrado) {
     return (
       <div className="flex items-center justify-center p-20">
@@ -120,7 +150,6 @@ function VistaTramite() {
       </div>
     );
   }
-
   return (
     <div className="container mx-auto p-6">
       <div className="w-full bg-white p-5 rounded-xl">
@@ -145,6 +174,12 @@ function VistaTramite() {
                 </p>
               )}
             </div>
+            <button
+              className=" hover:opacity-65"
+              onClick={() => handleDeleteClick(clienteEncontrado.id_tramite)}
+            >
+              <Trash2 color="#ff5733" size={28} />
+            </button>
             <div className="text-right">
               <p className="font-semibold">Folio: {clienteEncontrado.folio}</p>
             </div>
@@ -367,7 +402,7 @@ function VistaTramite() {
                       {dato.nombre}
                     </p>
                   </div>
-                  <p>{dato.movimiento}</p>
+                  <p className=" whitespace-pre-wrap">{dato.movimiento}</p>
                 </div>
               ))}
             </div>
@@ -402,7 +437,7 @@ function VistaTramite() {
           </div>
         </div>
       </div>
-      {tareas.length > 0 ? (
+      {/*{tareas.length > 0 ? (
         <div className="bg-white rounded-xl shadow-md overflow-hidden mt-10 w-full">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-primary">
@@ -440,7 +475,8 @@ function VistaTramite() {
             ))}
           </div>
         </div>
-      ) : null}
+      ) : null}*/}
+
       {showDialog && (
         <CancelarComp
           onClose={() => setShowDialog(false)}
@@ -448,6 +484,13 @@ function VistaTramite() {
         />
       )}
       <Toaster position="top-center" richColors />
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        tramiteName={selectedTramite?.nombre}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

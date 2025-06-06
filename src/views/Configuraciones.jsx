@@ -19,6 +19,7 @@ export default function Configuraciones() {
     setEditingId(id);
     setTempMeta(currentMeta);
   };
+  
 
   const handleSave = async (id) => {
     const data = {

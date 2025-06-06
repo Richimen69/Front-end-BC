@@ -7,9 +7,7 @@ import { Toaster, toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { IconContext } from "react-icons";
 import { InputPrima } from "../components/ui/InputPrima";
-import { CiTrash } from "react-icons/ci";
-import { MdEdit, MdCancel } from "react-icons/md";
-import { FaSave } from "react-icons/fa";
+import { Pencil, Trash, Save, CircleX } from "lucide-react";
 import {
   estatus,
   estatus_pagos,
@@ -35,7 +33,6 @@ import { fetchAfianzadoras, fetchBeficiarios } from "@/services/datosTramites";
 import { PendientesBC } from "@/components/forms/bitacora/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
-  const [isEditing, setIsEditing] = useState(false);
   const [movimientoEdit, setMovimientoEdit] = useState("");
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
@@ -46,16 +43,27 @@ function TramiteCliente() {
   const [usuario, setUsuario] = useState("");
   const [estatusPagoSeleccionado, setEstatusPago] = useState(null);
   const [estadoTareas, setEstadoTareas] = useState(null);
+  const [tempMovimiento, setTempMovimiento] = useState("");
   const [movimiento, setMovimiento] = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [movimientosTar, setMovimientoTar] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
-  const [fechaEdit, setFechaEdit] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const [tareas, setTareas] = useState([]);
   const opcionesTareas = [
     { value: 1, label: "Bloqueado" },
     { value: 0, label: "Desbloqueado" },
   ];
+  const handleEdit = (id, currentMovimiento) => {
+    setEditingId(id);
+    setTempMovimiento(currentMovimiento);
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setTempMovimiento("");
+  };
+
   const [tareasCompletas, setTareasCompletas] = useState([]);
   const parseDecimal = (valor) => Number((valor || "").replace(",", "."));
   const { id } = location.state || {};
@@ -306,9 +314,7 @@ function TramiteCliente() {
 
       if (result.success) {
         toast.success("Observaciones borradas exitosamente.");
-        setMovimientos((prevMovimientos) =>
-          prevMovimientos.filter((mov) => mov.id_movimiento !== id_movimiento)
-        );
+        actualizarMovimientos(id);
       } else {
         toast.error("Error al borrar las Observaciones."); // Mostrar mensaje de error si algo sale mal
       }
@@ -318,27 +324,32 @@ function TramiteCliente() {
       toast.error("Hubo un problema al borrar las Observaciones."); // Mostrar mensaje de error genérico
     }
   };
-  const handleSave = async () => {
+  const handleSave = async (id_movimiento) => {
+    const fechaFormateada = format(new Date(), "dd/MM/yyyy HH:mm");
     try {
       const data = {
-        movimiento: movimientoEdit,
+        movimiento: tempMovimiento,
+        fecha: `${fechaFormateada}`,
+        nombre: usuario,
+        id_movimiento: id_movimiento,
       };
+  
       const result = await updateMovimiento(data); // Parsear la respuesta a JSON
 
       if (result.success) {
         toast.success("Observacion actualizada exitosamente.");
-        setMovimientos((prevMovimientos) =>
-          prevMovimientos.filter((mov) => mov.id_movimiento !== id_movimiento)
-        );
+        actualizarMovimientos(id);
       } else {
-        toast.error("Error al actualizar"); // Mostrar mensaje de error si algo sale mal
+        toast.error("Error al actualizar");
+        console.log(result); // Mostrar mensaje de error si algo sale mal
       }
       setMovimiento(""); // Limpiar el estado relacionado si es necesario
     } catch (error) {
       console.error("Error al enviar la solicitud:", error); // Loguear errores si ocurren
       toast.error("Hubo un problema al borrar las Observaciones."); // Mostrar mensaje de error genérico
     }
-    setIsEditing(false);
+    setEditingId(null);
+    setTempMovimiento("");
   };
 
   // Verificar si el cliente ha sido encontrado antes de intentar acceder a sus propiedades
@@ -377,7 +388,7 @@ function TramiteCliente() {
   const idMovimientoSeleccionado = movimientoEncontrado
     ? movimientoEncontrado.id
     : null;
-
+  /*
   useEffect(() => {
     const fetchData = async () => {
       const data = await obtenerTareas(idMovimientoSeleccionado);
@@ -385,13 +396,14 @@ function TramiteCliente() {
     };
     fetchData();
   }, [idMovimientoSeleccionado]);
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await obtenerTareasCompletas(id);
       setSeleccionadas(data);
     };
     fetchData();
-  }, [id]);
+  }, [id]);*/
 
   const [seleccionadas, setSeleccionadas] = useState([]);
 
@@ -834,6 +846,7 @@ function TramiteCliente() {
             )}
           </div>
         </form>
+        {/* 
         <div>
           <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
             <div className="space-y-4">
@@ -867,7 +880,7 @@ function TramiteCliente() {
                     />
                   </div>
                 ) : null}
-                {tareas.map((tarea) => {
+                              {tareas.map((tarea) => {
                   const completada = seleccionadas.includes(tarea.id);
 
                   return (
@@ -979,103 +992,92 @@ function TramiteCliente() {
                       )}
                     </div>
                   );
-                })}
+                })} 
               </div>
             </div>
           </div>
-        </div>
+        </div>*/}
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <p className="block text-xl font-medium text-teal-600">
             Observaciones
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mt-5">
-            {observaciones.map((dato, index) => (
-              <div
-                key={dato.id}
-                className="z-50 flex w-full rounded-xl border border-gray-300 hover:border-gray-400 hover:shadow-md transition-all duration-200"
-              >
-                <div className="p-4 flex items-start justify-between w-full">
-                  <div className="space-y-2 flex-1">
-                    {isEditing ? (
-                      <>
-                        <textarea
-                          type="text"
-                          placeholder={dato.movimiento}
-                          value={movimientoEdit}
-                          onChange={(e) => setMovimientoEdit(e.target.value)}
-                          className="w-full border rounded px-2 py-1 text-gray-700 text-base"
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-amber-600 font-medium text-lg">
-                          {dato.fecha}
-                        </p>
-                        <p className="text-gray-700 text-base">
-                          {dato.movimiento}
-                        </p>
-                        <p className="mt-3 text-sm text-black/80 font-bold">
-                          {dato.nombre}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                  <div className="flex space-x-2 ml-4">
-                    {isEditing ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleSave}
-                          className=" h-8 w-8 flex items-center justify-center rounded-md border border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
-                        >
-                          <IconContext.Provider
-                            value={{ color: "#15803D", size: "1.5em" }}
+            {observaciones.map((dato, index) => {
+              const isEditing = editingId === dato.id_movimiento; // Definir isEditing para cada elemento
+              return (
+                <div
+                  key={dato.id_movimiento || `observation-${index}`}
+                  className="z-50 flex w-full rounded-xl border border-gray-300 hover:border-gray-400 hover:shadow-md transition-all duration-200"
+                >
+                  <div className="p-4 flex items-start justify-between w-full">
+                    <div className="space-y-2 flex-1">
+                      {isEditing ? (
+                        <>
+                          <textarea
+                            type="text"
+                            placeholder={dato.movimiento}
+                            value={tempMovimiento}
+                            onChange={(e) => setTempMovimiento(e.target.value)}
+                            className="w-full border rounded px-2 py-1 text-gray-700 text-base"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-amber-600 font-medium text-lg">
+                            {dato.fecha}
+                          </p>
+                          <p className="text-gray-700 text-base whitespace-pre-wrap">
+                            {dato.movimiento}
+                          </p>
+                          <p className="mt-3 text-sm text-black/80 font-bold">
+                            {dato.nombre}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex space-x-2 ml-4">
+                      {isEditing ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleSave(dato.id_movimiento)}
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
                           >
-                            <FaSave />
-                          </IconContext.Provider>
-                        </button>
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
-                          aria-label="Eliminar observación"
-                        >
-                          <IconContext.Provider
-                            value={{ color: "#E82561", size: "1.5em" }}
+                            <Save />
+                          </button>
+                          <button
+                            onClick={handleCancel}
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                            aria-label="Cancelar edición"
                           >
-                            <MdCancel />
-                          </IconContext.Provider>
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setIsEditing(true)}
-                          className="h-8 w-8 flex items-center justify-center rounded-md border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                          aria-label="Editar observación"
-                        >
-                          <IconContext.Provider
-                            value={{ color: "#2563EB", size: "1.5em" }}
+                            <CircleX />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() =>
+                              handleEdit(dato.id_movimiento, dato.movimiento)
+                            }
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            aria-label="Editar observación"
                           >
-                            <MdEdit />
-                          </IconContext.Provider>
-                        </button>
-                        <button
-                          onClick={() => borrarMovimiento(dato.id_movimiento)}
-                          className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
-                          aria-label="Eliminar observación"
-                        >
-                          <IconContext.Provider
-                            value={{ color: "#E82561", size: "1.5em" }}
+                            <Pencil strokeWidth={2} />
+                          </button>
+                          <button
+                            onClick={() => borrarMovimiento(dato.id_movimiento)}
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                            aria-label="Eliminar observación"
                           >
-                            <CiTrash />
-                          </IconContext.Provider>
-                        </button>
-                      </div>
-                    )}
+                            <Trash strokeWidth={2} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div className="w-full flex justify-center items-center">
               {mostrarFormulario && (
