@@ -333,7 +333,7 @@ function TramiteCliente() {
         nombre: usuario,
         id_movimiento: id_movimiento,
       };
-  
+
       const result = await updateMovimiento(data); // Parsear la respuesta a JSON
 
       if (result.success) {
@@ -388,7 +388,7 @@ function TramiteCliente() {
   const idMovimientoSeleccionado = movimientoEncontrado
     ? movimientoEncontrado.id
     : null;
-  /*
+    
   useEffect(() => {
     const fetchData = async () => {
       const data = await obtenerTareas(idMovimientoSeleccionado);
@@ -403,7 +403,7 @@ function TramiteCliente() {
       setSeleccionadas(data);
     };
     fetchData();
-  }, [id]);*/
+  }, [id]);
 
   const [seleccionadas, setSeleccionadas] = useState([]);
 
@@ -803,10 +803,10 @@ function TramiteCliente() {
                         </p>
                         <InputPrima
                           value={formData.importe_total}
-                          onChange={(e) =>
+                          onChange={(value) =>
                             setFormData((prevState) => ({
                               ...prevState,
-                              importe_total: e.target.value,
+                              importe_total: value, // No convertir a 0, mantener el valor original
                             }))
                           }
                         />
@@ -846,7 +846,6 @@ function TramiteCliente() {
             )}
           </div>
         </form>
-        {/* 
         <div>
           <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
             <div className="space-y-4">
@@ -996,7 +995,7 @@ function TramiteCliente() {
               </div>
             </div>
           </div>
-        </div>*/}
+        </div>
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <p className="block text-xl font-medium text-teal-600">
             Observaciones

@@ -1,6 +1,4 @@
 import React, { PureComponent } from "react";
-
-import { Progress } from "@/components/ui/progress";
 import {
   LineChart,
   Line,

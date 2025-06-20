@@ -121,14 +121,14 @@ function VistaTramite() {
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     const data = {
-      id_tramite: selectedTramite
-    }
+      id_tramite: selectedTramite,
+    };
     try {
       const result = await deleteTramite(data); // Tu función existente
-      console.log(result)
+      console.log(result);
       toast.success("Trámite eliminado exitosamente");
       setShowDeleteModal(false);
-      navigate("/tramites")
+      navigate("/tramites");
       // Actualizar lista...
     } catch (error) {
       toast.error("Error al eliminar el trámite");
@@ -437,11 +437,11 @@ function VistaTramite() {
           </div>
         </div>
       </div>
-      {/*{tareas.length > 0 ? (
+      {tareas.length > 0 ? (
         <div className="bg-white rounded-xl shadow-md overflow-hidden mt-10 w-full">
           <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-primary">
-              Tareas del Trámite
+              Estado del Tramite
             </h2>
           </div>
           <div>
@@ -475,7 +475,7 @@ function VistaTramite() {
             ))}
           </div>
         </div>
-      ) : null}*/}
+      ) : null}
 
       {showDialog && (
         <CancelarComp

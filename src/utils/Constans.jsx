@@ -180,6 +180,8 @@ export const estatusTerminados = [
 
 export const movimientosPermitidos = [
   "AUMENTO",
+  "ANULACIÓN",
+  "CANCELACIÓN",
   "PRÓRROGA",
   "MOVIMIENTO ESPECIAL P-A",
   "SEGURO MAQUINARIA",
