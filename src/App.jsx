@@ -1,16 +1,16 @@
 import { Route, Routes } from "react-router-dom";
 import Login from "./views/Login";
 import Header from "./components/layout/Header";
-import Dashboard from "./views/Dashboard";
+import Dashboard from "./features/dashboard/pages/Dashboard";
 import ProtectedRoute from "./components/utils/ProtectedRoute";
 import NotFound from "./views/NotFound";
-import Tramites from "./views/Tramites";
-import Configuraciones from "./views/Configuraciones";
-import TramiteCliente from "./views/TramiteCliente";
-import VistaTramite from "./views/VistaTramite";
-import Rpp from "./views/Rpp";
-import Clientes from "./views/Clientes";
-import CatalogoRPP from "./views/CatalogoRPP";
+import Tramites from "./features/bitacora/pages/Tramites";
+import Configuraciones from "./features/dashboard/pages/Configuraciones";
+import TramiteCliente from "./features/bitacora/pages/TramiteCliente";
+import VistaTramite from "./features/bitacora/pages/VistaTramite";
+import Rpp from "./features/rpp/pages/Rpp";
+import Clientes from "./features/clientes/pages/Clientes";
+import CatalogoRPP from "./features/rpp/pages/CatalogoRPP";
 function App() {
   return (
     <div className="bg-background min-h-screen">
