@@ -68,7 +68,7 @@ export function InputPrima({ value, onChange, disabled, ...props }) {
         onChange={handleChange}
         onBlur={handleBlur}
         disabled={disabled}
-        className={`block w-full rounded-r-md border border-gray-200 px-3 py-2 text-sm text-right focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-primary ${
+        className={`block w-full rounded-r-md border border-gray-200 px-3 py-2 text-sm text-right focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-primary ${
           disabled ? 'bg-gray-100 cursor-not-allowed' : ''
         }`}
         {...props}

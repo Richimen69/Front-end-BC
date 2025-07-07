@@ -115,7 +115,7 @@ export default function TableTramites() {
               placeholder="Fianza"
               value={searchQueryFianza}
               onChange={(e) => setSearchQueryFianza(e.target.value)}
-              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function TableTramites() {
               placeholder="Nombre del fiado"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function TableTramites() {
             <select
               value={movimientoFiltro}
               onChange={(e) => setMovimientoFiltro(e.target.value)}
-              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+              className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
             >
               <option value="">Todos los movimientos</option>
               {movimientosDisponibles.map((movimiento) => (
@@ -153,7 +153,7 @@ export default function TableTramites() {
               <select
                 value={estatusFiltro}
                 onChange={(e) => setEstatusFiltro(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                className="w-full h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
               >
                 <option value="">Todos los estatus</option>
                 {estatusDisponibles.map((estatusOption) => (
@@ -166,7 +166,7 @@ export default function TableTramites() {
             </div>
 
             <button
-              className="h-10 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 whitespace-nowrap"
+              className="h-10 px-4 py-2 rounded-md bg-primary text-white text-sm font-medium hover:bg-green-700 focus:outline-hidden focus:ring-2 focus:ring-green-500 whitespace-nowrap"
               onClick={() => setIsFormVisible(true)}
             >
               Nuevo trámite

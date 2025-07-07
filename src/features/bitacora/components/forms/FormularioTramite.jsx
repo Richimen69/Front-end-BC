@@ -172,7 +172,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
 
   if (loading) {
     return (
-      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50  backdrop-blur-sm">
+      <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50  backdrop-blur-xs">
         <lottie-player
           autoplay
           loop
@@ -208,7 +208,7 @@ const FormularioTramite = ({ isVisible, onClose }) => {
                 }
               }}
               dateFormat="dd/MM/yyyy"
-              className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+              className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
             />
           </div>
           {/* Selector de Cliente */}

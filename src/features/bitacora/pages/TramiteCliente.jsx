@@ -434,7 +434,7 @@ function TramiteCliente() {
   return (
     <div className="flex items-center justify-center p-5">
       <div className="mx-auto max-w-5xl space-y-6">
-        <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
+        <div className="rounded-lg bg-white p-6 shadow-xs border-t-4 border-teal-500">
           <div className="flex justify-between">
             <div className="space-y-1">
               <div className=" flex items-center text-sm text-gray-500">
@@ -480,7 +480,7 @@ function TramiteCliente() {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="rounded-lg bg-white p-6 shadow-sm "
+          className="rounded-lg bg-white p-6 shadow-xs "
         >
           <div className="space-y-6">
             <div>
@@ -602,7 +602,7 @@ function TramiteCliente() {
                       fianza: e.target.value,
                     }))
                   }
-                  className="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div>
@@ -661,7 +661,7 @@ function TramiteCliente() {
                         }
                       }}
                       dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
-                      className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
                     />
                   </div>
                 </div>
@@ -696,7 +696,7 @@ function TramiteCliente() {
                             }
                           }}
                           dateFormat="dd/MM/yyyy" // Obliga a mostrar el formato correcto en el DatePicker.
-                          className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                          className=" block w-full rounded-md border border-gray-400 px-3 py-2 text-sm focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
                         />
                       </div>
                       <div>
@@ -846,7 +846,7 @@ function TramiteCliente() {
           </div>
         </form>
         <div>
-          <div className="rounded-lg bg-white p-6 shadow-sm border-t-4 border-teal-500">
+          <div className="rounded-lg bg-white p-6 shadow-xs border-t-4 border-teal-500">
             <div className="space-y-4">
               <div className="pb-3 border-b border-gray-100">
                 <p className="block text-xl font-medium text-teal-600">
@@ -892,7 +892,7 @@ function TramiteCliente() {
                         >
                           <button
                             onClick={() => toggleCheckbox(tarea.id)}
-                            className="mt-0.5 flex-shrink-0 focus:outline-none"
+                            className="mt-0.5 shrink-0 focus:outline-hidden"
                             aria-label={
                               completada
                                 ? "Marcar como incompleta"
@@ -944,7 +944,7 @@ function TramiteCliente() {
                         >
                           <button
                             onClick={() => toggleCheckbox(tarea.id)}
-                            className="mt-0.5 flex-shrink-0 focus:outline-none"
+                            className="mt-0.5 shrink-0 focus:outline-hidden"
                             aria-label={
                               completada
                                 ? "Marcar como incompleta"
@@ -995,7 +995,7 @@ function TramiteCliente() {
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-6 shadow-sm">
+        <div className="rounded-lg bg-white p-6 shadow-xs">
           <p className="block text-xl font-medium text-teal-600">
             Observaciones
           </p>
@@ -1039,13 +1039,13 @@ function TramiteCliente() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleSave(dato.id_movimiento)}
-                            className="h-8 w-8 flex items-center justify-center rounded-md border border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-green-200 text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
                           >
                             <Save />
                           </button>
                           <button
                             onClick={handleCancel}
-                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
                             aria-label="Cancelar edición"
                           >
                             <CircleX />
@@ -1057,14 +1057,14 @@ function TramiteCliente() {
                             onClick={() =>
                               handleEdit(dato.id_movimiento, dato.movimiento)
                             }
-                            className="h-8 w-8 flex items-center justify-center rounded-md border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                             aria-label="Editar observación"
                           >
                             <Pencil strokeWidth={2} />
                           </button>
                           <button
                             onClick={() => borrarMovimiento(dato.id_movimiento)}
-                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
+                            className="h-8 w-8 flex items-center justify-center rounded-md border border-rose-200 text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors duration-200 focus:outline-hidden focus:ring-2 focus:ring-rose-500 focus:ring-offset-1"
                             aria-label="Eliminar observación"
                           >
                             <Trash strokeWidth={2} />
@@ -1083,7 +1083,7 @@ function TramiteCliente() {
                   <div>
                     <textarea
                       type="text"
-                      className="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="mt-2 block w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-teal-500 focus:outline-hidden focus:ring-1 focus:ring-teal-500"
                       value={movimiento}
                       onChange={(e) => setMovimiento(e.target.value)}
                       placeholder="Observaciones"
@@ -1103,7 +1103,7 @@ function TramiteCliente() {
           </div>
           <div className="flex items-center justify-center p-5">
             <button
-              className="group cursor-pointer outline-none hover:rotate-90 duration-300"
+              className="group cursor-pointer outline-hidden hover:rotate-90 duration-300"
               title="Agregar movimiento"
               onClick={toggleFormulario}
             >

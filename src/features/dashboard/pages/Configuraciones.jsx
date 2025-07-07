@@ -47,14 +47,14 @@ export default function Configuraciones() {
   };
   return (
     <div className="p-6">
-      <div className="w-full p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="w-full p-6 bg-white rounded-xl shadow-xs border border-gray-200">
         <h1 className="text-2xl font-semibold mb-6 text-gray-800">
           Configuraciones
         </h1>
 
         <div className="mb-4">
           <div className="grid gap-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+            <div className="bg-linear-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                   <FileLock2 strokeWidth={1} />
@@ -71,7 +71,7 @@ export default function Configuraciones() {
                 return (
                   <div
                     key={`${item.nombre_afi}-${index}`}
-                    className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                    className="bg-white rounded-xl border border-gray-200 shadow-xs hover:shadow-lg transition-all duration-300 overflow-hidden group"
                   >
                     {/* Contenido de la tabla */}
                     <div className="p-6">
@@ -100,8 +100,8 @@ export default function Configuraciones() {
                             <tr className="hover:bg-gray-50 transition-colors">
                               <td className="px-6 py-4">
                                 <div className="flex items-center">
-                                  <div className="flex-shrink-0 h-10 w-10">
-                                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center">
+                                  <div className="shrink-0 h-10 w-10">
+                                    <div className="h-10 w-10 rounded-full bg-linear-to-r from-blue-400 to-blue-600 flex items-center justify-center">
                                       <span className="text-white font-medium text-sm">
                                         {item.nombre_afi.charAt(0)}
                                       </span>
@@ -121,7 +121,7 @@ export default function Configuraciones() {
                                       <span class="ml-2">$</span>
                                       <input
                                         required
-                                        className="bg-transparent text-black/60 px-3 py-1 rounded-l-lg focus:outline-none w-full"
+                                        className="bg-transparent text-black/60 px-3 py-1 rounded-l-lg focus:outline-hidden w-full"
                                         id="currency-input"
                                         name="text"
                                         type="text"

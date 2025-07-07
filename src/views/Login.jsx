@@ -3,7 +3,6 @@ import LogoPrincipal from "../assets/logos/LogoPrincipal.svg";
 import Next from "../assets/botones/next.svg";
 import LogoPrincipalBlanco from "../assets/logos/LogoPrincipalBlanco.png";
 import { useNavigate } from "react-router-dom";
-import { data } from "autoprefixer";
 function Login() {
   const [user, setUser] = useState("");
   const [password, setPassword] = useState("");
@@ -70,7 +69,7 @@ function Login() {
         <div>
           <p className="p-1 text-primary font-semibold">Usuario</p>
           <input
-            className="block px-6 py-3 text-base text-black bg-white border border-gray-200 rounded-[19px] appearance-none placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-primary w-[300px]"
+            className="block px-6 py-3 text-base text-black bg-white border border-gray-200 rounded-[19px] appearance-none placeholder:text-gray-400 focus:border-primary focus:outline-hidden focus:ring-primary w-[300px]"
             placeholder="Ingrese su usuario"
             type="text"
             value={user}
@@ -80,7 +79,7 @@ function Login() {
         <div>
           <p className="p-1 text-primary font-semibold">Contraseña</p>
           <input
-            className="block px-6 py-3 text-base text-black bg-white border border-gray-200 rounded-[19px] appearance-none placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-primary w-[300px]"
+            className="block px-6 py-3 text-base text-black bg-white border border-gray-200 rounded-[19px] appearance-none placeholder:text-gray-400 focus:border-primary focus:outline-hidden focus:ring-primary w-[300px]"
             placeholder="•••••••••"
             type="password"
             value={password}

@@ -88,7 +88,7 @@ export default function CancelarComp({ onClose, id_tramite }) {
                     }
                   }}
                   dateFormat="dd/MM/yyyy"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-sm text-gray-800 shadow-sm transition-all duration-150 focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-10 text-sm text-gray-800 shadow-xs transition-all duration-150 focus:border-gray-400 focus:outline-hidden focus:ring-2 focus:ring-gray-300 hover:shadow-md"
                 />
               </div>
             </div>

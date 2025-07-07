@@ -232,7 +232,7 @@ export default function TableRpp() {
           <div className="grid md:col-span-6 col-span-1">
             <div className="grid md:grid-cols-2 gap-2">
               <div className="grid col-span-1">
-                <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-gray-50 rounded-lg shadow-xs overflow-hidden">
                   <div className="flex items-center justify-between p-4 border-b">
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100">
@@ -290,7 +290,7 @@ export default function TableRpp() {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+              <div className="bg-gray-50 rounded-lg shadow-xs overflow-hidden">
                 <div className="flex items-center justify-between p-4 border-b">
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
@@ -330,7 +330,7 @@ export default function TableRpp() {
                     <select
                       id="tramite-select"
                       value={tramiteSeleccionado?.fecha_factura || ""}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       onChange={(e) => {
                         const fecha = e.target.value;
                         const tramite = facturasPagadas.find(
@@ -407,7 +407,7 @@ export default function TableRpp() {
             placeholder="Folio"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full pl-8 h-10 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary"
           />
           <div className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500">
             <IconContext.Provider

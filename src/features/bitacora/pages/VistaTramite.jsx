@@ -185,7 +185,7 @@ function VistaTramite() {
             </div>
           </div>
           <div>
-            <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+            <hr className="my-5 h-px border-t-0 bg-gray-300" />
           </div>
           <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
@@ -213,7 +213,7 @@ function VistaTramite() {
               </div>
             </div>
             <div>
-              <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+              <hr className="my-5 h-px border-t-0 bg-gray-300" />
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               <div className="space-y-2">
@@ -243,7 +243,7 @@ function VistaTramite() {
             </div>
             {clienteEncontrado.tiene_compromiso === "SI" ? (
               <div>
-                <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+                <hr className="my-5 h-px border-t-0 bg-gray-300" />
                 <div className="grid gap-6 md:grid-cols-3">
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">Compromiso</h3>
@@ -281,7 +281,7 @@ function VistaTramite() {
               </div>
             ) : clienteEncontrado.compromiso_terminado === "SI" ? (
               <div>
-                <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+                <hr className="my-5 h-px border-t-0 bg-gray-300" />
                 <div className="grid gap-6 md:grid-cols-3">
                   <div className="space-y-2">
                     <h3 className="font-semibold text-primary">Compromiso</h3>
@@ -308,7 +308,7 @@ function VistaTramite() {
                 </div>
               </div>
             ) : null}
-            <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+            <hr className="my-5 h-px border-t-0 bg-gray-300" />
             <div>
               {estatusTerminados.includes(clienteEncontrado.estatus) ? (
                 <div>
@@ -356,7 +356,7 @@ function VistaTramite() {
                     ) : null}
                   </div>
                   <div>
-                    <hr className="my-5 h-[1px] border-t-0 bg-gray-300" />
+                    <hr className="my-5 h-px border-t-0 bg-gray-300" />
                   </div>
                   <div className="grid gap-6 md:grid-cols-4 mt-5">
                     <div className="space-y-2">
@@ -449,7 +449,7 @@ function VistaTramite() {
               <div key={index} className="divide-y divide-gray-200 ">
                 <div className="">
                   <div className="flex flex-col md:flex-row md:items-center justify-between p-6">
-                    <div className="flex-grow">
+                    <div className="grow">
                       <h3 className="text-lg font-medium text-gray-900">
                         {dato.nombre}
                       </h3>
