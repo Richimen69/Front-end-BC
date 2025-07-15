@@ -828,7 +828,7 @@ export default function TableRpp() {
                 Asignar ({selected.length})
               </button>
             )}
-            {selected.every((item) => item.estatus === "EN REVISION") && (
+            {selected.every((item) => item.estatus === "EN REVISION" || item.estatus === "EN PROCESO") && (
               <button
                 className="fixed bottom-5 left-96 bg-primary text-white px-6 py-3 rounded-full shadow-lg hover:opacity-80"
                 onClick={() => {

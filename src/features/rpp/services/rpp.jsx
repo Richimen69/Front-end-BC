@@ -125,3 +125,10 @@ export const uploadArchivo = async (file) => {
     return { success: false, error: error.message };
   }
 };
+
+export const updateTramite = async (id_tramite) => {
+  return await fetchApi(`agentes.php`, {
+    method: "PUT",
+    body: JSON.stringify(id_tramite),
+  });
+};

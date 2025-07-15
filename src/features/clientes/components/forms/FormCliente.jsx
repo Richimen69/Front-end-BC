@@ -14,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { addCliente } from "@/features/rpp/services/clientes";
 export default function FormCliente({ onClose }) {
   const navigate = useNavigate();
 

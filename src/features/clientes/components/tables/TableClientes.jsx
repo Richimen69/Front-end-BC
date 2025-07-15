@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { obtenerClientes } from "@/features/rpp/services/clientes";
+import { obtenerClientes } from "../../services/clientes";
 import { Referidos } from "../modals/Referidos";
 import {
   X,
@@ -13,7 +13,6 @@ import {
   Calendar,
   UserCheck,
 } from "lucide-react";
-
 export default function TableClientes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [totalReferidos, setTotalReferidos] = useState(0);
@@ -119,14 +118,14 @@ export default function TableClientes() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          totalReferidos > 0
+                          cliente.total_referidos > 0
                             ? "bg-green-100 text-green-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
                         <UserCheck className="mr-1" size={14} />
-                        {totalReferidos} referido
-                        {totalReferidos !== 1 ? "s" : ""}
+                        {cliente.total_referidos} referido
+                        {cliente.total_referidos !== 1 ? "s" : ""}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

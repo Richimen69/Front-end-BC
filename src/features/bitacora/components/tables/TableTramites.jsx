@@ -34,13 +34,7 @@ export default function TableTramites() {
   const manejarOrdenPago = () => {
     setOrdenarPorPago(!ordenarPorPago);
   };
-  const datosFiltrados = ordenarPorPago
-    ? [...datos].sort((a, b) => {
-        const prioridadA = prioridadPago[a.pago] || 99;
-        const prioridadB = prioridadPago[b.pago] || 99;
-        return prioridadA - prioridadB;
-      })
-    : datos;
+
   // Consulta los clientes en el Backend
   useEffect(() => {
     localStorage.setItem("searchQuery", searchQuery);
