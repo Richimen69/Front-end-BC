@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 
 export default function Barra() {
-  const [primaTotales, setPrimaTotal] = useState("");
+  const [primaTotales, setPrimaTotal] = useState([]);
   const [afianzadoraMeta, setAfianzadoraMeta] = useState([]);
   const [afianzadoraFiltro, setAfianzadoraFiltro] = useState([]);
   const [date, setDate] = useState();

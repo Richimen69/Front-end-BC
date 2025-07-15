@@ -28,7 +28,10 @@ import {
   deleteMovimiento,
   updateMovimiento,
 } from "@/features/bitacora/services/movimientos";
-import { fetchAfianzadoras, fetchBeficiarios } from "@/features/bitacora/services/datosTramites";
+import {
+  fetchAfianzadoras,
+  fetchBeficiarios,
+} from "@/features/bitacora/services/datosTramites";
 import { PendientesBC } from "@/features/bitacora/components/modals/PendientesBC";
 function TramiteCliente() {
   const location = useLocation();
@@ -387,7 +390,7 @@ function TramiteCliente() {
   const idMovimientoSeleccionado = movimientoEncontrado
     ? movimientoEncontrado.id
     : null;
-    
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await obtenerTareas(idMovimientoSeleccionado);
@@ -878,119 +881,120 @@ function TramiteCliente() {
                     />
                   </div>
                 ) : null}
-                              {tareas.map((tarea) => {
+
+                {tareas.map((tarea, index) => {
                   const completada = seleccionadas.includes(tarea.id);
+                  const key = tarea.tarea_id ?? `tarea-${index}`;
+                  if (tarea.movimiento_id === 21) {
+                    return (
+                      <div
+                        key={key}
+                        className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                          completada ? "bg-gray-50" : ""
+                        }`}
+                      >
+                        <button
+                          onClick={() => toggleCheckbox(tarea.id)}
+                          className="mt-0.5 shrink-0 focus:outline-hidden"
+                          aria-label={
+                            completada
+                              ? "Marcar como incompleta"
+                              : "Marcar como completada"
+                          }
+                        >
+                          <div
+                            className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                              completada
+                                ? "border-teal-500 bg-teal-500"
+                                : "border-gray-300"
+                            }`}
+                          >
+                            {completada && (
+                              <svg
+                                className="w-3 h-3 text-white"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M5 12L10 17L19 8"
+                                  stroke="currentColor"
+                                  strokeWidth="3"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        </button>
+
+                        <span
+                          className={`text-sm ${
+                            completada
+                              ? "line-through text-gray-400"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {tarea.nombre}
+                        </span>
+                      </div>
+                    );
+                  }
 
                   return (
-                    <div>
-                      {tarea.movimiento_id === 21 ? (
+                    <div
+                      key={key}
+                      className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
+                        completada ? "bg-gray-50" : ""
+                      }`}
+                    >
+                      <button
+                        onClick={() => toggleCheckbox(tarea.id)}
+                        className="mt-0.5 shrink-0 focus:outline-hidden"
+                        aria-label={
+                          completada
+                            ? "Marcar como incompleta"
+                            : "Marcar como completada"
+                        }
+                      >
                         <div
-                          key={tarea.tarea_id}
-                          className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
-                            completada ? "bg-gray-50" : ""
+                          className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                            completada
+                              ? "border-teal-500 bg-teal-500"
+                              : "border-gray-300"
                           }`}
                         >
-                          <button
-                            onClick={() => toggleCheckbox(tarea.id)}
-                            className="mt-0.5 shrink-0 focus:outline-hidden"
-                            aria-label={
-                              completada
-                                ? "Marcar como incompleta"
-                                : "Marcar como completada"
-                            }
-                          >
-                            <div
-                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                                completada
-                                  ? "border-teal-500 bg-teal-500"
-                                  : "border-gray-300"
-                              }`}
+                          {completada && (
+                            <svg
+                              className="w-3 h-3 text-white"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
                             >
-                              {completada && (
-                                <svg
-                                  className="w-3 h-3 text-white"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M5 12L10 17L19 8"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              )}
-                            </div>
-                          </button>
-
-                          <span
-                            className={`text-sm ${
-                              completada
-                                ? "line-through text-gray-400"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {tarea.nombre}
-                          </span>
+                              <path
+                                d="M5 12L10 17L19 8"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          )}
                         </div>
-                      ) : (
-                        <div
-                          key={tarea.tarea_id}
-                          className={`flex items-start gap-3 p-2 rounded-md transition-colors ${
-                            completada ? "bg-gray-50" : ""
-                          }`}
-                        >
-                          <button
-                            onClick={() => toggleCheckbox(tarea.id)}
-                            className="mt-0.5 shrink-0 focus:outline-hidden"
-                            aria-label={
-                              completada
-                                ? "Marcar como incompleta"
-                                : "Marcar como completada"
-                            }
-                          >
-                            <div
-                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                                completada
-                                  ? "border-teal-500 bg-teal-500"
-                                  : "border-gray-300"
-                              }`}
-                            >
-                              {completada && (
-                                <svg
-                                  className="w-3 h-3 text-white"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <path
-                                    d="M5 12L10 17L19 8"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              )}
-                            </div>
-                          </button>
+                      </button>
 
-                          <span
-                            className={`text-sm ${
-                              completada
-                                ? "line-through text-gray-400"
-                                : "text-gray-700"
-                            }`}
-                          >
-                            {tarea.nombre}
-                          </span>
-                        </div>
-                      )}
+                      <span
+                        className={`text-sm ${
+                          completada
+                            ? "line-through text-gray-400"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {tarea.nombre}
+                      </span>
                     </div>
                   );
-                })} 
+                })}
               </div>
             </div>
           </div>

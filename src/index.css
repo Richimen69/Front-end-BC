@@ -54,3 +54,6 @@ input[type="number"] {
     --radius: 0.5rem;
   }
 }
+button {
+  cursor: pointer;
+}

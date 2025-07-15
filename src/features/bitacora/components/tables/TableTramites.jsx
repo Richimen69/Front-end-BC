@@ -1,11 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import FormularioTramite from "@/features/bitacora/components/forms/FormularioTramite";
-import {
-  movimientos,
-  estatus,
-  statusStyles,
-} from "@/shared/utils/Constans";
+import { movimientos, estatus, statusStyles } from "@/shared/utils/Constans";
 import { Toaster } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { FiChevronDown } from "react-icons/fi";
@@ -30,7 +26,21 @@ export default function TableTramites() {
   const navigate = useNavigate();
   const [estatusDisponibles, setEstatusDisponibles] = useState([]);
   const [movimientosDisponibles, setMovimientosDisponibles] = useState([]);
-
+  const [ordenarPorPago, setOrdenarPorPago] = useState(false);
+  const prioridadPago = {
+    PENDIENTE: 1,
+    "NO PAGADA": 2,
+  };
+  const manejarOrdenPago = () => {
+    setOrdenarPorPago(!ordenarPorPago);
+  };
+  const datosFiltrados = ordenarPorPago
+    ? [...datos].sort((a, b) => {
+        const prioridadA = prioridadPago[a.pago] || 99;
+        const prioridadB = prioridadPago[b.pago] || 99;
+        return prioridadA - prioridadB;
+      })
+    : datos;
   // Consulta los clientes en el Backend
   useEffect(() => {
     localStorage.setItem("searchQuery", searchQuery);
@@ -38,7 +48,13 @@ export default function TableTramites() {
     localStorage.setItem("movimientoFiltro", movimientoFiltro);
     localStorage.setItem("estatusFiltro", estatusFiltro);
   }, [searchQuery, searchQueryFianza, movimientoFiltro, estatusFiltro]);
-
+  const manejarOrdenamiento = (columna) => {
+    setOrdenamiento((prev) => ({
+      columna,
+      direccion:
+        prev.columna === columna && prev.direccion === "asc" ? "desc" : "asc",
+    }));
+  };
   useEffect(() => {
     const fetchClientes = async () => {
       try {
@@ -204,8 +220,11 @@ export default function TableTramites() {
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   Responsable
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">
-                  Pago
+                <th
+                  onClick={manejarOrdenPago}
+                  className="px-4 py-3 text-left font-medium text-gray-600 cursor-pointer"
+                >
+                  Pago {ordenarPorPago && <span>🔽</span>}
                 </th>
               </tr>
             </thead>
